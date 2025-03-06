@@ -32,6 +32,10 @@ jobs:
     - name: "Get Version"
       run: echo "VERSION=$(echo $(cat app/build.gradle.kts | grep versionName | cut -d "=" -f 2 | sed "s/\"//g"))" >> $GITHUB_ENV
 
+    - name: "List files"
+      run: |
+        ls -la app/src/main/assets
+
     - name: "Create Release"
       uses: softprops/action-gh-release@v2
       with:
