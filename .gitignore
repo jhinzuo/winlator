@@ -7,7 +7,3 @@
 /captures
 .externalNativeBuild
 .cxx
-app/src/main/assets/imagefs.txz
-app/src/main/assets/imagefs_patches.tzst
-app/src/main/assets/container_pattern.tzst
-app/src/main/assets/container_pattern_bionic.tzst
