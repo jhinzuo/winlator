@@ -2,6 +2,7 @@ package com.winlator.widget;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.os.Build;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -10,14 +11,19 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
+
 import com.winlator.R;
 
 import com.winlator.core.FileUtils;
 import com.winlator.core.GPUInformation;
 import com.winlator.core.StringUtils;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Locale;
 import org.json.JSONException;
@@ -85,11 +91,12 @@ public class FrameRating extends FrameLayout implements Runnable {
             boardName = (String)Class.forName("android.os.SystemProperties").getMethod("get", String.class).invoke(null, "ro.board.platform");
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
+            Log.d("FrameRating", "Couldn't query board name, setting to generic board");
+            boardName = "generic";
         }
         return boardName;
     }
-    
+
     private String getSOCName(Context context) {
         String socName = "";
         InputStream is = null;
@@ -97,14 +104,21 @@ public class FrameRating extends FrameLayout implements Runnable {
         try {
             is = context.getAssets().open("cpu_database.json");
             if (is != null) {
-                String jsonString = new String(is.readAllBytes());
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                String line;
+                StringBuilder sb = new StringBuilder();
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+                String jsonString = new String(sb.toString());
                 JSONObject jobj = new JSONObject(jsonString);
                 JSONObject board = (JSONObject)jobj.get(getBoardName());
                 socName = board.getString("SoC");
             }
         }
         catch (IOException | JSONException e) {
-            throw new RuntimeException(e);
+            Log.d("FrameRating", "Couldn't query SoC, defaulting to generic SoC");
+            socName = "Generic Android AARCH64 CPU";
         }
         
         return socName;

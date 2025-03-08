@@ -549,7 +549,7 @@
   },
   "sun":{
     "CPU":"2x Oryon @ 4.5GHz 6x Oryon @ 3.5GHz",
-    "SoC":"Snapdragon 9 Elite (SM8750)"
+    "SoC":"Snapdragon 8 Elite (SM8750)"
   },
   "ums512_25c10": {
     "CPU":"2 Cortex-A75 @2GHz 6x Cortex-A55 @ 2 GHz",
@@ -766,5 +766,9 @@
   "a12":{
     "CPU":"4x Cortex-A53 @ 2.35GHz 4x Cortex-A53 @ 1.8GHz",
     "SoC":"MediaTek Helio P35 (MT6765)"
+  },
+  "generic":{
+    "CPU":"Unknown",
+    "SoC":"Generic Android AARCH64 CPU"
   }
 }

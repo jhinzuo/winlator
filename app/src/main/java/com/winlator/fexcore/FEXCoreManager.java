@@ -38,26 +38,28 @@ public final class FEXCoreManager {
     
     private static String presetFromTSOValues(String tsoEnabled, String vectorTSOEnabled, String memcpySetTSOEnabled, String halfbarrierTSOEnabled) {
         String ret;
-        
-        if (halfbarrierTSOEnabled.equals("1")) {
-            if (vectorTSOEnabled.equals("1")) 
+
+        if (tsoEnabled.equals("1")) {
+            if (halfbarrierTSOEnabled.equals("1"))
+                ret = "Fast";
+            else if(vectorTSOEnabled.equals("1") && memcpySetTSOEnabled.equals("1"))
                 ret = "Slow";
             else
-                ret = "Fast";
+                ret = "Fastest";
         }
-        else 
+        else
             ret = "Disabled";
-        
+
         return ret;
     }
     
     private static void writeToConfigFile(String tsoPreset, String mblockValue, String x87ModePreset) {
-        String tsoEnabled = "0";
-        String X87ReducedPrecisionValue = "1";
-        String vectorTSOEnabled = "0";
-        String multiblockValue = "1";
-        String memcpysetTSOEnabled = "0";
-        String halfbarrierTSOEnabled = "0";
+        String tsoEnabled = "";
+        String X87ReducedPrecisionValue = "" ;
+        String vectorTSOEnabled = "";
+        String multiblockValue = "";
+        String memcpysetTSOEnabled = "";
+        String halfbarrierTSOEnabled = "";
         
         switch (tsoPreset) {
             case "Disabled":
@@ -65,9 +67,14 @@ public final class FEXCoreManager {
                 vectorTSOEnabled = "0";
                 memcpysetTSOEnabled = "0";
                 halfbarrierTSOEnabled = "0";
+            case "Fastest":
+                tsoEnabled = "1";
+                vectorTSOEnabled = "0";
+                memcpysetTSOEnabled = "0";
+                halfbarrierTSOEnabled = "0";
                 break;
             case "Fast":
-                tsoEnabled = "0";
+                tsoEnabled = "1";
                 vectorTSOEnabled = "0";
                 memcpysetTSOEnabled = "0";
                 halfbarrierTSOEnabled = "1";
@@ -76,7 +83,9 @@ public final class FEXCoreManager {
                 tsoEnabled = "1";
                 vectorTSOEnabled = "1";
                 memcpysetTSOEnabled = "1";
-                halfbarrierTSOEnabled = "1";
+                halfbarrierTSOEnabled = "0";
+                break;
+            default:
                 break;
         }
         
@@ -133,9 +142,9 @@ public final class FEXCoreManager {
     }
     
    private static void setFromDefaults(Spinner tsoModeSpinner, Spinner x87modeSpinner, Spinner multiBlockSpinner) {
-       selectSpinnerItemByValue(tsoModeSpinner, tsoPresets, "Disabled");
+       selectSpinnerItemByValue(tsoModeSpinner, tsoPresets, "Fastest");
        selectSpinnerItemByValue(x87modeSpinner, x87modePresets, "Fast");
-       selectSpinnerItemByValue(multiBlockSpinner, multiblockValues, "Enabled");
+       selectSpinnerItemByValue(multiBlockSpinner, multiblockValues, "Disabled");
    }
     
    private static void selectSpinnerItemByValue(Spinner spnr, List<String> values, String value) {

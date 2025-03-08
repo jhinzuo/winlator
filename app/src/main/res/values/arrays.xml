@@ -288,6 +288,7 @@
     </string-array>
     <string-array name="fexcore_preset_entries">
         <item>Disabled</item>
+        <item>Fastest</item>
         <item>Fast</item>
         <item>Slow</item>
     </string-array>
