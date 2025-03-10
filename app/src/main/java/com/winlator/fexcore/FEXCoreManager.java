@@ -67,6 +67,7 @@ public final class FEXCoreManager {
                 vectorTSOEnabled = "0";
                 memcpysetTSOEnabled = "0";
                 halfbarrierTSOEnabled = "0";
+                break;
             case "Fastest":
                 tsoEnabled = "1";
                 vectorTSOEnabled = "0";
