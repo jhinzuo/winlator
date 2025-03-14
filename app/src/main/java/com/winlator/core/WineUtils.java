@@ -192,18 +192,6 @@ public abstract class WineUtils {
 
             setWindowMetrics(registryEditor);
         }
-
-        File wineSystem32Dir = new File(rootDir, "/opt/wine/lib/wine/x86_64-windows");
-        File wineSysWoW64Dir = new File(rootDir, "/opt/wine/lib/wine/i386-windows");
-        File containerSystem32Dir = new File(rootDir, ImageFs.WINEPREFIX+"/drive_c/windows/system32");
-        File containerSysWoW64Dir = new File(rootDir, ImageFs.WINEPREFIX+"/drive_c/windows/syswow64");
-
-        final String[] dlnames = {"user32.dll", "shell32.dll", "dinput.dll", "dinput8.dll", "xinput1_1.dll", "xinput1_2.dll", "xinput1_3.dll", "xinput1_4.dll", "xinput9_1_0.dll", "xinputuap.dll", "winemenubuilder.exe", "explorer.exe"};
-        boolean win64 = wineInfo.isWin64();
-        for (String dlname : dlnames) {
-            FileUtils.copy(new File(wineSysWoW64Dir, dlname), new File(win64 ? containerSysWoW64Dir : containerSystem32Dir, dlname));
-            if (win64) FileUtils.copy(new File(wineSystem32Dir, dlname), new File(containerSystem32Dir, dlname));
-        }
     }
 
     public static void overrideWinComponentDlls(Context context, Container container, String wincomponents) {

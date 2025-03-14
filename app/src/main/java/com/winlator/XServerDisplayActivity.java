@@ -2875,11 +2875,15 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
         File system32dlls = null;
         File syswow64dlls = null;
         
-        if (container.isBionic()) 
+        if (container.isBionic()) {
             system32dlls = new File(rootDir, "opt/wine.bionic/lib/wine/aarch64-windows");
-        else
-            system32dlls = new File(rootDir, "opt/wine.bionic/lib/wine/x86_64-windows");
-        syswow64dlls = new File(rootDir, "opt/wine.glibc/lib/wine/i386-windows");
+            syswow64dlls = new File(rootDir, "opt/wine.bionic/lib/wine/i386-windows");
+        }
+        else {
+            system32dlls = new File(rootDir, "opt/wine.glibc/lib/wine/x86_64-windows");
+            syswow64dlls = new File(rootDir, "opt/wine.glibc/lib/wine/i386-windows");
+        }
+
         int filesCopied = 0;
         
         for (String dll : dlls) {
@@ -2894,7 +2898,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
          }
         
          if (filesCopied == dlls.length) return;
-        
+
          containerManager.extractContainerPatternFile(container, container.getWineVersion(), container.getRootDir(), (file, size) -> {
              String path = file.getPath();
              if (path.contains("system32/") || path.contains("syswow64/")) {
@@ -2904,6 +2908,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
              }
              return null;
          });
+
          cloneOriginalDllFiles(dlls);
    }
     
