@@ -94,6 +94,8 @@ public class ContainerDetailFragment extends Fragment {
     private String turnipGraphicsDriverVersion = "";
     private String wrapperGraphicsDriverVersion = "";
 
+    private boolean isBionic;
+
     private String tempGraphicsDriverVersion; // Temporary storage for the graphics driver version
 
     private static boolean isDarkMode;
@@ -505,12 +507,21 @@ public class ContainerDetailFragment extends Fragment {
         
         if (!swBionicContainer.isChecked()) {
             // Remove wrapper from graphics driver entries.
+            isBionic = false;
+            String selectedDriver = sGraphicsDriver.getSelectedItem().toString();
             List<String> sGraphicsItemsList = new ArrayList<>(Arrays.asList(context.getResources().getStringArray(R.array.graphics_driver_entries)));
             sGraphicsItemsList.remove("Wrapper");
             sGraphicsDriver.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, sGraphicsItemsList));
+            AppUtils.setSpinnerSelectionFromValue(sGraphicsDriver, selectedDriver);
             fexcoreFL.setVisibility(View.GONE);
         }
         else {
+            isBionic = true;
+            String selectedDriver = sGraphicsDriver.getSelectedItem().toString();
+            List<String> sGraphicsItemsList = new ArrayList<>(Arrays.asList(context.getResources().getStringArray(R.array.graphics_driver_entries)));
+            sGraphicsItemsList.remove("VirGL");
+            sGraphicsDriver.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, sGraphicsItemsList));
+            AppUtils.setSpinnerSelectionFromValue(sGraphicsDriver, selectedDriver);
             boxFL.setVisibility(View.GONE);
             fexcoreFL.setVisibility(View.VISIBLE);
         }
@@ -525,11 +536,15 @@ public class ContainerDetailFragment extends Fragment {
                 boxFL.setVisibility(View.GONE);
                     
                 // Enable fexcore section
-                fexcoreFL.setVisibility(View.VISIBLE);     
-                    
-                // Readd wrapper to graphics driver entries    
+                fexcoreFL.setVisibility(View.VISIBLE);
+
+                // Readd wrapper to graphics driver entries and remove virgl
+                String selectedDriver = sGraphicsDriver.getSelectedItem().toString();
                 List<String> sGraphicsItemsList = new ArrayList<>(Arrays.asList(context.getResources().getStringArray(R.array.graphics_driver_entries)));
-                sGraphicsDriver.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, sGraphicsItemsList));   
+                sGraphicsItemsList.remove("VirGL");
+                sGraphicsDriver.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, sGraphicsItemsList));
+                AppUtils.setSpinnerSelectionFromValue(sGraphicsDriver, selectedDriver);
+                isBionic = true;
             } else {
                 // Enable Wine version
                 sWineVersion.setEnabled(true);
@@ -540,10 +555,13 @@ public class ContainerDetailFragment extends Fragment {
                 // Disable fexcore section
                 fexcoreFL.setVisibility(View.GONE);     
                     
-                // Remove wrapper from graphics driver entries    
+                // Remove wrapper from graphics driver entries
+                String selectedDriver = sGraphicsDriver.getSelectedItem().toString();
                 List<String> sGraphicsItemsList = new ArrayList<>(Arrays.asList(context.getResources().getStringArray(R.array.graphics_driver_entries)));
                 sGraphicsItemsList.remove("Wrapper");
                 sGraphicsDriver.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, sGraphicsItemsList));
+                AppUtils.setSpinnerSelectionFromValue(sGraphicsDriver, selectedDriver);
+                isBionic = false;
             }
         });
 
@@ -597,8 +615,13 @@ public class ContainerDetailFragment extends Fragment {
                 String screenSize = getScreenSize(view);
                 String envVars = envVarsView.getEnvVars();
                 String graphicsDriver = StringUtils.parseIdentifier(sGraphicsDriver.getSelectedItem());
-                String turnipGraphicsDriverVersion = (this.turnipGraphicsDriverVersion != "") ? this.turnipGraphicsDriverVersion : DefaultVersion.TURNIP; // Use the selected version or default
-                String wrapperGraphicsDriverVersion = (this.wrapperGraphicsDriverVersion != "") ? this.wrapperGraphicsDriverVersion : DefaultVersion.WRAPPER; // Use the selected version or default
+                if (isBionic) {
+                    String turnipGraphicsDriverVersion = (this.turnipGraphicsDriverVersion != "") ? this.turnipGraphicsDriverVersion : DefaultVersion.TURNIP_BIONIC;
+                } else {
+                    String turnipGraphicsDriverVersion = (this.turnipGraphicsDriverVersion != "") ? this.turnipGraphicsDriverVersion : DefaultVersion.TURNIP_GLIBC;
+                }
+
+                String wrapperGraphicsDriverVersion = (this.wrapperGraphicsDriverVersion != "") ? this.wrapperGraphicsDriverVersion : DefaultVersion.WRAPPER;
                 String dxwrapper = StringUtils.parseIdentifier(sDXWrapper.getSelectedItem());
                 String dxwrapperConfig = vDXWrapperConfig.getTag().toString();
                 String audioDriver = StringUtils.parseIdentifier(sAudioDriver.getSelectedItem());
@@ -932,13 +955,19 @@ public class ContainerDetailFragment extends Fragment {
 
     private void showGraphicsDriverConfigDialog(View anchor, String graphicsDriver) {
         String graphicsDriverVersion;
-        if (graphicsDriver.contains("turnip"))
-            graphicsDriverVersion = (turnipGraphicsDriverVersion != "") ? turnipGraphicsDriverVersion : DefaultVersion.TURNIP;
+        if (graphicsDriver.contains("turnip")) {
+            if (isBionic) {
+                graphicsDriverVersion = (turnipGraphicsDriverVersion != "") ? turnipGraphicsDriverVersion : DefaultVersion.TURNIP_BIONIC;
+            }
+            else {
+                graphicsDriverVersion = (turnipGraphicsDriverVersion != "") ? turnipGraphicsDriverVersion : DefaultVersion.TURNIP_GLIBC;
+            }
+        }
         else
             graphicsDriverVersion = (wrapperGraphicsDriverVersion != "") ? wrapperGraphicsDriverVersion : DefaultVersion.WRAPPER;
              
         // Create a new GraphicsDriverConfigDialog
-        new GraphicsDriverConfigDialog(anchor, graphicsDriverVersion, graphicsDriver, manager,  (version) -> {
+        new GraphicsDriverConfigDialog(anchor, graphicsDriverVersion, graphicsDriver, isBionic,  (version) -> {
             // Update the fragment-level variable with the selected version
             if (graphicsDriver.contains("turnip"))    
                 turnipGraphicsDriverVersion = version;

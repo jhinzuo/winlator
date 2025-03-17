@@ -2276,11 +2276,10 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
                selectedDriverVersion = currentWrapperVersion;
         }
 
-        if (container.isBionic() && graphicsDriver.equals("turnip") && !selectedDriverVersion.equals(DefaultVersion.BIONIC)) {
+        if (container.isBionic() && graphicsDriver.equals("turnip") && !selectedDriverVersion.equals(DefaultVersion.TURNIP_BIONIC)) {
             // Ensure Toast is run on the UI thread
             runOnUiThread(() -> Toast.makeText(this, R.string.switching_turnip, Toast.LENGTH_SHORT).show());
-
-            selectedDriverVersion = DefaultVersion.BIONIC;
+            selectedDriverVersion = DefaultVersion.TURNIP_BIONIC;
         }
 
         // Adjust cacheId based on the graphics driver and version
@@ -2486,7 +2485,10 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
 
     private String createCacheIdForDriver(String driver) {
         if (driver.equals("turnip")) {
-            return driver + "-" + DefaultVersion.TURNIP + "-" + DefaultVersion.ZINK;
+            if (container.isBionic())
+                return driver + "-" + DefaultVersion.TURNIP_BIONIC + "-" + DefaultVersion.ZINK;
+            else
+                return driver + "-" + DefaultVersion.TURNIP_GLIBC + "-" + DefaultVersion.ZINK;
         } else if (driver.equals("virgl")) {
             return driver + "-" + DefaultVersion.VIRGL;
         }
@@ -2528,7 +2530,11 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
     }
 
     private void extractTurnipDriverFiles(File rootDir) {
-        TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "graphics_driver/turnip-" + DefaultVersion.TURNIP + ".tzst", rootDir);
+        if (container.isBionic())
+            TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "graphics_driver/turnip-" + DefaultVersion.TURNIP_BIONIC + ".tzst", rootDir);
+        else
+            TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "graphics_driver/turnip-" + DefaultVersion.TURNIP_GLIBC + ".tzst", rootDir);
+
         TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "graphics_driver/zink-" + DefaultVersion.ZINK + ".tzst", rootDir);
     }
 
