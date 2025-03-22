@@ -336,6 +336,10 @@ public class Container {
         return new File(rootDir, ".wine/drive_c/users/steamuser/Desktop/");
     }
 
+    public File getProtonShortcutsDir() {
+        return new File(rootDir, ".wine/drive_c/proton_shortcuts/");
+    }
+
     public File getStartMenuDir() {
         return new File(rootDir, ".wine/drive_c/ProgramData/Microsoft/Windows/Start Menu/");
     }

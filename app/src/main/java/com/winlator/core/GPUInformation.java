@@ -88,25 +88,13 @@ public abstract class GPUInformation {
         return gpuInfo.get("renderer");
     }
 
-    public static String getVendor(Context context) {
-        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String value = preferences.getString("gpu_vendor", "");
-        if (!value.isEmpty()) return value;
-
-        ArrayMap<String, String> gpuInfo = loadGPUInformation(context);
-        return gpuInfo.get("vendor");
-    }
-
-    public static String getVersion(Context context) {
-        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String value = preferences.getString("gpu_version", "");
-        if (!value.isEmpty()) return value;
-
-        ArrayMap<String, String> gpuInfo = loadGPUInformation(context);
-        return gpuInfo.get("version");
-    }
-
     public static boolean isAdreno6xx(Context context) {
         return getRenderer(context).toLowerCase(Locale.ENGLISH).matches(".*adreno[^6]+6[0-9]{2}.*");
+    }
+
+    public native static String getDriverVersion();
+
+    static {
+        System.loadLibrary("winlator");
     }
 }

@@ -1937,7 +1937,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
 
 
         if (container != null && container.isShowFPS()) {
-            frameRating = new FrameRating(this);
+            frameRating = new FrameRating(this, container);
             envVars.put("ENABLE_UTIL_LAYER", "1");
             frameRating.setVisibility(View.GONE);
             rootView.addView(frameRating);
@@ -2964,8 +2964,6 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
 
                 args += "/dir " + StringUtils.escapeDOSPath(exeDir) + " \"" + filename + "\"" + execArgs;
             }
-        } else {
-            args += "\"wfm.exe\"";
         }
 
         // Append EXTRA_EXEC_ARGS from overrideEnvVars if it exists

@@ -24,6 +24,7 @@ add_library(winlator SHARED
         winlator/xconnector_epoll.c
         winlator/alsa_client.c
         winlator/patchelf_wrapper.cpp
+        winlator/vulkan.cpp
 )
 
 # Link Termux-X11 libraries to Winlator

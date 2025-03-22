@@ -15,6 +15,7 @@ import androidx.annotation.RequiresApi;
 
 import com.winlator.R;
 
+import com.winlator.container.Container;
 import com.winlator.core.FileUtils;
 import com.winlator.core.GPUInformation;
 import com.winlator.core.StringUtils;
@@ -43,16 +44,17 @@ public class FrameRating extends FrameLayout implements Runnable {
     private final TextView tvCPU;
     private final TextView tvGPU;
     private final TextView tvRAM;
+    private final TextView tvContainer;
 
-    public FrameRating(Context context) {
-        this(context, null);
+    public FrameRating(Context context, Container container) {
+        this(context, container, null);
     }
 
-    public FrameRating(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+    public FrameRating(Context context, Container container, AttributeSet attrs) {
+        this(context, container, attrs, 0);
     }
 
-    public FrameRating(Context context, AttributeSet attrs, int defStyleAttr) {
+    public FrameRating(Context context, Container container, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         this.context = context;
         View view = LayoutInflater.from(context).inflate(R.layout.frame_rating, this, false);
@@ -63,6 +65,11 @@ public class FrameRating extends FrameLayout implements Runnable {
         tvGPU = view.findViewById(R.id.TVGPU);
         tvRAM = view.findViewById(R.id.TVRAM);
         totalRAM = getTotalRAM();
+        tvContainer = view.findViewById(R.id.TVContainer);
+        if (container.isBionic())
+            tvContainer.setText("Bionic");
+        else
+            tvContainer.setText("Glibc");
         appInfo = new File(context.getFilesDir(), "imagefs/tmp/app_info.txt");
         if (appInfo.exists()) appInfo.delete();
         addView(view);

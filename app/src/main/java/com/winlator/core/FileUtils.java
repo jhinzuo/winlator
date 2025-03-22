@@ -569,4 +569,15 @@ public abstract class FileUtils {
         }
     }
 
+    public static boolean writeToBinaryFile(String filename, int position, int data) {
+        try (RandomAccessFile file = new RandomAccessFile(filename, "rw")) {
+           file.seek(position);
+           file.write(data);
+           return true;
+        } catch (IOException e) {
+            Log.e(TAG, "Failed to write data " + data + " at " + position + " to " + filename);
+            return false;
+        }
+    }
+
 }
