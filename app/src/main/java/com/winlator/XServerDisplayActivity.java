@@ -429,7 +429,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
             }
 
             // Initialize Win32AppWorkarounds
-//            win32AppWorkarounds = new Win32AppWorkarounds(this);
+            win32AppWorkarounds = new Win32AppWorkarounds(this);
 
             // Determine the class name for the startup workarounds
             String wmClass = shortcut != null ? shortcut.getExtra("wmClass", "") : "";
@@ -437,7 +437,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
 
             if (!wmClass.isEmpty()) {
                 // Apply startup workarounds based on wmClass
-//                win32AppWorkarounds.applyStartupWorkarounds(wmClass);
+                win32AppWorkarounds.applyStartupWorkarounds(wmClass);
             } else {
                 // Fallback: Use the executable name for workarounds
                 String execPath = getIntent().getStringExtra("exec_path");
@@ -447,7 +447,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
                     String execName = FileUtils.getName(execPath);
                     Log.d("XServerDisplayActivity", "Startup execName: " + execName);
 
-//                    win32AppWorkarounds.applyStartupWorkarounds(execName);
+                    win32AppWorkarounds.applyStartupWorkarounds(execName);
                 } else {
                     Log.w("XServerDisplayActivity", "No wmClass or execPath provided for startup workarounds.");
                 }
@@ -2333,7 +2333,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
 
             
             
-            if (!GPUInformation.isAdreno6xx(this)) {
+            if (!GPUInformation.isAdreno6xx()) {
                 EnvVars userEnvVars = new EnvVars(container.getEnvVars());
                 String tuDebug = userEnvVars.get("TU_DEBUG");
                 if (!tuDebug.contains("sysmem"))
@@ -2513,7 +2513,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
         if (!envVars.has("MESA_VK_WSI_PRESENT_MODE")) envVars.put("MESA_VK_WSI_PRESENT_MODE", "mailbox");
         envVars.put("vblank_mode", "0");
 
-        if (!GPUInformation.isAdreno6xx(this)) {
+        if (!GPUInformation.isAdreno6xx()) {
             EnvVars userEnvVars = new EnvVars(container.getEnvVars());
             String tuDebug = userEnvVars.get("TU_DEBUG");
             if (!tuDebug.contains("sysmem")) {
@@ -2970,6 +2970,8 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
         if (envVars.has("EXTRA_EXEC_ARGS")) {
             args += " " + envVars.get("EXTRA_EXEC_ARGS");
             envVars.remove("EXTRA_EXEC_ARGS"); // Remove the key after use
+        } else {
+            args += "\"wfm.exe\"";
         }
 
         // Construct the final command
@@ -3026,7 +3028,6 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
 
     private void applyGeneralPatches(Container container) {
         File rootDir = imageFs.getRootDir();
-        FileUtils.delete(new File(rootDir, "/opt/apps"));
         TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "imagefs_patches.tzst", rootDir, onExtractFileListener);
         TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "pulseaudio.tzst", new File(getFilesDir(), "pulseaudio"));
         WineUtils.applySystemTweaks(this, wineInfo);

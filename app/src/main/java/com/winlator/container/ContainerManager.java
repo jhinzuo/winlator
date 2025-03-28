@@ -209,14 +209,11 @@ public class ContainerManager {
         for (Container container : containers) {
             File desktopDir = container.getDesktopDir();
             File steamUserDesktopDir = container.getSteamUserDesktopDir();
-            File protonShortcutsDir = container.getProtonShortcutsDir();
             ArrayList<File> files = new ArrayList<>();
             if (desktopDir.exists())
                 files.addAll(Arrays.asList(desktopDir.listFiles()));
             if (steamUserDesktopDir.exists())
                 files.addAll(Arrays.asList(steamUserDesktopDir.listFiles()));
-            if (protonShortcutsDir.exists())
-                files.addAll(Arrays.asList(protonShortcutsDir.listFiles()));
             if (files != null) {
                 for (File file : files) {
                     if (file.getName().endsWith(".desktop")) shortcuts.add(new Shortcut(container, file));

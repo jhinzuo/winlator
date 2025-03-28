@@ -84,7 +84,7 @@ public class FrameRating extends FrameLayout implements Runnable {
     }
     
     private String getGPUName() {
-        String gpuName = GPUInformation.getRenderer(context);
+        String gpuName = GPUInformation.getRenderer();
         ArrayList<String> lines = FileUtils.readLines(appInfo);
         if (lines.size() > 1) {
             gpuName = lines.get(1);

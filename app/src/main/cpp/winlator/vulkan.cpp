@@ -61,7 +61,7 @@ std::vector<VkPhysicalDevice> get_physical_devices(VkInstance instance) {
 }
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_winlator_core_GPUInformation_getDriverVersion(JNIEnv *env, jclass obj) {
+Java_com_winlator_core_GPUInformation_getVersion(JNIEnv *env, jclass obj) {
     VkPhysicalDeviceProperties props = {};
     char *driverVersion;
     VkInstance instance;
@@ -77,6 +77,26 @@ Java_com_winlator_core_GPUInformation_getDriverVersion(JNIEnv *env, jclass obj) 
         uint32_t vk_driver_patch = VK_VERSION_PATCH(props.driverVersion);
         asprintf(&driverVersion, "%d.%d.%d", vk_driver_major, vk_driver_minor,
                  vk_driver_patch);
+    }
+
+    destroyInstance(instance, NULL);
+
+    return (env->NewStringUTF(driverVersion));
+}
+
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_winlator_core_GPUInformation_getRenderer(JNIEnv *env, jclass obj) {
+    VkPhysicalDeviceProperties props = {};
+    char *driverVersion;
+    VkInstance instance;
+
+    instance = create_instance();
+    PFN_vkGetPhysicalDeviceProperties getPhysicalDeviceProperties = (PFN_vkGetPhysicalDeviceProperties)gip(instance, "vkGetPhysicalDeviceProperties");
+    PFN_vkDestroyInstance destroyInstance = (PFN_vkDestroyInstance)gip(instance, "vkDestroyInstance");
+
+    for (const auto &pdevice: get_physical_devices(instance)) {
+        getPhysicalDeviceProperties(pdevice, &props);
+        asprintf(&driverVersion, "%s", props.deviceName);
     }
 
     destroyInstance(instance, NULL);
