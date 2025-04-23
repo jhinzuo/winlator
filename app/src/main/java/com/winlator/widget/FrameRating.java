@@ -76,7 +76,7 @@ public class FrameRating extends FrameLayout implements Runnable {
     }
     
     private String getRenderer() {
-        String renderer = "Unknown";
+        String renderer = "OpenGL";
         ArrayList<String> lines = FileUtils.readLines(appInfo);
         if (lines.size() > 0)
             renderer = lines.get(0);
@@ -174,11 +174,11 @@ public class FrameRating extends FrameLayout implements Runnable {
     public void run() {
         if (getVisibility() == GONE) setVisibility(View.VISIBLE);
         tvFPS.setText(String.format(Locale.ENGLISH, "%.1f", lastFPS));
-        if (appInfo.exists() && renderer == null) {
+        if (renderer == null) {
             renderer = getRenderer();
             tvRenderer.setText(renderer);
         }
-        if (appInfo.exists() && gpuName == null) {
+        if (gpuName == null) {
             gpuName = getGPUName();
             tvGPU.setText(gpuName);
         }

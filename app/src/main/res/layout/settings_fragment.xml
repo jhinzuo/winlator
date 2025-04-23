@@ -369,6 +369,13 @@
                         android:text="True Mouse Control (Deactivate with Volume Down)"
                         android:layout_marginTop="8dp" />
 
+                    <CheckBox
+                        android:id="@+id/CBForceMouseControl"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Force Mouse Control"
+                        android:layout_marginTop="8dp" />
+
                     <!-- New Xinput Toggle Checkbox -->
                     <CheckBox
                         android:id="@+id/CBXinputToggle"
@@ -383,6 +390,7 @@
                         android:layout_height="wrap_content"
                         android:text="Touchscreen Mode"
                         android:layout_marginTop="8dp" />
+
                 </LinearLayout>
 
                 <TextView
@@ -490,15 +498,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/enable_box86_64_logs"
-                        android:layout_marginTop="8dp" />
-
-                    <View style="@style/FieldSeparator" />
-
-                    <CheckBox
-                        android:id="@+id/CBEnableVulkanApiDump"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/enable_vulkan_api_dump"
                         android:layout_marginTop="8dp" />
                 </LinearLayout>
 

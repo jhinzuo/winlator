@@ -29,6 +29,20 @@ public abstract class ProcessHelper {
         Process.sendSignal(pid, SIGCONT);
         Log.d("GlibcDebug", "Process resumed with pid: " + pid);
     }
+    
+    public static void terminateProcessByName(String process) {
+        try {
+            Runtime.getRuntime().exec("pkill -15 " + process);
+        }
+        catch (IOException e) {}
+    }
+
+    public static void killProcessByName(String process) {
+        try {
+            Runtime.getRuntime().exec("pkill -2 " + process);
+        }
+        catch (IOException e) {}
+    }
 
     public static int exec(String command) {
         return exec(command, null);
@@ -213,7 +227,7 @@ public abstract class ProcessHelper {
         return affinityMask;
     }
 
-    public static ArrayList<String> listRunningProcesses() {
+    public static ArrayList<String> listRunningWineProcesses() {
         ArrayList<String> processes = new ArrayList<>();
         File procDir = new File("/proc");
 
@@ -229,7 +243,7 @@ public abstract class ProcessHelper {
                         BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(commFile)));
                         String processName = reader.readLine().trim();
                         reader.close();
-                        processes.add(processName);
+                        if (processName.contains("wine") || processName.contains("exe")) processes.add(processName);
                     }
                 } catch (NumberFormatException | IOException ignored) {
                     // Not a PID directory or unable to read

@@ -77,6 +77,7 @@
         <item>4096 MB</item>
     </string-array>
     <string-array name="video_memory_size_entries">
+        <item>0 (Device)</item>
         <item>32 MB</item>
         <item>64 MB</item>
         <item>128 MB</item>
@@ -288,10 +289,10 @@
         <item>reverse landscape</item>
     </string-array>
     <string-array name="fexcore_preset_entries">
-        <item>Disabled</item>
         <item>Fastest</item>
         <item>Fast</item>
         <item>Slow</item>
+        <item>Slowest</item>
     </string-array>
     <string-array name="x87mode_preset_entries">
         <item>Fast</item>

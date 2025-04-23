@@ -51,7 +51,11 @@ public class BionicProgramLauncherComponent extends GuestProgramLauncherComponen
     private final Shortcut shortcut;
     private String box64Version;
 
-
+    private void extractEmulatorsDlls() {
+        File rootDir = environment.getImageFs().getRootDir();
+        File system32dir = new File(rootDir, "home/xuser/.wine/drive_c/windows/system32");
+        TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, environment.getContext(), "emulators_dlls.tzst", system32dir);
+    }
 
     public BionicProgramLauncherComponent(ContentsManager contentsManager, ContentProfile wineProfile, Shortcut shortcut) {
         this.contentsManager = contentsManager;
@@ -62,11 +66,10 @@ public class BionicProgramLauncherComponent extends GuestProgramLauncherComponen
     @Override
     public void start() {
         synchronized (lock) {
-            stop();
-
-            // Testing artifact
+            // Terminate any stale wineserver processes gracefully
+            ProcessHelper.terminateProcessByName("wineserver");
+            extractEmulatorsDlls();
             checkDependencies();
-
             pid = execGuestProgram();
         }
     }
@@ -184,6 +187,7 @@ public class BionicProgramLauncherComponent extends GuestProgramLauncherComponen
             addBox86EnvVars(envVars, enableBox86_64Logs);
         }
         addBox64EnvVars(envVars, enableBox86_64Logs);
+        envVars.put("BOX64_MMAP32", "0");
 
         // Setting up essential environment variables for Wine
         envVars.put("HOME", imageFs.home_path);
@@ -191,6 +195,7 @@ public class BionicProgramLauncherComponent extends GuestProgramLauncherComponen
         envVars.put("TMPDIR", rootDir.getPath() + "/usr/tmp");
         envVars.put("DISPLAY", ":0");
         envVars.put("WINE_DISABLE_FULLSCREEN_HACK", "1");
+        envVars.put("ENABLE_UTIL_LAYER", "1");
 
         String winePath = wineProfile == null ? imageFs.getWinePath() + "/bin"
                 : ContentsManager.getSourceFile(context, wineProfile, wineProfile.wineBinPath).getAbsolutePath();

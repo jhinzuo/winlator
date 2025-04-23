@@ -308,8 +308,7 @@ public class ShortcutSettingsDialog extends ContentDialog {
             });
             popupMenu.show();
         });
-        
-        FrameLayout boxFL = findViewById(R.id.box86box64Frame);
+
         FrameLayout fexcoreFL = findViewById(R.id.fexcoreFrame);
         
         // Handle bionic and glibc switching logic
@@ -327,7 +326,6 @@ public class ShortcutSettingsDialog extends ContentDialog {
             sGraphicsItemsList.remove("VirGL");
             sGraphicsDriver.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, sGraphicsItemsList));
             AppUtils.setSpinnerSelectionFromValue(sGraphicsDriver, selectedDriver);
-            boxFL.setVisibility(View.GONE);
         }
 
         setOnConfirmCallback(() -> {

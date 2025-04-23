@@ -36,6 +36,7 @@ public class LogView extends View {
     private final PointF scrollPosition = new PointF();
     private final PointF scrollSize = new PointF();
     private boolean isActionDown = false;
+    private static String fileName;
     private boolean scrollingHorizontally = false;
     private boolean scrollingVertically = false;
     private final Object lock = new Object();
@@ -184,10 +185,14 @@ public class LogView extends View {
         }
     }
 
+    public static void setFilename(String file) {
+        fileName = file.substring(0, file.lastIndexOf("."));
+    }
+
     public static File getLogFile() {
         File winlatorDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Winlator/logs");
         winlatorDir.mkdirs();
-        String logFile = "log_" + DateFormat.format("yyyy-MM-dd_HH-mm-ss", new Date()) + ".txt";
+        String logFile = fileName.replaceAll("\\s", "_").toLowerCase() + "_" + DateFormat.format("yyyy-MM-dd_HH-mm-ss", new Date()) + ".txt";
         return new File(winlatorDir, logFile);
     }
     

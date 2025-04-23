@@ -58,26 +58,8 @@ public class GlibcProgramLauncherComponent extends GuestProgramLauncherComponent
     @Override
     public void start() {
         synchronized (lock) {
-            stop();
-
-//            // Set execute permissions for vk_instance_debugger
-//            File vkInstanceDebugger = new File(environment.getImageFs().getRootDir(), "usr/bin/vk_instance_debugger");
-//            if (vkInstanceDebugger.exists()) {
-//                FileUtils.chmod(vkInstanceDebugger, 0755); // Set execute permissions for all users
-//            }
-//
-//            // Check dependencies and log
-//            String vkDebuggerDeps = checkCurlDependencies();  // Change 'checkCurlDependencies' as needed
-//            Log.d("GlibcProgramLauncherComponent", "vk_instance_debugger Dependencies:\n" + vkDebuggerDeps);
-//
-//            Log.d("PermissionsCheck", "Checking if vk_instance_debugger has execute permission: " +
-//                    new File("/data/user/0/com.winlator/files/imagefs/usr/bin/vk_instance_debugger").canExecute());
-//
-//            // Delay the execution of vk_instance_debugger by 30 seconds
-//            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-//                runWithoutBox64(environment.getImageFs().getRootDir().getPath() + "/usr/bin/vk_instance_debugger");
-//            }, 30000); // 30000 milliseconds = 30 seconds
-
+            // Terminate any stale wineserver processes gracefully
+            ProcessHelper.terminateProcessByName("wineserver");
             // Proceed with other startup tasks
             extractBox86_64Files();
             checkCurlDependencies();
@@ -335,6 +317,7 @@ public class GlibcProgramLauncherComponent extends GuestProgramLauncherComponent
         envVars.put("TMPDIR", rootDir.getPath() + "/usr/tmp");
         envVars.put("DISPLAY", ":0");
         envVars.put("WINE_DISABLE_FULLSCREEN_HACK", "1");
+        envVars.put("ENABLE_UTIL_LAYER", "1");
 
         String winePath = wineProfile == null ? imageFs.getWinePath() + "/bin"
                 : ContentsManager.getSourceFile(context, wineProfile, wineProfile.wineBinPath).getAbsolutePath();

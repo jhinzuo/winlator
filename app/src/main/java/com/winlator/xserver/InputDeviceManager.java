@@ -126,7 +126,7 @@ public class InputDeviceManager implements Pointer.OnPointerMotionListener, Keyb
 
     @Override
     public void onPointerButtonPress(Pointer.Button button) {
-        if (xServer.isRelativeMouseMovement()) {
+        if ((xServer.isRelativeMouseMovement() || xServer.isForceMouseControl()) && !xServer.isSimulateTouchScreen()) {
             WinHandler winHandler = xServer.getWinHandler();
             int wheelDelta = button == Pointer.Button.BUTTON_SCROLL_UP ? MOUSE_WHEEL_DELTA : (button == Pointer.Button.BUTTON_SCROLL_DOWN ? -MOUSE_WHEEL_DELTA : 0);
             winHandler.mouseEvent(MouseEventFlags.getFlagFor(button, true), 0, 0, wheelDelta);
@@ -154,7 +154,7 @@ public class InputDeviceManager implements Pointer.OnPointerMotionListener, Keyb
 
     @Override
     public void onPointerButtonRelease(Pointer.Button button) {
-        if (xServer.isRelativeMouseMovement()) {
+        if ((xServer.isRelativeMouseMovement() || xServer.isForceMouseControl()) && !xServer.isSimulateTouchScreen()) {
             WinHandler winHandler = xServer.getWinHandler();
             winHandler.mouseEvent(MouseEventFlags.getFlagFor(button, false), 0, 0, 0);
         }

@@ -103,3 +103,22 @@ Java_com_winlator_core_GPUInformation_getRenderer(JNIEnv *env, jclass obj) {
 
     return (env->NewStringUTF(driverVersion));
 }
+
+extern "C" JNIEXPORT jlong JNICALL
+Java_com_winlator_core_GPUInformation_getMemorySize(JNIEnv *env, jclass obj) {
+    VkPhysicalDeviceMemoryProperties props = {};
+    long memorySize;
+    VkInstance instance;
+
+    instance = create_instance();
+    PFN_vkGetPhysicalDeviceMemoryProperties getPhysicalDeviceMemoryProperties = (PFN_vkGetPhysicalDeviceMemoryProperties)gip(instance, "vkGetPhysicalDeviceMemoryProperties");
+    PFN_vkDestroyInstance destroyInstance = (PFN_vkDestroyInstance)gip(instance, "vkDestroyInstance");
+
+    for (const auto &pdevice : get_physical_devices(instance)) {
+        getPhysicalDeviceMemoryProperties(pdevice, &props);
+        memorySize = props.memoryHeaps[0].size;
+    }
+
+    destroyInstance(instance, NULL);
+    return memorySize / 1048576;
+}

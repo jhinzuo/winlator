@@ -32,6 +32,7 @@ public abstract class GPUInformation {
 
     public native static String getVersion();
     public native static String getRenderer();
+    public native static long getMemorySize();
 
     static {
         System.loadLibrary("winlator");

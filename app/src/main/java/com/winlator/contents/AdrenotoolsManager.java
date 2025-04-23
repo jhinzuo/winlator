@@ -49,7 +49,6 @@ public class AdrenotoolsManager {
             libraryName = jsonObject.getString("libraryName");
         }
         catch (JSONException e) {
-            throw new RuntimeException(e);
         }
         return libraryName;
     }
@@ -63,11 +62,23 @@ public class AdrenotoolsManager {
             driverName = jsonObject.getString("name");
         }
         catch (JSONException e) {
-            throw new RuntimeException(e);
         }
         return driverName;
     }
-    
+
+    public String getDriverVersion(String adrenoToolsDriverId) {
+        String driverVersion = "";
+        File driverPath = new File(adrenotoolsContentDir, adrenoToolsDriverId);
+        try {
+            File metaProfile = new File(driverPath, "meta.json");
+            JSONObject jsonObject = new JSONObject(FileUtils.readString(metaProfile));
+            driverVersion = jsonObject.getString("driverVersion");
+        }
+        catch (JSONException e) {
+        }
+        return driverVersion;
+    }
+
     private void reloadContainers(String adrenoToolsDriverId) {
         ContainerManager containerManager = new ContainerManager(mContext);
         for (Container container : containerManager.getContainers()) {
@@ -95,27 +106,13 @@ public class AdrenotoolsManager {
         reloadContainers(adrenoToolsDriverId);
         FileUtils.delete(driverPath);
     }
-    
-    public String getDriverVersion(String adrenoToolsDriverId) {
-        String driverVersion = "";
-        File driverPath = new File(adrenotoolsContentDir, adrenoToolsDriverId);
-        try {
-            File metaProfile = new File(driverPath, "meta.json");
-            JSONObject jsonObject = new JSONObject(FileUtils.readString(metaProfile));
-            driverVersion = jsonObject.getString("driverVersion");
-        }
-        catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-        return driverVersion;
-    }
-    
+
     public ArrayList<String> enumarateInstalledDrivers() {
         ArrayList<String> driversList = new ArrayList<>();
         
         for (File f : adrenotoolsContentDir.listFiles()) {
             boolean fromResources = isFromResources("graphics_driver/adrenotools-" + f.getName() + ".tzst");
-            if (!fromResources)
+            if (!fromResources && new File(f, "meta.json").exists())
                 driversList.add(f.getName());
         }
         return driversList;
@@ -151,10 +148,11 @@ public class AdrenotoolsManager {
     
     public String installDriver(Uri driverUri) {
         File tmpDir = new File(adrenotoolsContentDir, "tmp");
+        if (tmpDir.exists()) tmpDir.delete();
         tmpDir.mkdirs();
         ZipInputStream zis;
         InputStream is;
-        String name;
+        String name = "";
         
         try {
             is = mContext.getContentResolver().openInputStream(driverUri);
@@ -166,17 +164,24 @@ public class AdrenotoolsManager {
                 entry = zis.getNextEntry();
             }
             zis.close();
-            name = getDriverName(tmpDir.getName());
-            File dst = new File(adrenotoolsContentDir, name);
-            if (!dst.exists())
-                tmpDir.renameTo(dst);
+            if (new File(tmpDir, "meta.json").exists()) {
+                name = getDriverName(tmpDir.getName());
+                File dst = new File(adrenotoolsContentDir, name);
+                if (!dst.exists() && !name.equals(""))
+                    tmpDir.renameTo(dst);
+                else {
+                    name = "";
+                    FileUtils.delete(tmpDir);
+                }
+            }
             else {
-                name = "";
-                FileUtils.delete(tmpDir);
-            }     
+                Log.d("AdrenotoolsManager", "Failed to install driver, a valid driver has not been selected");
+                tmpDir.delete();
+            }
         }
         catch (IOException e) {
-            throw new RuntimeException(e);
+            Log.d("AdrenotoolsManager", "Failed to install driver, a valid driver has not been selected");
+            tmpDir.delete();
         }
         
         return name;
@@ -185,16 +190,17 @@ public class AdrenotoolsManager {
     public void setDriverById(EnvVars envVars, ImageFs imagefs, String adrenotoolsDriverId) {
         if (extractDriverFromResources(adrenotoolsDriverId) || enumarateInstalledDrivers().contains(adrenotoolsDriverId)) {
             String driverPath = adrenotoolsContentDir.getAbsolutePath() + "/" + adrenotoolsDriverId + "/";
-            envVars.put("ADRENOTOOLS_DRIVER_PATH", driverPath);
-            envVars.put("ADRENOTOOLS_HOOKS_PATH", imagefs.getLibDir());
-            envVars.put("ADRENOTOOLS_DRIVER_NAME", getLibraryName(adrenotoolsDriverId));
-            if (adrenotoolsDriverId.contains("v762") && GPUInformation.getVersion().contains("512.530")) {
-                Log.d("AdrenotoolsManager", "Patching v762 driver for stock v530");
-                FileUtils.writeToBinaryFile(driverPath + "notadreno_utils.so", 0x2680, 3);
-            }
-            else if (adrenotoolsDriverId.contains("v762") && GPUInformation.getVersion().contains("512.502")) {
-                Log.d("AdrenotoolsManager", "Patching v762 driver for stock v502");
-                FileUtils.writeToBinaryFile(driverPath + "notadreno_utils.so", 0x2680, 2);
+            if (!getLibraryName(adrenotoolsDriverId).equals("")) {
+                envVars.put("ADRENOTOOLS_DRIVER_PATH", driverPath);
+                envVars.put("ADRENOTOOLS_HOOKS_PATH", imagefs.getLibDir());
+                envVars.put("ADRENOTOOLS_DRIVER_NAME", getLibraryName(adrenotoolsDriverId));
+                if (adrenotoolsDriverId.contains("v762") && GPUInformation.getVersion().contains("512.530")) {
+                    Log.d("AdrenotoolsManager", "Patching v762 driver for stock v530");
+                    FileUtils.writeToBinaryFile(driverPath + "notadreno_utils.so", 0x2680, 3);
+                } else if (adrenotoolsDriverId.contains("v762") && GPUInformation.getVersion().contains("512.502")) {
+                    Log.d("AdrenotoolsManager", "Patching v762 driver for stock v502");
+                    FileUtils.writeToBinaryFile(driverPath + "notadreno_utils.so", 0x2680, 2);
+                }
             }
         }
     }

@@ -241,7 +241,8 @@ public class ContainerManager {
         for (int i = 0; i < dlnames.length(); i++) {
             String dlname = dlnames.getString(i);
             File dstFile = new File(containerDir, ".wine/drive_c/windows/"+dstName+"/"+dlname);
-            if (onExtractFileListener != null) {
+            if (dstFile.exists()) continue;
+            if (onExtractFileListener != null ) {
                 dstFile = onExtractFileListener.onExtractFile(dstFile, 0);
                 if (dstFile == null) continue;
             }
@@ -269,7 +270,8 @@ public class ContainerManager {
                     JSONObject commonDlls = new JSONObject(FileUtils.readString(context, "common_dlls.json"));
                     if (!container.isBionic())
                         extractCommonDlls("x86_64-windows", "system32", commonDlls, containerDir, onExtractFileListener);
-                    extractCommonDlls("aarch64-windows", "system32", commonDlls, containerDir, onExtractFileListener); // arm64ec only
+                    else
+                        extractCommonDlls("aarch64-windows", "system32", commonDlls, containerDir, onExtractFileListener); // arm64ec only
                     extractCommonDlls("i386-windows", "syswow64", commonDlls, containerDir, onExtractFileListener);
                 }
                 catch (JSONException e) {

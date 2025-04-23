@@ -148,8 +148,6 @@ Java_com_winlator_renderer_GPUImage_lockHardwareBuffer(JNIEnv *env, jclass obj, 
         return NULL;
     }
     
-    AHardwareBuffer_unlock(hardwareBuffer, NULL);
-    
     void *virtualAddr;
     if (AHardwareBuffer_lock(hardwareBuffer, AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN, -1, NULL, &virtualAddr) != 0) {
         printf("Failed to lock AHardwareBuffer\n");

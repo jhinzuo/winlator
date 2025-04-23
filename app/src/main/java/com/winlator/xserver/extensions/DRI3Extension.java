@@ -29,14 +29,10 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class DRI3Extension implements Extension {
-    private GPUImage gpuImage = null;
     public static final byte MAJOR_OPCODE = -102;
     private final Callback<Drawable> onDestroyDrawableListener = (drawable) -> {
-        Log.d("Dri3", "Destroying drawable");
-        if (gpuImage != null) {
-            ByteBuffer data = drawable.getData();
-            SysVSharedMemory.unmapSHMSegment(data, data.capacity());
-        }
+        ByteBuffer data = drawable.getData();
+        SysVSharedMemory.unmapSHMSegment(data, data.capacity());
     };
 
     private static abstract class ClientOpcodes {
@@ -121,7 +117,7 @@ public class DRI3Extension implements Extension {
         int pixmapId = inputStream.readInt();
         Log.d("Dri3", "Read pixmap id " + pixmapId);
         int windowId = inputStream.readInt();
-        Log.d("Dri3", "Read wineow id " + windowId);
+        Log.d("Dri3", "Read window id " + windowId);
         inputStream.skip(4);
         short width = inputStream.readShort();
         Log.d("Dri3", "Read width " + width);
@@ -139,24 +135,13 @@ public class DRI3Extension implements Extension {
         Log.d("Dri3", "Read modifiers " + modifiers);
         
         Window window = client.xServer.windowManager.getWindow(windowId);
-        if (window == null) {
-            Log.d("Dri3", "Failed to retrieve window");
-            throw new BadWindow(windowId);
-        }
-
+        if (window == null) throw new BadWindow(windowId);
         Pixmap pixmap = client.xServer.pixmapManager.getPixmap(pixmapId);
-        
+        if (pixmap != null) throw new BadIdChoice(pixmapId);
         
         int fd = inputStream.getAncillaryFd();
-        Log.d("Dri3", "Got fd " + fd);
         long size = (long)stride * height;
-        if (pixmap != null) {
-            if (modifiers == 1255) {
-                gpuImage = new GPUImage(fd);
-                gpuImage.destroy();
-            }    
-            throw new BadIdChoice(pixmapId);
-        }
+
         if (modifiers == 1255) {
             Log.d("Dri3", "Creating pixmap from AHardwareBuffer");
             pixmapFromHardwareBuffer(client, pixmapId, width, height, depth, fd);
@@ -169,10 +154,9 @@ public class DRI3Extension implements Extension {
     
     private void pixmapFromHardwareBuffer(XClient client, int pixmapId, short width, short height, byte depth, int fd) throws IOException, XRequestError {
         try {
-            Drawable drawable = client.xServer.drawableManager.createDrawable(pixmapId, width, height, depth);
-            gpuImage = new GPUImage(fd);
-            drawable.setData(gpuImage.getVirtualData());
-            drawable.setOnDestroyListener(onDestroyDrawableListener);
+            GPUImage gpuImage = new GPUImage(fd);
+            Drawable drawable = client.xServer.drawableManager.createDrawable(pixmapId, gpuImage.getStride(), height, depth);
+            drawable.setTexture(gpuImage);
             client.xServer.pixmapManager.createPixmap(drawable);
         }
         finally {

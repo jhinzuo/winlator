@@ -41,14 +41,14 @@ public final class FEXCoreManager {
 
         if (tsoEnabled.equals("1")) {
             if (halfbarrierTSOEnabled.equals("1"))
-                ret = "Fast";
-            else if(vectorTSOEnabled.equals("1") && memcpySetTSOEnabled.equals("1"))
                 ret = "Slow";
+            else if(vectorTSOEnabled.equals("1") && memcpySetTSOEnabled.equals("1"))
+                ret = "Slowest";
             else
-                ret = "Fastest";
+                ret = "Fast";
         }
         else
-            ret = "Disabled";
+            ret = "Fastest";
 
         return ret;
     }
@@ -62,14 +62,8 @@ public final class FEXCoreManager {
         String halfbarrierTSOEnabled = "";
         
         switch (tsoPreset) {
-            case "Disabled":
-                tsoEnabled = "0";
-                vectorTSOEnabled = "0";
-                memcpysetTSOEnabled = "0";
-                halfbarrierTSOEnabled = "0";
-                break;
             case "Fastest":
-                tsoEnabled = "1";
+                tsoEnabled = "0";
                 vectorTSOEnabled = "0";
                 memcpysetTSOEnabled = "0";
                 halfbarrierTSOEnabled = "0";
@@ -78,9 +72,15 @@ public final class FEXCoreManager {
                 tsoEnabled = "1";
                 vectorTSOEnabled = "0";
                 memcpysetTSOEnabled = "0";
-                halfbarrierTSOEnabled = "1";
+                halfbarrierTSOEnabled = "0";
                 break;
             case "Slow":
+                tsoEnabled = "1";
+                vectorTSOEnabled = "0";
+                memcpysetTSOEnabled = "0";
+                halfbarrierTSOEnabled = "1";
+                break;
+            case "Slowest":
                 tsoEnabled = "1";
                 vectorTSOEnabled = "1";
                 memcpysetTSOEnabled = "1";
@@ -125,6 +125,79 @@ public final class FEXCoreManager {
             throw new RuntimeException(e);
         } 
     }
+
+    public static void writeToConfigFile(File configFile, String tsoPreset, String mblockValue, String x87ModePreset) {
+        String tsoEnabled = "";
+        String X87ReducedPrecisionValue = "" ;
+        String vectorTSOEnabled = "";
+        String multiblockValue = "";
+        String memcpysetTSOEnabled = "";
+        String halfbarrierTSOEnabled = "";
+
+        switch (tsoPreset) {
+            case "Fastest":
+                tsoEnabled = "0";
+                vectorTSOEnabled = "0";
+                memcpysetTSOEnabled = "0";
+                halfbarrierTSOEnabled = "0";
+                break;
+            case "Fast":
+                tsoEnabled = "1";
+                vectorTSOEnabled = "0";
+                memcpysetTSOEnabled = "0";
+                halfbarrierTSOEnabled = "0";
+                break;
+            case "Slow":
+                tsoEnabled = "1";
+                vectorTSOEnabled = "0";
+                memcpysetTSOEnabled = "0";
+                halfbarrierTSOEnabled = "1";
+                break;
+            case "Slowest":
+                tsoEnabled = "1";
+                vectorTSOEnabled = "1";
+                memcpysetTSOEnabled = "1";
+                halfbarrierTSOEnabled = "0";
+                break;
+            default:
+                break;
+        }
+
+        switch(x87ModePreset) {
+            case "Fast":
+                X87ReducedPrecisionValue = "1";
+                break;
+            case "Slow":
+                X87ReducedPrecisionValue = "0";
+                break;
+        }
+
+        switch (mblockValue) {
+            case "Enabled":
+                multiblockValue = "1";
+                break;
+            case "Disabled":
+                multiblockValue = "0";
+                break;
+        }
+
+        try {
+            JSONObject config = new JSONObject();
+            JSONObject opts = new JSONObject()
+                    .put("Multiblock", multiblockValue)
+                    .put("TSOEnabled", tsoEnabled)
+                    .put("VectorTSOEnabled", vectorTSOEnabled)
+                    .put("MemcpySetTSOEnabled", memcpysetTSOEnabled)
+                    .put("HalfBarrierTSOEnabled", halfbarrierTSOEnabled)
+                    .put("X87ReducedPrecision", X87ReducedPrecisionValue);
+            config.put("Config", opts);
+            String json = config.toString();
+            FileUtils.writeString(configFile, json);
+        }
+        catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
     
     private static void setFromConfigFile(Spinner tsoModeSpinner, Spinner x87modeSpinner, Spinner multiBlockSpinner) {
         try {
@@ -143,7 +216,7 @@ public final class FEXCoreManager {
     }
     
    private static void setFromDefaults(Spinner tsoModeSpinner, Spinner x87modeSpinner, Spinner multiBlockSpinner) {
-       selectSpinnerItemByValue(tsoModeSpinner, tsoPresets, "Fastest");
+       selectSpinnerItemByValue(tsoModeSpinner, tsoPresets, "Fast");
        selectSpinnerItemByValue(x87modeSpinner, x87modePresets, "Fast");
        selectSpinnerItemByValue(multiBlockSpinner, multiblockValues, "Disabled");
    }
@@ -205,5 +278,21 @@ public final class FEXCoreManager {
         if (!configFile.exists())
             configFile.getParentFile().mkdirs();
        writeToConfigFile(preset, multiBlockValue, x87ReducedPrecisionValue);
+    }
+
+    public static void createAppConfigFiles(Context ctx) {
+        String[] programsName = {"winhandler.exe"};
+        for (String programName : programsName) {
+            File configFile = new File(ctx.getFilesDir(), "imagefs/home/xuser/.fex-emu/AppConfig/" + programName + ".json");
+            if (!configFile.exists()) {
+                switch (programName) {
+                    case "winhandler.exe":
+                        writeToConfigFile(configFile, "Fastest", "Disabled", "Fast");
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
     }
 }

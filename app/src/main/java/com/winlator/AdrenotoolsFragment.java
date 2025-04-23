@@ -61,18 +61,19 @@ public class AdrenotoolsFragment extends Fragment {
         if (requestCode == MainActivity.OPEN_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             Uri uri = data.getData();
             String driver = adrenotoolsManager.installDriver(uri);
-            if (driver != "")
+            if (!driver.isEmpty())
                 ((DriversAdapter)recyclerView.getAdapter()).addItem(driver);
         }
      }       
     
     private class DriversAdapter extends RecyclerView.Adapter<DriversAdapter.ViewHolder> {
         private ArrayList<String> driversList;
-        private TextView tvName;
-        private TextView tvVersion;
-        private ImageButton btMenu;
-        
+
         public class ViewHolder extends RecyclerView.ViewHolder {
+            private TextView tvName;
+            private TextView tvVersion;
+            private ImageButton btMenu;
+
             public ViewHolder(View v) {
                 super(v);
                 tvName = v.findViewById(R.id.TVName);
@@ -93,9 +94,9 @@ public class AdrenotoolsFragment extends Fragment {
         
         @Override
         public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-            tvName.setText(adrenotoolsManager.getDriverName(driversList.get(position)));
-            tvVersion.setText(adrenotoolsManager.getDriverVersion(driversList.get(position)));
-            btMenu.setOnClickListener((v) -> {
+            viewHolder.tvName.setText(adrenotoolsManager.getDriverName(driversList.get(position)));
+            viewHolder.tvVersion.setText(adrenotoolsManager.getDriverVersion(driversList.get(position)));
+            viewHolder.btMenu.setOnClickListener((v) -> {
                 removeAtIndex(position);
             });
         }
@@ -107,9 +108,9 @@ public class AdrenotoolsFragment extends Fragment {
         
         public void removeAtIndex(int index) {
             String deletedDriver = driversList.remove(index);
-            notifyItemRemoved(index);
-            notifyItemRangeChanged(index, getItemCount() - index);
             adrenotoolsManager.removeDriver(deletedDriver);
+            notifyItemRemoved(index);
+            notifyItemRangeChanged(index, getItemCount());
         }
         
         @Override
