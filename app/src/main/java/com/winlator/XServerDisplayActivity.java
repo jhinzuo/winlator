@@ -47,6 +47,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -914,24 +915,33 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
         editor.apply();
     }
 
+    private void exit() {
+        boolean once;
+        if (midiHandler != null) midiHandler.stop();
+        // Unregister sensor listener to avoid memory leaks
+        if (sensorManager != null) sensorManager.unregisterListener(gyroListener);
+        if (environment != null) environment.stopEnvironmentComponents();
+        if (preloaderDialog != null && preloaderDialog.isShowing()) preloaderDialog.close();
+        if (winHandler != null) winHandler.stop();
+        /* Gracefully terminate all running wine processes */
+        ProcessHelper.terminateAllWineProcesses();
+        /* Wait until all processes have gracefully terminated, forcefully killing them only after a certain amount of time */
+        long start = System.currentTimeMillis();
+        while (!ProcessHelper.listRunningWineProcesses().isEmpty()) {
+            long elapsed = System.currentTimeMillis() - start;
+            if (elapsed >= 1500) {
+                break;
+            }
+        }
+        AppUtils.restartApplication(this);
+    }
+
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-        if (midiHandler != null)
-            midiHandler.stop();
-        // Unregister sensor listener to avoid memory leaks
-        sensorManager.unregisterListener(gyroListener);
-        if (environment != null) environment.stopEnvironmentComponents();
-        if (preloaderDialog != null && preloaderDialog.isShowing())
-            preloaderDialog.close();
-        winHandler.stop();
-
         savePlaytimeData(); // Save on destroy
         handler.removeCallbacks(savePlaytimeRunnable);
-
-        if (restartTriggerObserver != null) {
-            restartTriggerObserver.stopWatching();
-        }
+        if (restartTriggerObserver != null) restartTriggerObserver.stopWatching();
+        super.onDestroy();
     }
 
     @Override
@@ -1145,7 +1155,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
                 }
                 return true;
             case R.id.main_menu_exit:
-                finish();
+                exit();
                 break;
 
         }
@@ -1424,7 +1434,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
 
         // Pass final envVars to the launcher
         guestProgramLauncherComponent.setEnvVars(envVars);
-        guestProgramLauncherComponent.setTerminationCallback((status) -> finish());
+        guestProgramLauncherComponent.setTerminationCallback((status) -> exit());
 
         // Add the launcher to our environment
         environment.addComponent(guestProgramLauncherComponent);
@@ -2939,16 +2949,15 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
 
                 args += "/dir " + StringUtils.escapeDOSPath(exeDir) + " \"" + filename + "\"" + execArgs;
             }
-        }
-
-        // Append EXTRA_EXEC_ARGS from overrideEnvVars if it exists
-        if (envVars.has("EXTRA_EXEC_ARGS")) {
-            args += " " + envVars.get("EXTRA_EXEC_ARGS");
-            envVars.remove("EXTRA_EXEC_ARGS"); // Remove the key after use
         } else {
-            args += "\"wfm.exe\"";
+            // Append EXTRA_EXEC_ARGS from overrideEnvVars if it exists
+            if (envVars.has("EXTRA_EXEC_ARGS")) {
+                args += " " + envVars.get("EXTRA_EXEC_ARGS");
+                envVars.remove("EXTRA_EXEC_ARGS"); // Remove the key after use
+            } else {
+                args += "\"wfm.exe\"";
+            }
         }
-
         // Construct the final command
         String command = "winhandler.exe " + args;
         Log.d("Winetricks", "Wine Start Command: " + command);
@@ -3015,6 +3024,8 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
     }
 
     private void applyGeneralPatches(Container container) {
+        File rootDir = imageFs.getRootDir();
+        TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "container_pattern_common.tzst", rootDir);
         TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "pulseaudio.tzst", new File(getFilesDir(), "pulseaudio"));
         WineUtils.applySystemTweaks(this, wineInfo);
         container.putExtra("graphicsDriver", null);

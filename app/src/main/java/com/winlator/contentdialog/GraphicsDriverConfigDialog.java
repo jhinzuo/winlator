@@ -161,19 +161,6 @@ public class GraphicsDriverConfigDialog extends ContentDialog {
             turnipVersions.remove(turnipVersions.size() - 1);
         }
 
-        if (GPUInformation.isAdreno6xx())
-            wrapperVersions.remove(wrapperDefaultVersions[2]);
-        else if (GPUInformation.isAdreno7xx())
-            wrapperVersions.remove(wrapperDefaultVersions[1]);
-        else if (GPUInformation.isAdreno8xx() || GPUInformation.getRenderer().contains("710") || GPUInformation.getRenderer().contains("720")) {
-            wrapperVersions.remove(wrapperDefaultVersions[3]);
-            wrapperVersions.remove(wrapperDefaultVersions[1]);
-        }
-        else {
-            wrapperVersions.clear();
-            wrapperVersions.add(wrapperDefaultVersions[0]);
-        }
-
         // Add installed versions from ContentsManager
         List<ContentProfile> profiles = contentsManager.getProfiles(ContentProfile.ContentType.CONTENT_TYPE_TURNIP);
         if (profiles != null && !isBionic) {

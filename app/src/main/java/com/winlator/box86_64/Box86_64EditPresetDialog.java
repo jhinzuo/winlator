@@ -112,7 +112,7 @@ public class Box86_64EditPresetDialog extends ContentDialog {
                 child.findViewById(R.id.BTHelp).setOnClickListener((v) -> {
                     String suffix = name.replace(prefix.toUpperCase(Locale.ENGLISH)+"_", "").toLowerCase(Locale.ENGLISH);
                     String value = StringUtils.getString(context, "box86_64_env_var_help__"+suffix);
-                    AppUtils.showHelpBox(context, v, value);
+                    if (value != null) AppUtils.showHelpBox(context, v, value);
                 });
 
                 Spinner spinner = child.findViewById(R.id.Spinner);

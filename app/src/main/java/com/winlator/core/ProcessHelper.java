@@ -1,17 +1,23 @@
 package com.winlator.core;
 
+import android.os.Build;
 import android.os.Process;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Executors;
 
 public abstract class ProcessHelper {
@@ -19,6 +25,8 @@ public abstract class ProcessHelper {
     private static final ArrayList<Callback<String>> debugCallbacks = new ArrayList<>();
     private static final byte SIGCONT = 18;
     private static final byte SIGSTOP = 19;
+    private static final byte SIGTERM = 15;
+    private static final byte SIGKILL = 9;
 
     public static void suspendProcess(int pid) {
         Process.sendSignal(pid, SIGSTOP);
@@ -29,19 +37,21 @@ public abstract class ProcessHelper {
         Process.sendSignal(pid, SIGCONT);
         Log.d("GlibcDebug", "Process resumed with pid: " + pid);
     }
-    
-    public static void terminateProcessByName(String process) {
-        try {
-            Runtime.getRuntime().exec("pkill -15 " + process);
-        }
-        catch (IOException e) {}
+
+    public static void terminateProcess(int pid) {
+        Process.sendSignal(pid, SIGTERM);
+        Log.d("GlibcDebug", "Process terminated with pid: " + pid);
     }
 
-    public static void killProcessByName(String process) {
-        try {
-            Runtime.getRuntime().exec("pkill -2 " + process);
+    public static void killProcess(int pid) {
+        Process.sendSignal(pid, SIGKILL);
+        Log.d("GlibcDebug", "Process killed with pid: " + pid);
+    }
+
+    public static void terminateAllWineProcesses() {
+        for (String process : listRunningWineProcesses()) {
+            terminateProcess(Integer.parseInt(process));
         }
-        catch (IOException e) {}
     }
 
     public static int exec(String command) {
@@ -227,31 +237,31 @@ public abstract class ProcessHelper {
         return affinityMask;
     }
 
-    public static ArrayList<String> listRunningWineProcesses() {
-        ArrayList<String> processes = new ArrayList<>();
-        File procDir = new File("/proc");
+    public static ArrayList<String> listRunningWineProcesses(){
+        File proc = new File("/proc");
+        String[] filters = {"wine", "exe"};
+        String[] allPids;
+        ArrayList<String> filteredPids = new ArrayList<String>();
+        List<String> filterList = Arrays.asList(filters);
+        allPids = proc.list(new FilenameFilter(){
+            public boolean accept(File proc, String filename){
+                return new File(proc, filename).isDirectory() && filename.matches("[0-9]+");
+            }
+        });
 
-        File[] files = procDir.listFiles();
-        if (files == null) return processes;
-
-        for (File file : files) {
-            if (file.isDirectory()) {
-                try {
-                    int pid = Integer.parseInt(file.getName());
-                    File commFile = new File(file, "comm");
-                    if (commFile.exists()) {
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(commFile)));
-                        String processName = reader.readLine().trim();
-                        reader.close();
-                        if (processName.contains("wine") || processName.contains("exe")) processes.add(processName);
-                    }
-                } catch (NumberFormatException | IOException ignored) {
-                    // Not a PID directory or unable to read
-                }
+        for (int index = 0; index < allPids.length; index++){
+            String data = "";
+            try {
+                FileInputStream fr = new FileInputStream(proc + "/" + allPids[index] + "/stat");
+                BufferedReader br = new BufferedReader(new InputStreamReader(fr));
+                data = br.readLine();
+            }
+            catch (IOException e) {}
+            for (String filter : filterList) {
+                if (data.contains(filter))
+                    filteredPids.add(allPids[index]);
             }
         }
-
-        return processes;
+        return filteredPids;
     }
-
 }
