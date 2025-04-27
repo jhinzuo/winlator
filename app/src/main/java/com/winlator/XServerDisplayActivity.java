@@ -2811,6 +2811,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
     }
 
     private void extractWinComponentFiles() {
+        Log.d("XServerDisplayActivity", "Extracting WinComponents");
         File rootDir = imageFs.getRootDir();
         File windowsDir = new File(rootDir, ImageFs.WINEPREFIX+"/drive_c/windows");
         File systemRegFile = new File(rootDir, ImageFs.WINEPREFIX+"/system.reg");
@@ -2819,18 +2820,22 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
             JSONObject wincomponentsJSONObject = new JSONObject(FileUtils.readString(this, "wincomponents/wincomponents.json"));
             ArrayList<String> dlls = new ArrayList<>();
             String wincomponents = shortcut != null ? shortcut.getExtra("wincomponents", container.getWinComponents()) : container.getWinComponents();
-            
+
             if (firstTimeBoot) {
                 for (String[] wincomponent : new KeyValueSet(wincomponents)) {
+                    String identifier = wincomponent[0];
+                    boolean useNative = wincomponent[1].equals("1");
                     JSONArray dlnames = wincomponentsJSONObject.getJSONArray(wincomponent[0]);
                     for (int i = 0; i < dlnames.length(); i++) {
                         String dlname = dlnames.getString(i);
                         dlls.add(!dlname.endsWith(".exe") ? dlname+".dll" : dlname);
                     }
+                    WineUtils.setWinComponentRegistryKeys(systemRegFile, identifier, useNative);
+                    Log.d("XServerDisplayActivity", "Setting wincomponent " + identifier + " to " + String.valueOf(useNative));
+                    WineUtils.overrideWinComponentDlls(this, container, identifier, useNative);
                 }
-
                 cloneOriginalDllFiles(dlls.toArray(new String[0]));
-                dlls.clear();
+                return;
             }
 
             Iterator<String[]> oldWinComponentsIter = new KeyValueSet(container.getExtra("wincomponents", Container.FALLBACK_WINCOMPONENTS)).iterator();
@@ -2850,22 +2855,22 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
                         dlls.add(!dlname.endsWith(".exe") ? dlname+".dll" : dlname);
                     }
                 }
-
+                Log.d("XServerDisplayActivity", "Setting wincomponent " + identifier + " to " + String.valueOf(useNative));
+                WineUtils.overrideWinComponentDlls(this, container, identifier, useNative);
                 WineUtils.setWinComponentRegistryKeys(systemRegFile, identifier, useNative);
             }
 
             if (!dlls.isEmpty()) restoreOriginalDllFiles(dlls.toArray(new String[0]));
-            WineUtils.overrideWinComponentDlls(this, container, wincomponents);
         }
         catch (JSONException e) {}
     }
-    
+
     private void restoreOriginalDllFiles(final String... dlls) {
         File rootDir = imageFs.getRootDir();
         File windowsDir = new File(rootDir, ImageFs.WINEPREFIX+"/drive_c/windows");
         File system32dlls = null;
         File syswow64dlls = null;
-        
+
         if (container.isBionic()) {
             system32dlls = new File(rootDir, "opt/wine.bionic/lib/wine/aarch64-windows");
             syswow64dlls = new File(rootDir, "opt/wine.bionic/lib/wine/i386-windows");
@@ -2876,18 +2881,18 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
         }
 
         int filesCopied = 0;
-        
+
         for (String dll : dlls) {
-            boolean success = false;    
+            boolean success = false;
             File srcFile = new File(system32dlls, dll);
             File dstFile = new File(windowsDir, "system32/" + dll);
             success = FileUtils.copy(srcFile, dstFile);
             srcFile = new File(syswow64dlls, dll);
             dstFile = new File(windowsDir, "syswow64/" + dll);
-            if (success && FileUtils.copy(srcFile, dstFile)) 
+            if (success && FileUtils.copy(srcFile, dstFile))
                 filesCopied++;
          }
-        
+
          if (filesCopied == dlls.length) return;
 
          containerManager.extractContainerPatternFile(container, container.getWineVersion(), container.getRootDir(), (file, size) -> {
@@ -2902,7 +2907,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
 
          cloneOriginalDllFiles(dlls);
    }
-    
+
    private void cloneOriginalDllFiles(final String... dlls) {
        File rootDir = imageFs.getRootDir();
        File cacheDir = new File(rootDir, ImageFs.CACHE_PATH+"/original_dlls");
@@ -3045,23 +3050,23 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
 //            winHandler.setProcessAffinity(window.getClassName(), processAffinity);
 //        }
 //    }
-    
+
     private void changeFrameRatingVisibility(Window window, Property property) {
         if (frameRating == null) return;
-        
+
         if (property != null) {
             if (frameRatingWindowId == -1 && (property.nameAsString().contains("_UTIL_LAYER") || property.nameAsString().contains("_MESA_DRV"))) {
                 frameRatingWindowId = window.id;
                 Log.d("XServerDisplayActivity", "Showing hud for Window " + window.getName());
                 frameRating.update();
-            }    
+            }
         }
         else if (frameRatingWindowId != -1) {
             frameRatingWindowId = -1;
             Log.d("XServerDisplayActivity", "Hiding hud for Window " + window.getName());
             runOnUiThread(() -> frameRating.setVisibility(View.GONE));
             frameRating.reset();
-        }    
+        }
     }
 
     private void scheduleSecondaryExecution(String secondaryExec, int delaySeconds) {
