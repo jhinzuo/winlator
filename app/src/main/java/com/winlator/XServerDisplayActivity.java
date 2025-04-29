@@ -2712,7 +2712,6 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
             try (WineRegistryEditor registryEditor = new WineRegistryEditor(userRegFile)) {
                 for (String name : dlls) registryEditor.setStringValue(dllOverridesKey, name, "native, builtin");
             }
-            restoreOriginalDllFiles(dlls);
             TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "graphics_driver/zink_dlls.tzst", windowsDir, onExtractFileListener);
         }
     }
@@ -2823,25 +2822,20 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
 
             if (firstTimeBoot) {
                 for (String[] wincomponent : new KeyValueSet(wincomponents)) {
-                    String identifier = wincomponent[0];
-                    boolean useNative = wincomponent[1].equals("1");
                     JSONArray dlnames = wincomponentsJSONObject.getJSONArray(wincomponent[0]);
                     for (int i = 0; i < dlnames.length(); i++) {
                         String dlname = dlnames.getString(i);
                         dlls.add(!dlname.endsWith(".exe") ? dlname+".dll" : dlname);
                     }
-                    WineUtils.setWinComponentRegistryKeys(systemRegFile, identifier, useNative);
-                    Log.d("XServerDisplayActivity", "Setting wincomponent " + identifier + " to " + String.valueOf(useNative));
-                    WineUtils.overrideWinComponentDlls(this, container, identifier, useNative);
                 }
                 cloneOriginalDllFiles(dlls.toArray(new String[0]));
-                return;
+                dlls.clear();
             }
 
             Iterator<String[]> oldWinComponentsIter = new KeyValueSet(container.getExtra("wincomponents", Container.FALLBACK_WINCOMPONENTS)).iterator();
 
             for (String[] wincomponent : new KeyValueSet(wincomponents)) {
-                if (wincomponent[1].equals(oldWinComponentsIter.next()[1])) continue;
+                if (wincomponent[1].equals(oldWinComponentsIter.next()[1]) && !firstTimeBoot) continue;
                 String identifier = wincomponent[0];
                 boolean useNative = wincomponent[1].equals("1");
 
@@ -2868,6 +2862,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
     private void restoreOriginalDllFiles(final String... dlls) {
         File rootDir = imageFs.getRootDir();
         File windowsDir = new File(rootDir, ImageFs.WINEPREFIX+"/drive_c/windows");
+        File cacheDir = new File(rootDir, ImageFs.CACHE_PATH+"/original_dlls");
         File system32dlls = null;
         File syswow64dlls = null;
 
@@ -2881,6 +2876,19 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
         }
 
         int filesCopied = 0;
+
+        for (String dll : dlls) {
+            boolean success = false;
+            File srcFile = new File(cacheDir, "system32/" + dll);
+            File dstFile = new File(windowsDir, "system32/" + dll);
+            success = FileUtils.copy(srcFile, dstFile);
+            srcFile = new File(cacheDir, "syswow64/" + dll);
+            dstFile = new File(windowsDir, "syswow64/" + dll);
+            if (success && FileUtils.copy(srcFile, dstFile))
+                filesCopied++;
+        }
+
+        if (filesCopied == dlls.length) return;
 
         for (String dll : dlls) {
             boolean success = false;
@@ -2904,8 +2912,6 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
              }
              return null;
          });
-
-         cloneOriginalDllFiles(dlls);
    }
 
    private void cloneOriginalDllFiles(final String... dlls) {
