@@ -1,48 +1,45 @@
 name: Android CI
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Allows manual triggering
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - name: Clone repository
       uses: actions/checkout@v4
       with:
-        submodules: recursive
-    
+        submodules: recursive # Also checkout submodules
+
     - name: Pull LFS files
       run: git lfs pull
 
-    - name: set up JDK 17
+    - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: gradle
+        cache: gradle # Cache Gradle dependencies
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-    - name: Build with Gradle
-      run: ./gradlew assembleDebug
+
+    - name: Build Debug APK with Gradle
+      run: ./gradlew assembleDebug # Build the debug variant
 
     - name: "Get Short SHA"
+      id: vars # Give this step an id to reference its outputs if needed elsewhere
       run: echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
     - name: "Get Version"
-      run: echo "VERSION=$(echo $(cat app/build.gradle.kts | grep versionName | cut -d "=" -f 2 | sed "s/\"//g"))" >> $GITHUB_ENV
+      run: echo "VERSION=$(grep versionName app/build.gradle.kts | sed -n 's/.*versionName = "\(.*\)"/\1/p')" >> $GITHUB_ENV # Improved grep/sed for version
 
-    - name: "List files"
-      run: |
-        ls -la app/src/main/assets
-
-    - name: "Create Release"
-      uses: softprops/action-gh-release@v2
+    # This step uploads the built APK as an artifact
+    - name: Upload Debug APK Artifact
+      uses: actions/upload-artifact@v4
       with:
-        name: "winlator_bionic ${{ env.VERSION }}-(git-${{ env.SHORT_SHA }})"
-        tag_name: ${{ env.SHORT_SHA }}
-        prerelease: true
-        files: ./app/build/outputs/apk/debug/app-debug.apk
+        name: winlator-debug-apk-${{ env.VERSION }}-${{ env.SHORT_SHA }} # Name of the artifact bundle
+        path: ./app/build/outputs/apk/debug/app-debug.apk # Path to the APK file
+        retention-days: 7 # Optional: How long to keep the artifact (default is 90 days)
