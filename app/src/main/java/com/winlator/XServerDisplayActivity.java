@@ -422,7 +422,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
             }
 
             // Initialize Win32AppWorkarounds
-            win32AppWorkarounds = new Win32AppWorkarounds(this);
+            // win32AppWorkarounds = new Win32AppWorkarounds(this);
 
             // Determine the class name for the startup workarounds
             String wmClass = shortcut != null ? shortcut.getExtra("wmClass", "") : "";
@@ -477,8 +477,11 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
                 finish();  // Gracefully exit the activity to avoid crashing
                 return;
             }
-
+            // Activate the Container first
             containerManager.activateContainer(container);
+
+            // THEN initialize Win32AppWorkarounds
+            win32AppWorkarounds = new Win32AppWorkarounds(this);
 
             taskAffinityMask = (short) ProcessHelper.getAffinityMask(container.getCPUList(true));
             taskAffinityMaskWoW64 = (short) ProcessHelper.getAffinityMask(container.getCPUListWoW64(true));
