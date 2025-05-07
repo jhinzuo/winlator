@@ -1,0 +1,341 @@
+{
+    "Software\\Wine\\LicenseInformation" : [
+        {
+            "type" : "Dword",
+            "name" : "msmpeg2adec-AACDecoderV2AddInEnable",
+            "value" : "1"
+        },
+        {
+            "type" : "Dword",
+            "name" : "msmpeg2adec-AACDecoderV2InSKU",
+            "value" : "1"
+        },
+        {
+            "type" : "Dword",
+            "name" : "msmpeg2adec-DolbyDigitalDecoderV2AddInEnable",
+            "value" : "1"
+        },
+        {
+            "type" : "Dword",
+            "name" : "msmpeg2adec-DolbyDigitalDecoderV2InSKU",
+            "value" : "1"
+        },
+        {
+            "type" : "Dword",
+            "name" : "msmpeg2vdec-H264VideoDecoderV2AddInEnable",
+            "value" : "1"
+        },
+        {
+            "type" : "Dword",
+            "name" : "msmpeg2vdec-H264VideoDecoderV2InSKU",
+            "value" : "1"
+        },
+        {
+            "type" : "Dword",
+            "name" : "msmpeg2vdec-MPEG2VideoDecoderV2AddInEnable",
+            "value" : "1"
+        },
+        {
+            "type" : "Dword",
+            "name" : "msmpeg2vdec-MPEG2VideoDecoderV2InSKU",
+            "value" : "1"
+        }
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\.3g2" : [
+    	{
+    		"type" : "String",
+    		"name" : "{271C3902-6095-4c45-A22F-20091816EE9E}",
+    		"value" : "MPEG4 Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\.3gp" : [
+    	{
+    		"type" : "String",
+    		"name" : "{271C3902-6095-4c45-A22F-20091816EE9E}",
+    		"value" : "MPEG4 Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\.3gp2" : [
+    	{
+    		"type" : "String",
+    		"name" : "{271C3902-6095-4c45-A22F-20091816EE9E}",
+    		"value" : "MPEG4 Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\.3gpp" : [
+    	{
+    		"type" : "String",
+    		"name" : "{271C3902-6095-4c45-A22F-20091816EE9E}",
+    		"value" : "MPEG4 Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\.aac" : [
+    	{
+    		"type" : "String",
+    		"name" : "{926f41f7-003e-4382-9e84-9e953be10562}",
+    		"value" : "ADTS Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\.adt" : [
+    	{
+    		"type" : "String",
+    		"name" : "{926f41f7-003e-4382-9e84-9e953be10562}",
+    		"value" : "ADTS Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\.adts" : [
+    	{
+    		"type" : "String",
+    		"name" : "{926f41f7-003e-4382-9e84-9e953be10562}",
+    		"value" : "ADTS Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\.asf" : [
+    	{
+    		"type" : "String",
+    		"name" : "{41457294-644C-4298-A28A-BD69F2C0CF3B}",
+    		"value" : "ASF Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\.avi" : [
+    	{
+    		"type" : "String",
+    		"name" : "{7AFA253E-F823-42f6-A5D9-714BDE467412}",
+    		"value" : "AVI Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\.m4a" : [
+    	{
+    		"type" : "String",
+    		"name" : "{271C3902-6095-4c45-A22F-20091816EE9E}",
+    		"value" : "MPEG4 Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\.m4v" : [
+    	{
+    		"type" : "String",
+    		"name" : "{271C3902-6095-4c45-A22F-20091816EE9E}",
+    		"value" : "MPEG4 Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\.mov" : [
+    	{
+    		"type" : "String",
+    		"name" : "{271C3902-6095-4c45-A22F-20091816EE9E}",
+    		"value" : "MPEG4 Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\.mp3" : [
+    	{
+    		"type" : "String",
+    		"name" : "{A82E50BA-8E92-41eb-9DF2-433F50EC2993}",
+    		"value" : "MP3 Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\.mp4" : [
+    	{
+    		"type" : "String",
+    		"name" : "{271C3902-6095-4c45-A22F-20091816EE9E}",
+    		"value" : "MPEG4 Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\.mp4v" : [
+    	{
+    		"type" : "String",
+    		"name" : "{271C3902-6095-4c45-A22F-20091816EE9E}",
+    		"value" : "MPEG4 Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\.wav" : [
+    	{
+    		"type" : "String",
+    		"name" : "{42C9B9F5-16FC-47ef-AF22-DA05F7C842E3}",
+    		"value" : "WAV Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\.wm" : [
+    	{
+    		"type" : "String",
+    		"name" : "{41457294-644C-4298-A28A-BD69F2C0CF3B}",
+    		"value" : "ASF Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\.wma" : [
+    	{
+    		"type" : "String",
+    		"name" : "{41457294-644C-4298-A28A-BD69F2C0CF3B}",
+    		"value" : "ASF Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\.wmv" : [
+    	{
+    		"type" : "String",
+    		"name" : "{41457294-644C-4298-A28A-BD69F2C0CF3B}",
+    		"value" : "ASF Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\audio/3gpp" : [
+    	{
+    		"type" : "String",
+    		"name" : "{271C3902-6095-4c45-A22F-20091816EE9E}",
+    		"value" : "MPEG4 Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\audio/3gpp2" : [
+    	{
+    		"type" : "String",
+    		"name" : "{271C3902-6095-4c45-A22F-20091816EE9E}",
+    		"value" : "MPEG4 Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\audio/aac" : [
+    	{
+    		"type" : "String",
+    		"name" : "{926f41f7-003e-4382-9e84-9e953be10562}",
+    		"value" : "ADTS Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\audio/aacp" : [
+    	{
+    		"type" : "String",
+    		"name" : "{926f41f7-003e-4382-9e84-9e953be10562}",
+    		"value" : "ADTS Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\audio/mp4" : [
+    	{
+    		"type" : "String",
+    		"name" : "{271C3902-6095-4c45-A22F-20091816EE9E}",
+    		"value" : "MPEG4 Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\audio/mpeg" : [
+    	{
+    		"type" : "String",
+    		"name" : "{A82E50BA-8E92-41eb-9DF2-433F50EC2993}",
+    		"value" : "MP3 Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\audio/wav" : [
+    	{
+    		"type" : "String",
+    		"name" : "{42C9B9F5-16FC-47ef-AF22-DA05F7C842E3}",
+    		"value" : "WAV Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\audio/x-aac" : [
+    	{
+    		"type" : "String",
+    		"name" : "{926f41f7-003e-4382-9e84-9e953be10562}",
+    		"value" : "ADTS Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\audio/x-mp3" : [
+    	{
+    		"type" : "String",
+    		"name" : "{A82E50BA-8E92-41eb-9DF2-433F50EC2993}",
+    		"value" : "MP3 Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\audio/x-mpeg" : [
+    	{
+    		"type" : "String",
+    		"name" : "{A82E50BA-8E92-41eb-9DF2-433F50EC2993}",
+    		"value" : "MP3 Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\audio/x-ms-wma" : [
+    	{
+    		"type" : "String",
+    		"name" : "{41457294-644C-4298-A28A-BD69F2C0CF3B}",
+    		"value" : "ASF Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\audio/x-wav" : [
+    	{
+    		"type" : "String",
+    		"name" : "{42C9B9F5-16FC-47ef-AF22-DA05F7C842E3}",
+    		"value" : "WAV Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\video/3gpp" : [
+    	{
+    		"type" : "String",
+    		"name" : "{271C3902-6095-4c45-A22F-20091816EE9E}",
+    		"value" : "MPEG4 Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\video/3gpp2" : [
+    	{
+    		"type" : "String",
+    		"name" : "{271C3902-6095-4c45-A22F-20091816EE9E}",
+    		"value" : "MPEG4 Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\video/avi" : [
+    	{
+    		"type" : "String",
+    		"name" : "{7AFA253E-F823-42f6-A5D9-714BDE467412}",
+    		"value" : "AVI Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\video/mp4" : [
+    	{
+    		"type" : "String",
+    		"name" : "{271C3902-6095-4c45-A22F-20091816EE9E}",
+    		"value" : "MPEG4 Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\video/msvideo" : [
+    	{
+    		"type" : "String",
+    		"name" : "{7AFA253E-F823-42f6-A5D9-714BDE467412}",
+    		"value" : "AVI Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\video/x-ms-asf" : [
+    	{
+    		"type" : "String",
+    		"name" : "{41457294-644C-4298-A28A-BD69F2C0CF3B}",
+    		"value" : "ASF Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\audio/x-ms-wm" : [
+    	{
+    		"type" : "String",
+    		"name" : "{41457294-644C-4298-A28A-BD69F2C0CF3B}",
+    		"value" : "ASF Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\audio/x-ms-wmv" : [
+    	{
+    		"type" : "String",
+    		"name" : "{41457294-644C-4298-A28A-BD69F2C0CF3B}",
+    		"value" : "ASF Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\video/x-msvideo" : [
+    	{
+    		"type" : "String",
+    		"name" : "{7AFA253E-F823-42f6-A5D9-714BDE467412}",
+    		"value" : "AVI Byte Stream Handler"
+    	}
+    ],
+    "Software\\Microsoft\\Windows Media Foundation\\ByteStreamHandlers\\HardwareMFT" : [
+    	{
+    		"type" : "Dword",
+    		"name" : "EnableDecoders",
+    		"value" : "0"
+    	},
+    	{
+    		"type" : "Dword",
+    		"name" : "EnableEncoders",
+    		"value" : "1"
+    	},
+    	{
+    		"type" : "Dword",
+    		"name" : "EnableVideoProcessors",
+    		"value" : "1"
+    	}
+    ]
+}

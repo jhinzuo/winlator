@@ -109,8 +109,9 @@
     <string name="directplay">DirectPlay</string>
     <string name="directshow">DirectShow</string>
     <string name="directx">DirectX</string>
+    <string name="xaudio">XAudio</string>
     <string name="vcrun2010">Visual C++ 2010</string>
-    <string name="wmdecoder">Windows Media Decoder</string>
+    <string name="windowsmediafoundation">Windows Media Foundation</string>
     <string name="settings">Settings</string>
     <string name="exec_arguments">Exec Arguments</string>
     <string name="win_components">Win Components</string>
@@ -589,7 +590,7 @@ E.g. <b>META</b> for <i>META key</i>, \n
     <string name="install_drivers_message">You will now be prompted to pick a driver. These must be the same ones used in other emulators like Yuzu, Dolphin, Citra, etc.</string>
     <string name="install_drivers_warning">Be warned that because of limitations of current PC emulators, Qualcomm Drivers may not work on chipsets below 8 Gen2 without getting patched.</string>
     <string name="enable_vulkan_api_dump">Enable dumping of Vulkan api calls to file.</string>
-
+    <string name="dll_emulator">Emulator</string>
 
 
 </resources>

@@ -28,9 +28,10 @@ public class Container {
     public static final String DEFAULT_SCREEN_SIZE = "1280x720";
     public static final String DEFAULT_GRAPHICS_DRIVER = XrActivity.isSupported() ? "wrapper" : "turnip";
     public static final String DEFAULT_AUDIO_DRIVER = XrActivity.isSupported() ? "pulseaudio" : "alsa";
+    public static final String DEFAULT_EMULATOR = "FEXCore";
     public static final String DEFAULT_DXWRAPPER = "dxvk";
-    public static final String DEFAULT_WINCOMPONENTS = "direct3d=1,directsound=1,directmusic=0,directshow=0,directplay=0,vcrun2010=1,wmdecoder=1";
-    public static final String FALLBACK_WINCOMPONENTS = "direct3d=1,directsound=1,directmusic=1,directshow=1,directplay=1,vcrun2010=1,wmdecoder=1";
+    public static final String DEFAULT_WINCOMPONENTS = "direct3d=1,directsound=1,directmusic=0,directshow=0,directplay=0,xaudio=0,vcrun2010=1,windowsmediafoundation=1";
+    public static final String FALLBACK_WINCOMPONENTS = "direct3d=1,directsound=1,directmusic=1,directshow=1,directplay=1,xaudio=1,vcrun2010=1,windowsmediafoundation=1";
     public static final String DEFAULT_DRIVES = "D:"+Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)+"E:/data/data/com.winlator/storage";
     public static final byte STARTUP_SELECTION_NORMAL = 0;
     public static final byte STARTUP_SELECTION_ESSENTIAL = 1;
@@ -68,6 +69,8 @@ public class Container {
     private String turnipGraphicsDriverVersion = "24.3.0"; // Default version or fallback
     private String wrapperGraphicsDriverVersion = "System";
 
+    private String emulator;
+
     private ContainerManager containerManager;
 
 
@@ -87,6 +90,14 @@ public class Container {
     public void setWrapperGraphicsDriverVersion(String graphicsDriverVersion) {
         Log.d("Container", "Setting graphicsDriverVersion: " + graphicsDriverVersion);
         this.wrapperGraphicsDriverVersion = graphicsDriverVersion;
+    }
+
+    public void setEmulator(String emulator) {
+        this.emulator = emulator;
+    }
+
+    public String getEmulator() {
+        return this.emulator;
     }
 
 
@@ -414,6 +425,7 @@ public class Container {
             Log.d("Container", "Saving graphicsDriverVersions: " + turnipGraphicsDriverVersion + " " + wrapperGraphicsDriverVersion);
             data.put("turnipGraphicsDriverVersion", turnipGraphicsDriverVersion); // Ensure this is added
             data.put("wrapperGraphicsDriverVersion", wrapperGraphicsDriverVersion);
+            data.put("emulator", emulator);
             data.put("dxwrapper", dxwrapper);
             if (!dxwrapperConfig.isEmpty()) data.put("dxwrapperConfig", dxwrapperConfig);
             data.put("audioDriver", audioDriver);
@@ -472,8 +484,11 @@ public class Container {
                 case "turnipGraphicsDriverVersion":
                     setTurnipGraphicsDriverVersion(data.getString(key));
                     break;
-               case "wrapperGraphicsDriverVersion":
+                case "wrapperGraphicsDriverVersion":
                     setWrapperGraphicsDriverVersion(data.getString(key));
+                    break;
+                case "emulator":
+                    setEmulator(data.getString(key));
                     break;
                 case "wincomponents" :
                     setWinComponents(data.getString(key));

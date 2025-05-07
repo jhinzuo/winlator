@@ -302,5 +302,8 @@
         <item>Enabled</item>
         <item>Disabled</item>
     </string-array>
-
+    <string-array name="emulator_entries">
+        <item>FEXCore</item>
+        <item>Box64</item>
+    </string-array>
 </resources>

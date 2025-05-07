@@ -182,6 +182,9 @@ public class ContainerDetailFragment extends Fragment {
         Spinner sAudioDriver = view.findViewById(R.id.SAudioDriver);
         sAudioDriver.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
 
+        Spinner sEmulator = view.findViewById(R.id.SEmulator);
+        sEmulator.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
+
         Spinner sMIDISoundFont = view.findViewById(R.id.SMIDISoundFont);
         sMIDISoundFont.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
 
@@ -386,6 +389,9 @@ public class ContainerDetailFragment extends Fragment {
         Spinner sAudioDriver = view.findViewById(R.id.SAudioDriver);
         AppUtils.setSpinnerSelectionFromIdentifier(sAudioDriver, isEditMode() ? container.getAudioDriver() : Container.DEFAULT_AUDIO_DRIVER);
 
+        Spinner sEmulator = view.findViewById(R.id.SEmulator);
+        AppUtils.setSpinnerSelectionFromIdentifier(sEmulator, isEditMode() ? container.getEmulator() : Container.DEFAULT_EMULATOR);
+
         Spinner sMIDISoundFont = view.findViewById(R.id.SMIDISoundFont);
         MidiManager.loadSFSpinner(sMIDISoundFont);
         AppUtils.setSpinnerSelectionFromValue(sMIDISoundFont, isEditMode() ? container.getMIDISoundFont() : "");
@@ -504,6 +510,7 @@ public class ContainerDetailFragment extends Fragment {
         }
 
         FrameLayout fexcoreFL = view.findViewById(R.id.fexcoreFrame);
+        LinearLayout emulatorLL = view.findViewById(R.id.LLEmulator);
         
         if (!swBionicContainer.isChecked()) {
             // Remove wrapper from graphics driver entries.
@@ -514,6 +521,7 @@ public class ContainerDetailFragment extends Fragment {
             sGraphicsDriver.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, sGraphicsItemsList));
             AppUtils.setSpinnerSelectionFromValue(sGraphicsDriver, selectedDriver);
             fexcoreFL.setVisibility(View.GONE);
+            emulatorLL.setVisibility(View.GONE);
         }
         else {
             isBionic = true;
@@ -523,6 +531,7 @@ public class ContainerDetailFragment extends Fragment {
             sGraphicsDriver.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, sGraphicsItemsList));
             AppUtils.setSpinnerSelectionFromValue(sGraphicsDriver, selectedDriver);
             fexcoreFL.setVisibility(View.VISIBLE);
+            emulatorLL.setVisibility(View.VISIBLE);
         }
 
         swBionicContainer.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -533,6 +542,7 @@ public class ContainerDetailFragment extends Fragment {
                     
                 // Enable fexcore section
                 fexcoreFL.setVisibility(View.VISIBLE);
+                emulatorLL.setVisibility(View.VISIBLE);
 
                 // Readd wrapper to graphics driver entries and remove virgl
                 String selectedDriver = sGraphicsDriver.getSelectedItem().toString();
@@ -547,7 +557,8 @@ public class ContainerDetailFragment extends Fragment {
 
                     
                 // Disable fexcore section
-                fexcoreFL.setVisibility(View.GONE);     
+                fexcoreFL.setVisibility(View.GONE);
+                emulatorLL.setVisibility(View.GONE);
                     
                 // Remove wrapper from graphics driver entries
                 String selectedDriver = sGraphicsDriver.getSelectedItem().toString();
@@ -619,6 +630,7 @@ public class ContainerDetailFragment extends Fragment {
                 String dxwrapper = StringUtils.parseIdentifier(sDXWrapper.getSelectedItem());
                 String dxwrapperConfig = vDXWrapperConfig.getTag().toString();
                 String audioDriver = StringUtils.parseIdentifier(sAudioDriver.getSelectedItem());
+                String emulator = StringUtils.parseIdentifier(sEmulator.getSelectedItem());
                 String wincomponents = getWinComponents(view);
                 String drives = getDrives(view);
                 boolean showFPS = cbShowFPS.isChecked();
@@ -674,6 +686,7 @@ public class ContainerDetailFragment extends Fragment {
                     container.setDXWrapper(dxwrapper);
                     container.setDXWrapperConfig(dxwrapperConfig);
                     container.setAudioDriver(audioDriver);
+                    container.setEmulator(emulator);
                     container.setWinComponents(wincomponents);
                     container.setDrives(drives);
                     container.setShowFPS(showFPS);
@@ -713,6 +726,7 @@ public class ContainerDetailFragment extends Fragment {
                     data.put("dxwrapper", dxwrapper);
                     data.put("dxwrapperConfig", dxwrapperConfig);
                     data.put("audioDriver", audioDriver);
+                    data.put("emulator", emulator);
                     data.put("wincomponents", wincomponents);
                     data.put("drives", drives);
                     data.put("showFPS", showFPS);

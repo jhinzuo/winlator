@@ -171,6 +171,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
     private Shortcut shortcut;
     private String graphicsDriver = Container.DEFAULT_GRAPHICS_DRIVER;
     private String audioDriver = Container.DEFAULT_AUDIO_DRIVER;
+    private String emulator = Container.DEFAULT_EMULATOR;
     private String dxwrapper = Container.DEFAULT_DXWRAPPER;
     private KeyValueSet dxwrapperConfig;
     private WineInfo wineInfo;
@@ -421,32 +422,6 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
                 Log.d("XServerDisplayActivity", "Parsed Container ID from .desktop file: " + containerId);
             }
 
-            // Initialize Win32AppWorkarounds
-            // win32AppWorkarounds = new Win32AppWorkarounds(this);
-
-            // Determine the class name for the startup workarounds
-            String wmClass = shortcut != null ? shortcut.getExtra("wmClass", "") : "";
-            Log.d("XServerDisplayActivity", "Startup wmClass: " + wmClass);
-
-            if (!wmClass.isEmpty()) {
-                // Apply startup workarounds based on wmClass
-                win32AppWorkarounds.applyStartupWorkarounds(wmClass);
-            } else {
-                // Fallback: Use the executable name for workarounds
-                String execPath = getIntent().getStringExtra("exec_path");
-                Log.d("XServerDisplayActivity", "Startup execPath: " + execPath);
-
-                if (execPath != null && !execPath.isEmpty()) {
-                    String execName = FileUtils.getName(execPath);
-                    Log.d("XServerDisplayActivity", "Startup execName: " + execName);
-
-                    win32AppWorkarounds.applyStartupWorkarounds(execName);
-                } else {
-                    Log.w("XServerDisplayActivity", "No wmClass or execPath provided for startup workarounds.");
-                }
-            }
-
-
 
             // Initialize playtime tracking
             playtimePrefs = getSharedPreferences("playtime_stats", MODE_PRIVATE);
@@ -477,11 +452,33 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
                 finish();  // Gracefully exit the activity to avoid crashing
                 return;
             }
-            // Activate the Container first
+
             containerManager.activateContainer(container);
 
-            // THEN initialize Win32AppWorkarounds
+            // Initialize Win32AppWorkarounds
             win32AppWorkarounds = new Win32AppWorkarounds(this);
+
+            // Determine the class name for the startup workarounds
+            String wmClass = shortcut != null ? shortcut.getExtra("wmClass", "") : "";
+            Log.d("XServerDisplayActivity", "Startup wmClass: " + wmClass);
+
+            if (!wmClass.isEmpty()) {
+                // Apply startup workarounds based on wmClass
+                win32AppWorkarounds.applyStartupWorkarounds(wmClass);
+            } else {
+                // Fallback: Use the executable name for workarounds
+                String execPath = getIntent().getStringExtra("exec_path");
+                Log.d("XServerDisplayActivity", "Startup execPath: " + execPath);
+
+                if (execPath != null && !execPath.isEmpty()) {
+                    String execName = FileUtils.getName(execPath);
+                    Log.d("XServerDisplayActivity", "Startup execName: " + execName);
+
+                    win32AppWorkarounds.applyStartupWorkarounds(execName);
+                } else {
+                    Log.w("XServerDisplayActivity", "No wmClass or execPath provided for startup workarounds.");
+                }
+            }
 
             taskAffinityMask = (short) ProcessHelper.getAffinityMask(container.getCPUList(true));
             taskAffinityMaskWoW64 = (short) ProcessHelper.getAffinityMask(container.getCPUListWoW64(true));
@@ -520,6 +517,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
 
             graphicsDriver = container.getGraphicsDriver();
             audioDriver = container.getAudioDriver();
+            emulator = container.getEmulator();
             midiSoundFont = container.getMIDISoundFont();
             dxwrapper = container.getDXWrapper();
             String dxwrapperConfig = container.getDXWrapperConfig();
@@ -534,6 +532,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
             if (shortcut != null) {
                 graphicsDriver = shortcut.getExtra("graphicsDriver", container.getGraphicsDriver());
                 audioDriver = shortcut.getExtra("audioDriver", container.getAudioDriver());
+                emulator = shortcut.getExtra("emulator", container.getEmulator());
                 dxwrapper = shortcut.getExtra("dxwrapper", container.getDXWrapper());
                 dxwrapperConfig = shortcut.getExtra("dxwrapperConfig", container.getDXWrapperConfig());
                 screenSize = shortcut.getExtra("screenSize", container.getScreenSize());
@@ -676,6 +675,12 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
 //                    container.setGraphicsDriverVersion(originalContainerDriverVersion);
 //                    container.saveData();
                     changeWineAudioDriver();
+                    if (container != null && container.isBionic()) {
+                        if (emulator.toLowerCase().equals("fexcore"))
+                            envVars.put("HODLL", "libwow64fex.dll");
+                        else
+                            envVars.put("HODLL", "box64cpu.dll");
+                    }
 //                    runWinetricksAfterSetup();
                     // Run winetricks before setting up the X environment
 //                    runWinetricks("--force vcrun2010");  // Replace with the desired winetricks arguments
@@ -2727,68 +2732,55 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
         File rootDir = imageFs.getRootDir();
         File windowsDir = new File(rootDir, ImageFs.WINEPREFIX + "/drive_c/windows");
 
-        switch (dxwrapper) {
-            case "wined3d":
-                Log.d(TAG, "Restoring original DLL files for wined3d.");
-                restoreOriginalDllFiles(dlls);
-                break;
+        if (dxwrapper.contains("vkd3d")) {
+            ContentProfile profile = contentsManager.getProfileByEntryName(dxwrapper);
+            Log.d(TAG, "Extract default dxvk 2.3.1 dxgi");
+            TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "dxwrapper/dxvk-" + DefaultVersion.DXVK + ".tzst", windowsDir, onExtractFileListener);
+            if (profile != null) {
+                Log.d(TAG, "Applying user-defined VKD3D content profile: " + dxwrapper);
+                contentsManager.applyContent(profile);
+            } else {
+                Log.d(TAG, "Extracting fallback VKD3D .tzst archive: " + dxwrapper);
+                TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "dxwrapper/" + dxwrapper + ".tzst", windowsDir, onExtractFileListener);
+            }
+            Log.d(TAG, "Finished VKD3D extraction for " + dxwrapper);
+        } else if (dxwrapper.contains("dxvk")) {
+            Log.d(TAG, "Extracting DXVK wrapper files, version: " + dxwrapper);
+            restoreOriginalDllFiles("d3d12.dll", "d3d12core.dll", "ddraw.dll");
 
-            case "cnc-ddraw":
-                Log.d(TAG, "Extracting CNC-DDRAW wrapper files.");
-                restoreOriginalDllFiles(dlls);
-                final String assetDir = "dxwrapper/cnc-ddraw-" + DefaultVersion.CNC_DDRAW;
-                File configFile = new File(rootDir, ImageFs.WINEPREFIX + "/drive_c/ProgramData/cnc-ddraw/ddraw.ini");
+            ContentProfile profile = contentsManager.getProfileByEntryName(dxwrapper);
+            if (profile != null) {
+                Log.d(TAG, "Applying user-defined DXVK content profile: " + dxwrapper);
+                contentsManager.applyContent(profile);
+            } else {
+                Log.d(TAG, "Extracting fallback DXVK .tzst archive: " + dxwrapper);
+                TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "dxwrapper/" + dxwrapper + ".tzst", windowsDir, onExtractFileListener);
 
-                if (!configFile.isFile()) {
-                    Log.d(TAG, "Copying default ddraw.ini configuration for CNC-DDRAW.");
-                    FileUtils.copy(this, assetDir + "/ddraw.ini", configFile);
+                if (compareVersion(StringUtils.parseNumber(dxwrapper), "2.4") < 0) {
+                    Log.d(TAG, "Extracting d8vk as part of DXVK version " + dxwrapper);
+                    TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "dxwrapper/d8vk-" + DefaultVersion.D8VK + ".tzst", windowsDir, onExtractFileListener);
                 }
+            }
+        } else if (dxwrapper.contains("wined3d")) {
+            Log.d(TAG, "Restoring original DLL files for wined3d.");
+            restoreOriginalDllFiles(dlls);
+        } else if (dxwrapper.contains("cnc-ddraw")) {
+            Log.d(TAG, "Extracting CNC-DDRAW wrapper files.");
+            restoreOriginalDllFiles(dlls);
+            final String assetDir = "dxwrapper/cnc-ddraw-" + DefaultVersion.CNC_DDRAW;
+            File configFile = new File(rootDir, ImageFs.WINEPREFIX + "/drive_c/ProgramData/cnc-ddraw/ddraw.ini");
 
-                File shadersDir = new File(rootDir, ImageFs.WINEPREFIX + "/drive_c/ProgramData/cnc-ddraw/Shaders");
-                FileUtils.delete(shadersDir);
-                FileUtils.copy(this, assetDir + "/Shaders", shadersDir);
+            if (!configFile.isFile()) {
+                Log.d(TAG, "Copying default ddraw.ini configuration for CNC-DDRAW.");
+                FileUtils.copy(this, assetDir + "/ddraw.ini", configFile);
+            }
 
-                Log.d(TAG, "Extracting CNC-DDRAW .tzst archive to Windows directory.");
-                TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, assetDir + "/ddraw.tzst", windowsDir, onExtractFileListener);
-                break;
+            File shadersDir = new File(rootDir, ImageFs.WINEPREFIX + "/drive_c/ProgramData/cnc-ddraw/Shaders");
+            FileUtils.delete(shadersDir);
+            FileUtils.copy(this, assetDir + "/Shaders", shadersDir);
 
-            case "vkd3d":
-                Log.d(TAG, "Starting extraction of preinstalled VKD3D files.");
-                TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "dxwrapper/dxvk-" + DefaultVersion.DXVK + ".tzst", windowsDir, onExtractFileListener);
-                TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "dxwrapper/vkd3d-" + DefaultVersion.VKD3D + ".tzst", windowsDir, onExtractFileListener);
-                Log.d(TAG, "Finished extraction of preinstalled VKD3D files.");
-                break;
-
-            default:
-                if (dxwrapper.startsWith("dxvk")) {
-                    Log.d(TAG, "Extracting DXVK wrapper files, version: " + dxwrapper);
-                    restoreOriginalDllFiles("d3d12.dll", "d3d12core.dll", "ddraw.dll");
-
-                    ContentProfile profile = contentsManager.getProfileByEntryName(dxwrapper);
-                    if (profile != null) {
-                        Log.d(TAG, "Applying user-defined DXVK content profile: " + dxwrapper);
-                        contentsManager.applyContent(profile);
-                    } else {
-                        Log.d(TAG, "Extracting fallback DXVK .tzst archive: " + dxwrapper);
-                        TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "dxwrapper/" + dxwrapper + ".tzst", windowsDir, onExtractFileListener);
-
-                        if (compareVersion(StringUtils.parseNumber(dxwrapper), "2.4") < 0) {
-                            Log.d(TAG, "Extracting d8vk as part of DXVK version " + dxwrapper);
-                            TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "dxwrapper/d8vk-" + DefaultVersion.D8VK + ".tzst", windowsDir, onExtractFileListener);
-                        }
-                    }
-                } else if (dxwrapper.startsWith("vkd3d")) {
-                    ContentProfile profile = contentsManager.getProfileByEntryName(dxwrapper);
-                    if (profile != null) {
-                        Log.d(TAG, "Applying user-defined VKD3D content profile: " + dxwrapper);
-                        contentsManager.applyContent(profile);
-                    } else {
-                        Log.d(TAG, "Extracting fallback VKD3D .tzst archive: " + dxwrapper);
-                        TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "dxwrapper/" + dxwrapper + ".tzst", windowsDir, onExtractFileListener);
-                    }
-                    Log.d(TAG, "Finished VKD3D extraction for " + dxwrapper);
-                }
-                break;
+            Log.d(TAG, "Extracting CNC-DDRAW .tzst archive to Windows directory.");
+            TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, assetDir + "/ddraw.tzst", windowsDir, onExtractFileListener);
         }
     }
 
@@ -2854,7 +2846,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
                 }
                 Log.d("XServerDisplayActivity", "Setting wincomponent " + identifier + " to " + String.valueOf(useNative));
                 WineUtils.overrideWinComponentDlls(this, container, identifier, useNative);
-                WineUtils.setWinComponentRegistryKeys(systemRegFile, identifier, useNative);
+                WineUtils.setWinComponentRegistryKeys(systemRegFile, identifier, useNative, this);
             }
 
             if (!dlls.isEmpty()) restoreOriginalDllFiles(dlls.toArray(new String[0]));

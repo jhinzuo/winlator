@@ -169,7 +169,8 @@ public class ShortcutSettingsDialog extends ContentDialog {
 
         final Spinner sAudioDriver = findViewById(R.id.SAudioDriver);
         AppUtils.setSpinnerSelectionFromIdentifier(sAudioDriver, shortcut.getExtra("audioDriver", shortcut.container.getAudioDriver()));
-
+        final Spinner sEmulator = findViewById(R.id.SEmulator);
+        AppUtils.setSpinnerSelectionFromIdentifier(sEmulator, shortcut.getExtra("emulator", shortcut.container.getEmulator()));
         final Spinner sMIDISoundFont = findViewById(R.id.SMIDISoundFont);
         MidiManager.loadSFSpinner(sMIDISoundFont);
         AppUtils.setSpinnerSelectionFromValue(sMIDISoundFont, shortcut.getExtra("midiSoundFont", shortcut.container.getMIDISoundFont()));
@@ -310,6 +311,7 @@ public class ShortcutSettingsDialog extends ContentDialog {
         });
 
         FrameLayout fexcoreFL = findViewById(R.id.fexcoreFrame);
+        LinearLayout emulatorLL = findViewById(R.id.LLEmulator);
         
         // Handle bionic and glibc switching logic
         if (!shortcut.container.isBionic()) {
@@ -319,6 +321,7 @@ public class ShortcutSettingsDialog extends ContentDialog {
             sGraphicsDriver.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, sGraphicsItemsList));
             AppUtils.setSpinnerSelectionFromValue(sGraphicsDriver, selectedDriver);
             fexcoreFL.setVisibility(View.GONE);
+            emulatorLL.setVisibility(View.GONE);
         }
         else {
             String selectedDriver = sGraphicsDriver.getSelectedItem().toString();
@@ -348,6 +351,7 @@ public class ShortcutSettingsDialog extends ContentDialog {
 //                dxwrapper = dxwrapper == null || dxwrapper.isEmpty() ? "default_dxwrapper" : dxwrapper;
                 String dxwrapperConfig = vDXWrapperConfig.getTag().toString();
                 String audioDriver = StringUtils.parseIdentifier(sAudioDriver.getSelectedItem());
+                String emulator = StringUtils.parseIdentifier(sEmulator.getSelectedItem());
                 String midiSoundFont = sMIDISoundFont.getSelectedItemPosition() == 0 ? "" : sMIDISoundFont.getSelectedItem().toString();
                 String screenSize = containerDetailFragment.getScreenSize(getContentView());
 
@@ -373,6 +377,7 @@ public class ShortcutSettingsDialog extends ContentDialog {
                 shortcut.putExtra("dxwrapper", !dxwrapper.equals(shortcut.container.getDXWrapper()) ? dxwrapper : null);
                 shortcut.putExtra("dxwrapperConfig", !dxwrapperConfig.equals(shortcut.container.getDXWrapperConfig()) ? dxwrapperConfig : null);
                 shortcut.putExtra("audioDriver", !audioDriver.equals(shortcut.container.getAudioDriver()) ? audioDriver : null);
+                shortcut.putExtra("emulator", !emulator.equals(shortcut.container.getEmulator()) ? emulator : null);
                 shortcut.putExtra("midiSoundFont", !midiSoundFont.equals(shortcut.container.getMIDISoundFont()) ? midiSoundFont : null);
                 shortcut.putExtra("forceFullscreen", cbForceFullscreen.isChecked() ? "1" : null);
 
