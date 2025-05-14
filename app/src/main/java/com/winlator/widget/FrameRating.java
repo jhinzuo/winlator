@@ -34,7 +34,6 @@ public class FrameRating extends FrameLayout implements Runnable {
     private Context context;
     private long lastTime = 0;
     private int frameCount = 0;
-    private File appInfo = null;
     private float lastFPS = 0;
     private String renderer = null;
     private String gpuName = null;
@@ -70,26 +69,7 @@ public class FrameRating extends FrameLayout implements Runnable {
             tvContainer.setText("Bionic");
         else
             tvContainer.setText("Glibc");
-        appInfo = new File(context.getFilesDir(), "imagefs/tmp/app_info.txt");
-        if (appInfo.exists()) appInfo.delete();
         addView(view);
-    }
-    
-    private String getRenderer() {
-        String renderer = "OpenGL";
-        ArrayList<String> lines = FileUtils.readLines(appInfo);
-        if (lines.size() > 0)
-            renderer = lines.get(0);
-        return renderer;
-    }
-    
-    private String getGPUName() {
-        String gpuName = GPUInformation.getRenderer();
-        ArrayList<String> lines = FileUtils.readLines(appInfo);
-        if (lines.size() > 1) {
-            gpuName = lines.get(1);
-        }
-        return gpuName;
     }
 
     private String getBoardName() {
@@ -155,7 +135,16 @@ public class FrameRating extends FrameLayout implements Runnable {
         renderer = null;
         gpuName = null;
         lastFPS = 0;
-        appInfo.delete();
+    }
+
+    public void setRenderer(String renderer) {
+        this.renderer = renderer;
+        tvRenderer.setText(renderer);
+    }
+
+    public void setGpuName (String gpuName) {
+        this.gpuName = gpuName;
+        tvGPU.setText(gpuName);
     }
 
     public void update() {
@@ -174,14 +163,8 @@ public class FrameRating extends FrameLayout implements Runnable {
     public void run() {
         if (getVisibility() == GONE) setVisibility(View.VISIBLE);
         tvFPS.setText(String.format(Locale.ENGLISH, "%.1f", lastFPS));
-        if (renderer == null) {
-            renderer = getRenderer();
-            tvRenderer.setText(renderer);
-        }
-        if (gpuName == null) {
-            gpuName = getGPUName();
-            tvGPU.setText(gpuName);
-        }
+        if (renderer == null) tvRenderer.setText("OpenGL");
+        if (gpuName == null) tvGPU.setText(GPUInformation.getRenderer());
         tvRAM.setText(getAvailableRAM() + " GB Used / " + totalRAM + " Total");
     }
 }

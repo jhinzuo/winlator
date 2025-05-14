@@ -4,29 +4,21 @@ import static com.winlator.core.AppUtils.showToast;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.FileObserver;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.view.InputDevice;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -34,11 +26,8 @@ import android.view.PointerIcon;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,7 +36,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -63,7 +51,6 @@ import com.winlator.container.Shortcut;
 import com.winlator.contentdialog.ContentDialog;
 import com.winlator.contentdialog.DXVKConfigDialog;
 import com.winlator.contentdialog.DebugDialog;
-import com.winlator.contentdialog.GamepadConfiguratorDialog;
 import com.winlator.contentdialog.ScreenEffectDialog;
 import com.winlator.contentdialog.VKD3DConfigDialog;
 import com.winlator.contents.ContentProfile;
@@ -129,7 +116,6 @@ import com.winlator.xserver.Window;
 import com.winlator.xserver.WindowManager;
 import com.winlator.xserver.XServer;
 
-import java.nio.file.Files;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -143,12 +129,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
@@ -1917,7 +1900,6 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
 
         if (container != null && container.isShowFPS()) {
             frameRating = new FrameRating(this, container);
-            envVars.put("UTIL_LAYER_DUMP_INFO", "1");
             frameRating.setVisibility(View.GONE);
             rootView.addView(frameRating);
         }
@@ -3059,6 +3041,12 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
                 frameRatingWindowId = window.id;
                 Log.d("XServerDisplayActivity", "Showing hud for Window " + window.getName());
                 frameRating.update();
+            }
+            if (property.nameAsString().contains("_UTIL_LAYER_ENGINE_NAME")) {
+                frameRating.setRenderer(property.toString());
+            }
+            if (property.nameAsString().contains("_UTIL_LAYER_GPU_NAME")) {
+                frameRating.setGpuName(property.toString());
             }
         }
         else if (frameRatingWindowId != -1) {
