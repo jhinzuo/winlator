@@ -178,8 +178,6 @@ public class BionicProgramLauncherComponent extends GuestProgramLauncherComponen
 
         EnvVars envVars = new EnvVars();
 
-        checkXServerConnectionUnixSocket();
-
         // Add the Box86 and Box64 environment variables depending on the mode
         if (!wow64Mode) {
             addBox86EnvVars(envVars, enableBox86_64Logs);
@@ -191,7 +189,7 @@ public class BionicProgramLauncherComponent extends GuestProgramLauncherComponen
         envVars.put("USER", ImageFs.USER);
         envVars.put("TMPDIR", rootDir.getPath() + "/usr/tmp");
         envVars.put("XDG_DATA_DIRS", rootDir.getPath() + "/usr/share");
-        envVars.put("LD_LIBRARY_PATH", rootDir.getPath() + "/usr/lib" + ":" + "/system/lib64");
+        envVars.put("LD_LIBRARY_PATH", "/system/lib64" + ":" + rootDir.getPath() + "/usr/lib");
         envVars.put("XDG_CONFIG_DIRS", rootDir.getPath() + "/usr/etc/xdg");
         envVars.put("GST_PLUGIN_PATH", rootDir.getPath() + "/usr/lib/gstreamer-1.0");
         envVars.put("FONTCONFIG_PATH", rootDir.getPath() + "/usr/etc/fonts");
@@ -201,6 +199,7 @@ public class BionicProgramLauncherComponent extends GuestProgramLauncherComponen
         envVars.put("DISPLAY", ":0");
         envVars.put("WINE_DISABLE_FULLSCREEN_HACK", "1");
         envVars.put("ENABLE_UTIL_LAYER", "1");
+        envVars.put("GST_PLUGIN_FEATURE_RANK", "ximagesink:3000");
 
 
         String winePath = wineProfile == null ? imageFs.getWinePath() + "/bin"
@@ -362,18 +361,4 @@ public class BionicProgramLauncherComponent extends GuestProgramLauncherComponen
         startWineServer(); // Start wineserver again
         Log.d("BionicProgramLauncherComponent", "wineserver restarted.");
     }
-
-
-
-    private void checkXServerConnectionUnixSocket() {
-        File xSocket = new File("/data/data/com.winlator/files/imagefs/tmp/.X11-unix/X0");
-        if (xSocket.exists()) {
-            Log.d("XServerCheck", "X server socket exists.");
-        } else {
-            Log.e("XServerCheck", "X server socket not found.");
-        }
-
-    }
-
-
 }
