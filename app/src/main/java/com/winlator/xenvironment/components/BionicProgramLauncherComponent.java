@@ -200,6 +200,7 @@ public class BionicProgramLauncherComponent extends GuestProgramLauncherComponen
         envVars.put("WINE_DISABLE_FULLSCREEN_HACK", "1");
         envVars.put("ENABLE_UTIL_LAYER", "1");
         envVars.put("GST_PLUGIN_FEATURE_RANK", "ximagesink:3000");
+        envVars.put("WINE_DO_NOT_UPDATE_IF_TABLE", "1");
 
 
         String winePath = wineProfile == null ? imageFs.getWinePath() + "/bin"
