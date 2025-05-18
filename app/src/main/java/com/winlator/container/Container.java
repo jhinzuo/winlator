@@ -65,6 +65,7 @@ public class Container {
     private String lc_all = "";
     private int primaryController = 1;
     private String controllerMapping = new String(new char[XrControllerMapping.values().length]);
+    private String blacklistedExtensions;
 
     private String turnipGraphicsDriverVersion = "24.3.0"; // Default version or fallback
     private String wrapperGraphicsDriverVersion = "System";
@@ -179,6 +180,10 @@ public class Container {
     public void setWinComponents(String wincomponents) {
         this.wincomponents = wincomponents;
     }
+
+    public String getBlacklistedExtensions() { return blacklistedExtensions; }
+
+    public void setBlacklistedExtensions(String blacklistedExtensions) { this.blacklistedExtensions = blacklistedExtensions; }
 
     public String getDrives() {
         return drives;
@@ -414,6 +419,7 @@ public class Container {
             if (!dxwrapperConfig.isEmpty()) data.put("dxwrapperConfig", dxwrapperConfig);
             data.put("audioDriver", audioDriver);
             data.put("wincomponents", wincomponents);
+            data.put("blacklistedextensions", blacklistedExtensions);
             data.put("drives", drives);
             data.put("showFPS", showFPS);
             data.put("fullscreenStretched", fullscreenStretched);
@@ -473,6 +479,9 @@ public class Container {
                     break;
                 case "wincomponents" :
                     setWinComponents(data.getString(key));
+                    break;
+                case "blacklistedextensions":
+                    setBlacklistedExtensions(data.getString(key));
                     break;
                 case "dxwrapper" :
                     setDXWrapper(data.getString(key));

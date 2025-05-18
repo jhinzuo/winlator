@@ -150,10 +150,14 @@
 
     <!-- CheckBox Styles -->
     <style name="CheckBox" parent="@android:style/Widget.CompoundButton.CheckBox">
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColorSecondary">@color/colorPrimary</item>
         <item name="android:textSize">16sp</item>
     </style>
 
     <style name="CheckBox.Dark" parent="CheckBox">
+        <item name="colorAccent">@color/colorAccentDark</item>
+        <item name="android:textColorSecondary">@color/colorPrimaryDark</item>
         <item name="android:textColor">#ffffff</item>
     </style>
 

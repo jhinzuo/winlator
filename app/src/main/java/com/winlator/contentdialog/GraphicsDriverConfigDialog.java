@@ -3,11 +3,16 @@ package com.winlator.contentdialog;
 import android.content.Context;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.winlator.R;
 import com.winlator.container.Container;
@@ -23,27 +28,73 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.HashMap;
 
 public class GraphicsDriverConfigDialog extends ContentDialog {
-    private static final String TAG = "GraphicsDriverConfigDialog"; // Tag for logging
 
+    private static final String TAG = "GraphicsDriverConfigDialog"; // Tag for logging
+    HashMap<String, Boolean> extensionsState = new HashMap<>();
     private Spinner sVersion;
+    private Spinner sAvailableExtensions;
     private String selectedVersion;
+    private String blacklistedExtensions = "";
+
+    protected class ExtensionAdapter extends ArrayAdapter<String> {
+        ArrayList<String> extensions;
+
+        public ExtensionAdapter(Context context, List<String> list) {
+            super(context, 0, list);
+            this.extensions = new ArrayList<>(list);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            return initSpinnerElement(position, convertView, parent);
+        }
+
+        @Override
+        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+            return initDropDownView(position, convertView, parent);
+        }
+
+        private View initSpinnerElement(int position, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                convertView = (View)new TextView(getContext());
+            }
+            ((TextView)convertView).setText(extensions.size() + " System Extensions");
+            return convertView;
+        }
+
+        private View initDropDownView(int position, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                convertView = getLayoutInflater().inflate(R.layout.checkbox_spinner, parent, false);
+            }
+            CheckBox cb = convertView.findViewById(R.id.checkbox);
+            cb.setText(extensions.get(position));
+            cb.setOnCheckedChangeListener(null);
+            cb.setChecked(extensionsState.getOrDefault(extensions.get(position), true));
+            cb.setOnCheckedChangeListener((buttonView, isChecked) ->  {
+                extensionsState.put(extensions.get(position), isChecked);
+            });
+            return convertView;
+        }
+    }
 
     public interface OnGraphicsDriverVersionSelectedListener {
-        void onGraphicsDriverVersionSelected(String version);
+        void onGraphicsDriverVersionSelected(String version, String blacklistedExtensions);
     }
   
-    public GraphicsDriverConfigDialog(View anchor, String initialVersion, String graphicsDriver, OnGraphicsDriverVersionSelectedListener listener) {
+    public GraphicsDriverConfigDialog(View anchor, String initialVersion, String blExtensions, String graphicsDriver, OnGraphicsDriverVersionSelectedListener listener) {
         super(anchor.getContext(), R.layout.graphics_driver_config_dialog);
-        initializeDialog(anchor, initialVersion, graphicsDriver, null, listener);
+        initializeDialog(anchor, initialVersion, blExtensions, graphicsDriver, null, listener);
     }
 
-    private void initializeDialog(View anchor, String initialVersion, String graphicsDriver, @Nullable File rootDir, OnGraphicsDriverVersionSelectedListener listener) {
+    private void initializeDialog(View anchor, String initialVersion, String blExtensions, String graphicsDriver, @Nullable File rootDir, OnGraphicsDriverVersionSelectedListener listener) {
         setIcon(R.drawable.icon_settings);
         setTitle(anchor.getContext().getString(R.string.graphics_driver_configuration));
 
         sVersion = findViewById(R.id.SGraphicsDriverVersion);
+        sAvailableExtensions = findViewById(R.id.SGraphicsDriverAvailableExtensions);
 
         // Update the selectedVersion whenever the user selects a different version
         sVersion.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -65,10 +116,18 @@ public class GraphicsDriverConfigDialog extends ContentDialog {
         contentsManager.syncContents();
         
         // Populate the spinner with available versions from ContentsManager and pre-select the initial version
-        populateGraphicsDriverVersions(anchor.getContext(), contentsManager, initialVersion, graphicsDriver);
+        populateGraphicsDriverVersions(anchor.getContext(), contentsManager, initialVersion, blExtensions, graphicsDriver);
 
         setOnConfirmCallback(() -> {
             anchor.setTag(selectedVersion);
+            for (HashMap.Entry<String, Boolean> entry : extensionsState.entrySet()) {
+                if(!entry.getKey().isEmpty() && !entry.getValue()) {
+                    blacklistedExtensions += entry.getKey() + ",";
+                }
+            }
+
+            if (!blacklistedExtensions.isEmpty())
+                blacklistedExtensions = blacklistedExtensions.substring(0, blacklistedExtensions.length() - 1);
 
 //            if (rootDir != null) {
 //                // Apply the selected version to the container
@@ -78,7 +137,8 @@ public class GraphicsDriverConfigDialog extends ContentDialog {
 
             // Pass the selected version back to the listener
             if (listener != null) {
-                listener.onGraphicsDriverVersionSelected(selectedVersion);
+                Log.d(TAG, "Blacklisted extensions " + blacklistedExtensions);
+                listener.onGraphicsDriverVersionSelected(selectedVersion, blacklistedExtensions);
             }
         });
     }
@@ -141,9 +201,10 @@ public class GraphicsDriverConfigDialog extends ContentDialog {
 //        });
 //    }
 
-    private void populateGraphicsDriverVersions(Context context, ContentsManager contentsManager, @Nullable String initialVersion, String graphicsDriver) {
+    private void populateGraphicsDriverVersions(Context context, ContentsManager contentsManager, @Nullable String initialVersion, @Nullable String blExtensions, String graphicsDriver) {
         List<String> turnipVersions = new ArrayList<>();
         List<String> wrapperVersions = new ArrayList<>();
+        ArrayList<String> availableExtensions = new ArrayList<>();
 
         // Load the default versions from arrays.xml
         String[] turnipDefaultVersions = context.getResources().getStringArray(R.array.turnip_graphics_driver_version_entries);
@@ -167,14 +228,34 @@ public class GraphicsDriverConfigDialog extends ContentDialog {
         AdrenotoolsManager adrenotoolsManager = new AdrenotoolsManager(context);
         wrapperVersions.addAll(adrenotoolsManager.enumarateInstalledDrivers());
 
+        availableExtensions = new ArrayList<>(Arrays.asList(GPUInformation.enumerateExtensions()));
+
+        // Remove essential and wrapper disabled extensions
+        String[] essentialExtensions = {"VK_EXT_hdr_metadata", "VK_GOOGLE_display_timing", "VK_KHR_shader_float_controls", "VK_KHR_shader_presentable_image", "VK_EXT_image_compression_control_swapchain"};
+        for (String extension : essentialExtensions) {
+            availableExtensions.remove(extension);
+        }
+
         // Set the adapter and select the initial version
         ArrayAdapter<String> turnipAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, turnipVersions);
         ArrayAdapter<String> wrapperAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, wrapperVersions);
+        ExtensionAdapter extensionsAdapter = new ExtensionAdapter(context, availableExtensions);
+
+        String[] bl = blExtensions.split("\\,");
+
+        for (String extension : bl) {
+            if (!extension.isEmpty()) {
+                Log.d("GraphicsDriverConfigDialog", "Getting initial blacklisted extension: " + extension);
+                extensionsState.put(extension, false);
+            }
+        }
         
         if (graphicsDriver.contains("turnip"))
             sVersion.setAdapter(turnipAdapter);
         else
             sVersion.setAdapter(wrapperAdapter);
+
+        sAvailableExtensions.setAdapter(extensionsAdapter);
         
         // We can start logging selected graphics driver and initial version
         Log.d(TAG, "Graphics driver: " + graphicsDriver);

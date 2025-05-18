@@ -94,6 +94,7 @@ public class ContainerDetailFragment extends Fragment {
 
     private String turnipGraphicsDriverVersion = "";
     private String wrapperGraphicsDriverVersion = "";
+    private String blacklistedExtensions = "";
 
     private static boolean isDarkMode;
 
@@ -356,6 +357,7 @@ public class ContainerDetailFragment extends Fragment {
             etName.setText(container.getName());
             turnipGraphicsDriverVersion = container.getTurnipGraphicsDriverVersion();
             wrapperGraphicsDriverVersion = container.getWrapperGraphicsDriverVersion();
+            blacklistedExtensions = container.getBlacklistedExtensions();
         } else {
             etName.setText(getString(R.string.container) + "-" + manager.getNextContainerId());
         }
@@ -561,6 +563,7 @@ public class ContainerDetailFragment extends Fragment {
                 String audioDriver = StringUtils.parseIdentifier(sAudioDriver.getSelectedItem());
                 String emulator = StringUtils.parseIdentifier(sEmulator.getSelectedItem());
                 String wincomponents = getWinComponents(view);
+                String blacklistedExtensions = this.blacklistedExtensions;
                 String drives = getDrives(view);
                 boolean showFPS = cbShowFPS.isChecked();
                 boolean fullscreenStretched = cbFullscreenStretched.isChecked();
@@ -617,6 +620,7 @@ public class ContainerDetailFragment extends Fragment {
                     container.setAudioDriver(audioDriver);
                     container.setEmulator(emulator);
                     container.setWinComponents(wincomponents);
+                    container.setBlacklistedExtensions(blacklistedExtensions);
                     container.setDrives(drives);
                     container.setShowFPS(showFPS);
                     container.setFullscreenStretched(fullscreenStretched);
@@ -655,6 +659,7 @@ public class ContainerDetailFragment extends Fragment {
                     data.put("audioDriver", audioDriver);
                     data.put("emulator", emulator);
                     data.put("wincomponents", wincomponents);
+                    data.put("blacklistedextensions", blacklistedExtensions);
                     data.put("drives", drives);
                     data.put("showFPS", showFPS);
                     data.put("fullscreenStretched", fullscreenStretched);
@@ -683,6 +688,7 @@ public class ContainerDetailFragment extends Fragment {
                             this.container = container;
                             container.setTurnipGraphicsDriverVersion(turnipGraphicsDriverVersion);
                             container.setWrapperGraphicsDriverVersion(wrapperGraphicsDriverVersion);
+                            container.setBlacklistedExtensions(blacklistedExtensions);
                             saveWineRegistryKeys(view);
                             FEXCoreManager.saveFEXCoreSpinners(container, sFEXCoreTSOPreset, sFEXCoreMultiBlock, sFEXCoreX87ReducedPrecision);
                         }
@@ -883,15 +889,19 @@ public class ContainerDetailFragment extends Fragment {
             graphicsDriverVersion = (turnipGraphicsDriverVersion != "") ? turnipGraphicsDriverVersion : DefaultVersion.TURNIP;
         else
             graphicsDriverVersion = (wrapperGraphicsDriverVersion != "") ? wrapperGraphicsDriverVersion : DefaultVersion.WRAPPER;
+
+        String blacklistedExtensions = this.blacklistedExtensions;
              
         // Create a new GraphicsDriverConfigDialog
-        new GraphicsDriverConfigDialog(anchor, graphicsDriverVersion, graphicsDriver,  (version) -> {
+        new GraphicsDriverConfigDialog(anchor, graphicsDriverVersion, blacklistedExtensions, graphicsDriver,  (version, blExtensions) -> {
             // Update the fragment-level variable with the selected version
             if (graphicsDriver.contains("turnip"))    
                 turnipGraphicsDriverVersion = version;
             else 
                 wrapperGraphicsDriverVersion = version;
+            this.blacklistedExtensions = blExtensions;
             Log.d("ContainerDetailFragment", "Selected graphics driver version: " + version);
+            Log.d("ContainerDetailFragment", "Selected blacklisted extensions: " + blExtensions);
         }).show();
     }
 

@@ -312,7 +312,8 @@
     <string name="setup_failed">Setup failed</string>
     <string name="graphics_driver_configuration">Graphics Driver Configuration</string>
     <string name="select_graphics_driver_version">Select Graphics Driver Version:</string>
-    <string name="graphics_driver_version">Graphics Driver Version:</string>
+    <string name="graphics_driver_version">Graphics Driver Version</string>
+    <string name="graphics_driver_available_extensions">Available Extensions</string>
     <string name="add_to_homescreen">Add to Homescreen</string>
     <string name="add_save">Add Save</string>
     <string name="saves">Saves</string>

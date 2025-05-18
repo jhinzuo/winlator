@@ -2282,7 +2282,9 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
             if (adrenoToolsDriverId != "") {
                 AdrenotoolsManager adrenotoolsManager = new AdrenotoolsManager(this);
                 adrenotoolsManager.setDriverById(envVars, imageFs, adrenoToolsDriverId);
-            }    
+            }
+            String blacklistedExtensions = container.getBlacklistedExtensions();
+            envVars.put("WRAPPER_EXTENSION_BLACKLIST", blacklistedExtensions);
         }
         extractZinkDlls(changed);
         try (WineRegistryEditor registryEditor = new WineRegistryEditor(userRegFile)) {
