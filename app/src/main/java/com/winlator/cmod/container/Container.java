@@ -68,6 +68,7 @@ public class Container {
     private String blacklistedExtensions;
 
     private String wrapperGraphicsDriverVersion = "System";
+    private String oldWrapperGraphicsDriverVersion = "System";
 
     private String emulator;
 
@@ -78,8 +79,15 @@ public class Container {
     }
 
     public void setWrapperGraphicsDriverVersion(String graphicsDriverVersion) {
-        Log.d("Container", "Setting graphicsDriverVersion: " + graphicsDriverVersion);
         this.wrapperGraphicsDriverVersion = graphicsDriverVersion;
+    }
+
+    public String getOldWrapperGraphicsDriverVersion() {
+        return oldWrapperGraphicsDriverVersion;
+    }
+
+    public void setOldWrapperGraphicsDriverVersion(String graphicsDriverVersion) {
+        this.oldWrapperGraphicsDriverVersion = graphicsDriverVersion;
     }
 
     public void setEmulator(String emulator) {
@@ -401,6 +409,7 @@ public class Container {
             data.put("cpuListWoW64", cpuListWoW64);
             data.put("graphicsDriver", graphicsDriver);
             data.put("wrapperGraphicsDriverVersion", wrapperGraphicsDriverVersion);
+            data.put("oldWrapperGraphicsDriverVersion", oldWrapperGraphicsDriverVersion);
             data.put("emulator", emulator);
             data.put("dxwrapper", dxwrapper);
             if (!dxwrapperConfig.isEmpty()) data.put("dxwrapperConfig", dxwrapperConfig);
@@ -457,6 +466,9 @@ public class Container {
                     break;
                 case "wrapperGraphicsDriverVersion":
                     setWrapperGraphicsDriverVersion(data.getString(key));
+                    break;
+                case "oldWrapperGraphicsDriverVersion":
+                    setOldWrapperGraphicsDriverVersion(data.getString(key));
                     break;
                 case "emulator":
                     setEmulator(data.getString(key));

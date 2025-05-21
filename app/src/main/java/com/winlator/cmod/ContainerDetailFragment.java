@@ -92,6 +92,7 @@ public class ContainerDetailFragment extends Fragment {
     private Callback<String> openDirectoryCallback;
 
     private String wrapperGraphicsDriverVersion = "";
+    private String oldWrapperGraphicsDriverVersion = "";
     private String blacklistedExtensions = "";
 
     private static boolean isDarkMode;
@@ -553,6 +554,7 @@ public class ContainerDetailFragment extends Fragment {
                 String envVars = envVarsView.getEnvVars();
                 String graphicsDriver = StringUtils.parseIdentifier(sGraphicsDriver.getSelectedItem());
                 String wrapperGraphicsDriverVersion = (this.wrapperGraphicsDriverVersion != "") ? this.wrapperGraphicsDriverVersion : DefaultVersion.WRAPPER;
+                String oldWrapperGraphicsDriverVersion = (this.oldWrapperGraphicsDriverVersion != "") ? this.oldWrapperGraphicsDriverVersion : DefaultVersion.WRAPPER;
                 String dxwrapper = StringUtils.parseIdentifier(sDXWrapper.getSelectedItem());
                 String dxwrapperConfig = vDXWrapperConfig.getTag().toString();
                 String audioDriver = StringUtils.parseIdentifier(sAudioDriver.getSelectedItem());
@@ -609,6 +611,7 @@ public class ContainerDetailFragment extends Fragment {
                     container.setCPUListWoW64(cpuListWoW64);
                     container.setGraphicsDriver(graphicsDriver);
                     container.setWrapperGraphicsDriverVersion(wrapperGraphicsDriverVersion);
+                    container.setOldWrapperGraphicsDriverVersion(oldWrapperGraphicsDriverVersion);
                     container.setDXWrapper(dxwrapper);
                     container.setDXWrapperConfig(dxwrapperConfig);
                     container.setAudioDriver(audioDriver);
@@ -642,7 +645,8 @@ public class ContainerDetailFragment extends Fragment {
                     data.put("cpuList", cpuList);
                     data.put("cpuListWoW64", cpuListWoW64);
                     data.put("graphicsDriver", graphicsDriver);
-                    data.put("wrapperGraphicsDriverVersion", getWrapperGraphicsDriverVersion());
+                    data.put("wrapperGraphicsDriverVersion",wrapperGraphicsDriverVersion);
+                    data.put("oldWrapperGraphicsDriverVersion", oldWrapperGraphicsDriverVersion);
                     data.put("dxwrapper", dxwrapper);
                     data.put("dxwrapperConfig", dxwrapperConfig);
                     data.put("audioDriver", audioDriver);
@@ -676,6 +680,7 @@ public class ContainerDetailFragment extends Fragment {
                         if (container != null) {
                             this.container = container;
                             container.setWrapperGraphicsDriverVersion(wrapperGraphicsDriverVersion);
+                            container.setOldWrapperGraphicsDriverVersion(oldWrapperGraphicsDriverVersion);
                             container.setBlacklistedExtensions(blacklistedExtensions);
                             saveWineRegistryKeys(view);
                             FEXCoreManager.saveFEXCoreSpinners(container, sFEXCoreTSOPreset, sFEXCoreMultiBlock, sFEXCoreX87ReducedPrecision);
@@ -878,9 +883,11 @@ public class ContainerDetailFragment extends Fragment {
         // Create a new GraphicsDriverConfigDialog
         new GraphicsDriverConfigDialog(anchor, graphicsDriverVersion, blacklistedExtensions, graphicsDriver,  (version, blExtensions) -> {
             // Update the fragment-level variable with the selected version
+            this.oldWrapperGraphicsDriverVersion = this.wrapperGraphicsDriverVersion;
             this.wrapperGraphicsDriverVersion = version;
             this.blacklistedExtensions = blExtensions;
             Log.d("ContainerDetailFragment", "Selected graphics driver version: " + version);
+            Log.d("ContainerDDetailFragment", "Old graphics driver version: " + version);
             Log.d("ContainerDetailFragment", "Selected blacklisted extensions: " + blExtensions);
         }).show();
     }
@@ -1151,10 +1158,6 @@ public class ContainerDetailFragment extends Fragment {
             wineVersions.add(ContentsManager.getEntryName(profile));
         sWineVersion.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, wineVersions));
         if (isEditMode()) AppUtils.setSpinnerSelectionFromValue(sWineVersion, container.getWineVersion());
-    }
-    
-    public String getWrapperGraphicsDriverVersion() {
-        return wrapperGraphicsDriverVersion;
     }
 
     public String getControllerMapping(View view) {

@@ -545,6 +545,7 @@ public class ShortcutSettingsDialog extends ContentDialog {
 
         new GraphicsDriverConfigDialog(anchor, graphicsDriverVersion, blExtensions, graphicsDriver, (version, blackListedExtensions) -> {
             // Update the shortcut's graphics driver version with the selected version from the dialog.
+            shortcut.putExtra("oldWrapperGraphicsDriverVersion", graphicsDriverVersion);
             shortcut.putExtra("wrapperGraphicsDriverVersion", version);
             shortcut.putExtra("blacklistedextensions", blackListedExtensions);
             updateGraphicsDriverVersionText(version);
