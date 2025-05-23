@@ -129,10 +129,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import cn.sherlock.com.sun.media.sound.SF2Soundbank;
@@ -1044,9 +1046,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
                                 });
 
                             } catch (Exception e) {
-                                runOnUiThread(() -> outputView.append("Error restarting wineserver: " + e.getMessage() + "\n"));
                             }
-
                             environment.setWinetricksRunning(false);
                         }
 
@@ -1419,38 +1419,43 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
                 verb
         };
 
-        new Thread(() -> {
-            Process process = null;
-            try {
-                ProcessBuilder processBuilder = new ProcessBuilder(command);
-                processBuilder.directory(new File(imageFs.home_path));
+        Executor executor = Executors.newSingleThreadExecutor();
 
-                Map<String, String> environmentVars = processBuilder.environment();
-                for (Map.Entry<String, String> entry : envVars.entrySet()) {
-                    environmentVars.put(entry.getKey(), entry.getValue());
+        final Process[] process = {null};
+
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ProcessBuilder processBuilder = new ProcessBuilder(command);
+                    processBuilder.directory(new File(imageFs.home_path));
+                    Map<String, String> environmentVars = processBuilder.environment();
+                    for (Map.Entry<String, String> entry : envVars.entrySet()) {
+                        environmentVars.put(entry.getKey(), entry.getValue());
+                    }
+                    processBuilder.redirectErrorStream(true);
+                    process[0] = processBuilder.start();
+                    runOnUiThread(() -> outputView.setText(""));
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(process[0].getInputStream()));
+                    String outputLine = null;
+                    while (((outputLine = reader.readLine()) != null)) {
+                        if (outputLine != null) {
+                            String finalOutputLine = outputLine;
+                            runOnUiThread(() -> outputView.append(finalOutputLine + "\n"));
+                        }
+                    }
+                    int exitCode = process[0].waitFor();
+                    runOnUiThread(() -> outputView.append("Winetricks exited with code " + exitCode + "\n"));
+
+                } catch (Exception e) {
+                    String msg = "Error executing winetricks: " + e.getMessage();
+                    runOnUiThread(() -> outputView.setText(msg));
+                } finally {
+                    // 2. Once Winetricks finishes or fails, kill eventual stale processes
+                    environment.setWinetricksRunning(false);
                 }
-
-                process = processBuilder.start();
-                process.getOutputStream().close();
-
-                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-
-                appendBufferedLog(reader, outputView, false);
-                appendBufferedLog(errorReader, outputView, true);
-
-                int exitCode = process.waitFor();
-                final int finalExitCode = exitCode;
-                runOnUiThread(() -> outputView.append("Winetricks exited with code " + finalExitCode + "\n"));
-
-            } catch (Exception e) {
-                String msg = "Error executing winetricks: " + e.getMessage();
-                runOnUiThread(() -> outputView.setText(msg));
-            } finally {
-                // 2. Once Winetricks finishes or fails, re-enable the normal callback
-                environment.setWinetricksRunning(false);
             }
-        }).start();
+        });
     }
 
     private void runWinetricksLatestWithVerb(Container container,

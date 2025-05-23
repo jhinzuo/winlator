@@ -2,6 +2,8 @@ package com.winlator.cmod.xenvironment.components;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Process;
 import android.util.Log;
 
@@ -240,13 +242,9 @@ public class BionicProgramLauncherComponent extends GuestProgramLauncherComponen
             synchronized (lock) {
                 pid = -1;
             }
-            // Only call terminationCallback if Winetricks is NOT running
             if (!environment.isWinetricksRunning()) {
-                if (terminationCallback != null) {
+                if (terminationCallback != null)
                     terminationCallback.call(status);
-                }
-            } else {
-                Log.d("execGuestProgram", "Skipping termination callback because Winetricks is running.");
             }
         });
     }
@@ -320,42 +318,10 @@ public class BionicProgramLauncherComponent extends GuestProgramLauncherComponen
         return output.toString();
     }
 
-
-    public void startWineServer() {
-        if (pid != -1) {
-            Log.d("BionicProgramLauncherComponent", "wineserver is already running.");
-            return; // Exit if wineserver is already running
-        }
-
-        // Define the command for wineserver
-        String command = environment.getImageFs().getWinePath() + "/bin/wineserver";
-
-        // Set up environment variables
-        EnvVars envVars = new EnvVars();
-        envVars.put("HOME", environment.getImageFs().home_path);
-        envVars.put("DISPLAY", ":0");
-        envVars.put("WINEPREFIX", environment.getImageFs().home_path + "/.wine");
-
-        // Run wineserver as a persistent process
-        pid = ProcessHelper.exec(command, envVars.toStringArray(), environment.getImageFs().getRootDir(), null);
-        Log.d("BionicProgramLauncherComponent", "Started wineserver with PID: " + pid);
-    }
-
-    public void stopWineServer() {
-        if (pid == -1) {
-            Log.d("BionicProgramLauncherComponent", "wineserver is not running.");
-            return; // Exit if wineserver is not running
-        }
-
-        // Kill wineserver process
-        Process.killProcess(pid);
-        pid = -1; // Reset pid to indicate wineserver has been stopped
-        Log.d("BionicProgramLauncherComponent", "Stopped wineserver.");
-    }
-
     public void restartWineServer() {
-        stopWineServer(); // Stop wineserver if running
-        startWineServer(); // Start wineserver again
-        Log.d("BionicProgramLauncherComponent", "wineserver restarted.");
+        ProcessHelper.terminateAllWineProcesses();
+        pid = execGuestProgram();
+        Log.d("BionicProgramLauncherComponent", "Wine restarted successfully");
+
     }
 }
