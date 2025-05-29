@@ -18,36 +18,6 @@
                 android:layout_height="wrap_content">
 
                 <LinearLayout style="@style/FieldSet">
-                    <LinearLayout
-                        android:id="@+id/LLInstalledWineList"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical" />
-
-                    <View style="@style/HorizontalLine" />
-
-                    <Button
-                        style="@style/ButtonPositive"
-                        android:id="@+id/BTSelectWineFile"
-                        android:layout_width="240dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:enabled="false"
-                        android:visibility="gone"
-                        android:text="@string/install_wine" />
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/TVInstalledWine"
-                    style="@style/FieldSetLabel"
-                    android:text="@string/installed_wine" />
-            </FrameLayout>
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <LinearLayout style="@style/FieldSet">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

@@ -82,7 +82,6 @@ import java.util.concurrent.Executors;
 
 public class SettingsFragment extends Fragment {
     public static final String DEFAULT_WINE_DEBUG_CHANNELS = "warn,err,fixme";
-    private Callback<Uri> selectWineFileCallback;
     private Callback<Uri> installSoundFontCallback;
     private PreloaderDialog preloaderDialog;
     public static final String DEFAULT_EXPORT_PATH = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/Winlator/Frontend";
@@ -412,12 +411,6 @@ public class SettingsFragment extends Fragment {
         final CheckBox cbShareClipboard = view.findViewById(R.id.CBShareAndroidClipboard);
         cbShareClipboard.setChecked(preferences.getBoolean("share_android_clipboard", false));
 
-        loadInstalledWineList(view);
-
-        view.findViewById(R.id.BTSelectWineFile).setOnClickListener((v) -> {
-            ContentDialog.alert(context, R.string.msg_warning_install_wine, this::selectWineFileForInstall);
-        });
-
         view.findViewById(R.id.BTReInstallImagefs).setOnClickListener(v -> {
             ContentDialog.confirm(context, R.string.do_you_want_to_reinstall_imagefs, () -> ImageFsInstaller.installFromAssets((MainActivity) getActivity()));
         });
@@ -536,11 +529,6 @@ public class SettingsFragment extends Fragment {
     }
 
     private void applyDynamicStylesRecursively(View view) {
-
-        // Find TextViews by ID and apply dynamic styles
-        TextView installedWineLabel = view.findViewById(R.id.TVInstalledWine);
-        applyFieldSetLabelStyle(installedWineLabel, isDarkMode);
-
         TextView box86box64Label = view.findViewById(R.id.TVBox86Box64);
         applyFieldSetLabelStyle(box86box64Label, isDarkMode);
 
@@ -693,85 +681,6 @@ public class SettingsFragment extends Fragment {
         view.findViewById(R.id.BTRemoveBox64Preset).setOnClickListener((v) -> onRemovePreset.call("box64"));
     }
 
-    private void removeInstalledWine(WineInfo wineInfo, Runnable onSuccess) {
-        final Activity activity = getActivity();
-        ContainerManager manager = new ContainerManager(activity);
-
-        ArrayList<Container> containers = manager.getContainers();
-        for (Container container : containers) {
-            if (container.getWineVersion().equals(wineInfo.identifier())) {
-                AppUtils.showToast(activity, R.string.unable_to_remove_this_wine_version);
-                return;
-            }
-        }
-
-        String suffix = wineInfo.fullVersion()+"-"+wineInfo.getArch();
-        File installedWineDir = ImageFs.find(activity).getInstalledWineDir();
-        File wineDir = new File(wineInfo.path);
-        File containerPatternFile = new File(installedWineDir, "container-pattern-"+suffix+".tzst");
-
-        if (!wineDir.isDirectory() || !containerPatternFile.isFile()) {
-            AppUtils.showToast(activity, R.string.unable_to_remove_this_wine_version);
-            return;
-        }
-
-        preloaderDialog.show(R.string.removing_wine);
-        Executors.newSingleThreadExecutor().execute(() -> {
-            FileUtils.delete(wineDir);
-            FileUtils.delete(containerPatternFile);
-            preloaderDialog.closeOnUiThread();
-            if (onSuccess != null) activity.runOnUiThread(onSuccess);
-        });
-    }
-
-    private void loadInstalledWineList(final View view) {
-        Context context = getContext();
-        LinearLayout container = view.findViewById(R.id.LLInstalledWineList);
-        container.removeAllViews();
-        ArrayList<WineInfo> wineInfos = WineUtils.getInstalledWineInfos(context);
-
-        LayoutInflater inflater = LayoutInflater.from(context);
-        for (final WineInfo wineInfo : wineInfos) {
-            View itemView = inflater.inflate(R.layout.installed_wine_list_item, container, false);
-            ((TextView)itemView.findViewById(R.id.TVTitle)).setText(wineInfo.toString());
-            if (wineInfo != WineInfo.MAIN_WINE_VERSION) {
-                View removeButton = itemView.findViewById(R.id.BTRemove);
-                removeButton.setVisibility(View.VISIBLE);
-                removeButton.setOnClickListener((v) -> {
-                    ContentDialog.confirm(getContext(), R.string.do_you_want_to_remove_this_wine_version, () -> {
-                        removeInstalledWine(wineInfo, () -> loadInstalledWineList(view));
-                    });
-                });
-            }
-            container.addView(itemView);
-        }
-    }
-
-    private void selectWineFileForInstall() {
-        final Context context = getContext();
-        selectWineFileCallback = (uri) -> {
-            preloaderDialog.show(R.string.preparing_installation);
-            WineUtils.extractWineFileForInstallAsync(context, uri, (wineDir) -> {
-                if (wineDir != null) {
-                    WineUtils.findWineVersionAsync(context, wineDir, (wineInfo) -> {
-                        preloaderDialog.closeOnUiThread();
-                        if (wineInfo == null) {
-                            AppUtils.showToast(context, R.string.unable_to_install_wine);
-                            return;
-                        }
-
-                        getActivity().runOnUiThread(() -> showWineInstallOptionsDialog(wineInfo));
-                    });
-                }
-                else {
-                    AppUtils.showToast(context, R.string.unable_to_install_wine);
-                    preloaderDialog.closeOnUiThread();
-                }
-            });
-        };
-        openFile(MainActivity.OPEN_FILE_REQUEST_CODE);
-    }
-
 
     private void openFile(int requestCode) {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
@@ -782,45 +691,6 @@ public class SettingsFragment extends Fragment {
         getActivity().startActivityFromFragment(this, intent, requestCode);
     }
 
-
-    private void installWine(final WineInfo wineInfo) {
-        Context context = getContext();
-        File installedWineDir = ImageFs.find(context).getInstalledWineDir();
-
-        File wineDir = new File(installedWineDir, wineInfo.identifier());
-        if (wineDir.isDirectory()) {
-            AppUtils.showToast(context, R.string.unable_to_install_wine);
-            return;
-        }
-
-        Intent intent = new Intent(context, XServerDisplayActivity.class);
-        intent.putExtra("generate_wineprefix", true);
-        intent.putExtra("wine_info", wineInfo);
-        context.startActivity(intent);
-    }
-
-    private void showWineInstallOptionsDialog(final WineInfo wineInfo) {
-        Context context = getContext();
-        ContentDialog dialog = new ContentDialog(context, R.layout.wine_install_options_dialog);
-        dialog.setCancelable(false);
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.setTitle(R.string.install_wine);
-        dialog.setIcon(R.drawable.icon_wine);
-
-        EditText etVersion = dialog.findViewById(R.id.ETVersion);
-        etVersion.setText("Wine "+wineInfo.version+(wineInfo.subversion != null ? " ("+wineInfo.subversion+")" : ""));
-
-        Spinner sArch = dialog.findViewById(R.id.SArch);
-        List<String> archList = wineInfo.isWin64() ? Arrays.asList("x86", "x86_64") : Arrays.asList("x86");
-        sArch.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, archList));
-        sArch.setSelection(archList.size()-1);
-
-        dialog.setOnConfirmCallback(() -> {
-            wineInfo.setArch(sArch.getSelectedItem().toString());
-            installWine(wineInfo);
-        });
-        dialog.show();
-    }
 
     private void loadWineDebugChannels(final View view, final ArrayList<String> debugChannels) {
         final Context context = getContext();
@@ -1154,14 +1024,6 @@ public class SettingsFragment extends Fragment {
                         if (isRestoreAction) {
                             restoreAppData(uri);
                             isRestoreAction = false;  // Reset the flag
-                        } else if (selectWineFileCallback != null) {
-                            try {
-                                selectWineFileCallback.call(uri);
-                            } catch (Exception e) {
-                                AppUtils.showToast(getContext(), R.string.unable_to_import_profile);
-                            } finally {
-                                selectWineFileCallback = null;
-                            }
                         }
                         break;
 

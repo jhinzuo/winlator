@@ -73,9 +73,9 @@ public class WineInfo implements Parcelable {
 
     public String identifier() {
         if (type.equals("proton"))
-            return "proton-"+fullVersion()+"-"+(this == MAIN_WINE_VERSION ? "custom" : arch);
+            return "proton-" + fullVersion() + "-"+ arch;
         else
-            return "wine-"+fullVersion()+"-"+(this == MAIN_WINE_VERSION ? "custom" : arch);
+            return "wine-" + fullVersion() + "-" + arch;
     }
 
     public String fullVersion() {
