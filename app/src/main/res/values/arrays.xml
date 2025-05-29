@@ -126,8 +126,10 @@
         <item>Aggressive (Stop services on startup)</item>
     </string-array>
     <string-array name="vkd3d_version_entries">
+        <item>2.8</item>
         <item>2.12</item>
         <item>2.13</item>
+        <item>2.14.1</item>
     </string-array>
     <string-array name="some_lc_all">
         <item>ar_EG</item>

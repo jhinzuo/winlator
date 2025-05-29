@@ -2373,8 +2373,8 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
 
         if (dxwrapper.contains("vkd3d")) {
             ContentProfile profile = contentsManager.getProfileByEntryName(dxwrapper);
-            Log.d(TAG, "Extract default dxvk 2.3.1 dxgi");
-            TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "dxwrapper/dxvk-" + DefaultVersion.DXVK + ".tzst", windowsDir, onExtractFileListener);
+            Log.d(TAG, "Extracting DXVK 2.4.1");
+            TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "dxwrapper/dxvk-2.4.1" + ".tzst", windowsDir, onExtractFileListener);
             if (profile != null) {
                 Log.d(TAG, "Applying user-defined VKD3D content profile: " + dxwrapper);
                 contentsManager.applyContent(profile);
@@ -2385,7 +2385,6 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
             Log.d(TAG, "Finished VKD3D extraction for " + dxwrapper);
         } else if (dxwrapper.contains("dxvk")) {
             Log.d(TAG, "Extracting DXVK wrapper files, version: " + dxwrapper);
-            restoreOriginalDllFiles("d3d12.dll", "d3d12core.dll", "ddraw.dll");
 
             ContentProfile profile = contentsManager.getProfileByEntryName(dxwrapper);
             if (profile != null) {
@@ -2404,8 +2403,8 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
             Log.d(TAG, "Restoring original DLL files for wined3d.");
             restoreOriginalDllFiles(dlls);
         } else if (dxwrapper.contains("cnc-ddraw")) {
-            Log.d(TAG, "Extracting CNC-DDRAW wrapper files.");
             restoreOriginalDllFiles(dlls);
+            Log.d(TAG, "Extracting CNC-DDRAW wrapper files.");
             final String assetDir = "dxwrapper/cnc-ddraw-" + DefaultVersion.CNC_DDRAW;
             File configFile = new File(rootDir, ImageFs.WINEPREFIX + "/drive_c/ProgramData/cnc-ddraw/ddraw.ini");
 
