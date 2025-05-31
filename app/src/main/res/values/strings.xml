@@ -590,6 +590,6 @@ E.g. <b>META</b> for <i>META key</i>, \n
     <string name="dll_emulator">32bit Emulator</string>
     <string name="open_with_android_browser">Open Android Browser in Wine</string>
     <string name="share_android_clipboard">Share Android Clipboard with Wine</string>
-
+    <string name="ddraw_wrapper">DDraw/Glide Wrapper</string>
 
 </resources>

@@ -167,6 +167,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
     private String audioDriver = Container.DEFAULT_AUDIO_DRIVER;
     private String emulator = Container.DEFAULT_EMULATOR;
     private String dxwrapper = Container.DEFAULT_DXWRAPPER;
+    private String ddrawrapper = Container.DEFAULT_DDRAWRAPPER;
     private KeyValueSet dxwrapperConfig;
     private WineInfo wineInfo;
     private final EnvVars envVars = new EnvVars();
@@ -514,6 +515,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
             emulator = container.getEmulator();
             midiSoundFont = container.getMIDISoundFont();
             dxwrapper = container.getDXWrapper();
+            ddrawrapper = container.getDDrawWrapper();
             String dxwrapperConfig = container.getDXWrapperConfig();
             screenSize = container.getScreenSize();
             winHandler.setInputType((byte) container.getInputType());
@@ -528,6 +530,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
                 audioDriver = shortcut.getExtra("audioDriver", container.getAudioDriver());
                 emulator = shortcut.getExtra("emulator", container.getEmulator());
                 dxwrapper = shortcut.getExtra("dxwrapper", container.getDXWrapper());
+                ddrawrapper = shortcut.getExtra("ddrawrapper", container.getDDrawWrapper());
                 dxwrapperConfig = shortcut.getExtra("dxwrapperConfig", container.getDXWrapperConfig());
                 screenSize = shortcut.getExtra("screenSize", container.getScreenSize());
                 lc_all = shortcut.getExtra("lc_all", container.getLC_ALL());
@@ -1145,7 +1148,15 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
             containerDataChanged = true;
         }
 
-        if (dxwrapper.equals("cnc-ddraw")) envVars.put("CNC_DDRAW_CONFIG_FILE", "C:\\ProgramData\\cnc-ddraw\\ddraw.ini");
+        String ddrawrapper = this.ddrawrapper;
+
+        if (!ddrawrapper.equals(container.getExtra("ddrawrapper"))) {
+            extractDDrawrapperFiles(ddrawrapper);
+            container.putExtra("ddrawrapper", ddrawrapper);
+            containerDataChanged = true;
+        }
+
+        if (ddrawrapper.equals("cnc-ddraw")) envVars.put("CNC_DDRAW_CONFIG_FILE", "C:\\windows\\syswow64\\ddraw.ini");
 
         String wincomponents = shortcut != null ? shortcut.getExtra("wincomponents", container.getWinComponents()) : container.getWinComponents();
         if (!wincomponents.equals(container.getExtra("wincomponents"))) {
@@ -2366,7 +2377,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
     private static final String TAG = "DXWrapperExtraction";
 
     private void extractDXWrapperFiles(String dxwrapper) {
-        final String[] dlls = {"d3d10.dll", "d3d10_1.dll", "d3d10core.dll", "d3d11.dll", "d3d12.dll", "d3d12core.dll", "d3d8.dll", "d3d9.dll", "dxgi.dll", "ddraw.dll"};
+        final String[] dlls = {"d3d10.dll", "d3d10_1.dll", "d3d10core.dll", "d3d11.dll", "d3d12.dll", "d3d12core.dll", "d3d8.dll", "d3d9.dll", "dxgi.dll"};
 
         File rootDir = imageFs.getRootDir();
         File windowsDir = new File(rootDir, ImageFs.WINEPREFIX + "/drive_c/windows");
@@ -2402,23 +2413,31 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
         } else if (dxwrapper.contains("wined3d")) {
             Log.d(TAG, "Restoring original DLL files for wined3d.");
             restoreOriginalDllFiles(dlls);
-        } else if (dxwrapper.contains("cnc-ddraw")) {
-            restoreOriginalDllFiles(dlls);
-            Log.d(TAG, "Extracting CNC-DDRAW wrapper files.");
-            final String assetDir = "dxwrapper/cnc-ddraw-" + DefaultVersion.CNC_DDRAW;
-            File configFile = new File(rootDir, ImageFs.WINEPREFIX + "/drive_c/ProgramData/cnc-ddraw/ddraw.ini");
+        }
+    }
 
-            if (!configFile.isFile()) {
-                Log.d(TAG, "Copying default ddraw.ini configuration for CNC-DDRAW.");
-                FileUtils.copy(this, assetDir + "/ddraw.ini", configFile);
+    private void extractDDrawrapperFiles(String ddrawrapper) {
+        final String[] dlls = {"ddraw.dll","d3dimm.dll"};
+        final String[] glideDlls = {"glide.dll", "glide2x.dll", "glide3x.dll", "3DfxSpl.dll", "3DfxSpl2.dll", "3DfxSpl3.dll"};
+
+        File rootDir = imageFs.getRootDir();
+        File windowsDir = new File(rootDir, ImageFs.WINEPREFIX + "/drive_c/windows");
+
+        Log.d("XServerDisplayActivity", "Deleting glide dlls before extraction");
+        for (String glideDLL : glideDlls) {
+            FileUtils.delete(new File(glideDLL));
+        }
+
+        Log.d("XserverDisplayActivity", "Restoring original dlls before extraction");
+        restoreOriginalDllFiles(dlls);
+
+        if (!ddrawrapper.contains("wined3d")) {
+            Log.d("XServerDisplayActivity", "Extracting ddrawrapper " + ddrawrapper);
+            TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "ddrawrapper/" + ddrawrapper + ".tzst", windowsDir, onExtractFileListener);
+            if (!dxwrapper.contains("dgvoodoo"))  {
+                Log.d("XServerDisplayActivity", "Extracting nglide wrapper");
+                TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "ddrawrapper/nglide.tzst", windowsDir, onExtractFileListener);
             }
-
-            File shadersDir = new File(rootDir, ImageFs.WINEPREFIX + "/drive_c/ProgramData/cnc-ddraw/Shaders");
-            FileUtils.delete(shadersDir);
-            FileUtils.copy(this, assetDir + "/Shaders", shadersDir);
-
-            Log.d(TAG, "Extracting CNC-DDRAW .tzst archive to Windows directory.");
-            TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, assetDir + "/ddraw.tzst", windowsDir, onExtractFileListener);
         }
     }
 

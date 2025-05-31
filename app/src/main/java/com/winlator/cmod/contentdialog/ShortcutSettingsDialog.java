@@ -117,6 +117,8 @@ public class ShortcutSettingsDialog extends ContentDialog {
         
         final Spinner sDXWrapper = findViewById(R.id.SDXWrapper);
 
+        final Spinner sDDrawrapper = findViewById(R.id.SDDrawrapper);
+
         final Spinner sBox64Version = findViewById(R.id.SBox64Version);
         
         ContentsManager contentsManager = new ContentsManager(context);
@@ -157,6 +159,7 @@ public class ShortcutSettingsDialog extends ContentDialog {
         vDXWrapperConfig.setTag(shortcut.getExtra("dxwrapperConfig", shortcut.container.getDXWrapperConfig()));
 
         ContainerDetailFragment.setupDXWrapperSpinner(sDXWrapper, vDXWrapperConfig);
+        ContainerDetailFragment.setupDDrawSpinner(sDDrawrapper, shortcut.getExtra("ddrawrapper", shortcut.container.getDDrawWrapper()));
         loadGraphicsDriverSpinner(sGraphicsDriver, sDXWrapper, vGraphicsDriverConfig, shortcut.getExtra("graphicsDriver", shortcut.container.getGraphicsDriver()),
             shortcut.getExtra("dxwrapper", shortcut.container.getDXWrapper()));
 
@@ -327,7 +330,7 @@ public class ShortcutSettingsDialog extends ContentDialog {
                 String graphicsDriver = StringUtils.parseIdentifier(sGraphicsDriver.getSelectedItem());
                 String graphicsDriverConfig = vGraphicsDriverConfig.getTag().toString();
                 String dxwrapper = StringUtils.parseIdentifier(sDXWrapper.getSelectedItem());
-//                dxwrapper = dxwrapper == null || dxwrapper.isEmpty() ? "default_dxwrapper" : dxwrapper;
+                String ddrawrapper = StringUtils.parseIdentifier(sDDrawrapper.getSelectedItem());
                 String dxwrapperConfig = vDXWrapperConfig.getTag().toString();
                 String audioDriver = StringUtils.parseIdentifier(sAudioDriver.getSelectedItem());
                 String emulator = StringUtils.parseIdentifier(sEmulator.getSelectedItem());
@@ -351,6 +354,7 @@ public class ShortcutSettingsDialog extends ContentDialog {
                 shortcut.putExtra("graphicsDriver", !graphicsDriver.equals(shortcut.container.getGraphicsDriver()) ? graphicsDriver : null);
                 shortcut.putExtra("wrapperGraphicsDriverVersion", graphicsDriverConfig);
                 shortcut.putExtra("dxwrapper", !dxwrapper.equals(shortcut.container.getDXWrapper()) ? dxwrapper : null);
+                shortcut.putExtra("ddrawrapper", !ddrawrapper.equals(shortcut.container.getDDrawWrapper()) ? ddrawrapper : null);
                 shortcut.putExtra("dxwrapperConfig", !dxwrapperConfig.equals(shortcut.container.getDXWrapperConfig()) ? dxwrapperConfig : null);
                 shortcut.putExtra("audioDriver", !audioDriver.equals(shortcut.container.getAudioDriver()) ? audioDriver : null);
                 shortcut.putExtra("emulator", !emulator.equals(shortcut.container.getEmulator()) ? emulator : null);
@@ -474,11 +478,11 @@ public class ShortcutSettingsDialog extends ContentDialog {
         // Update Spinners
         Spinner sGraphicsDriver = view.findViewById(R.id.SGraphicsDriver);
         Spinner sDXWrapper = view.findViewById(R.id.SDXWrapper);
+        Spinner sDDrawrapper = view.findViewById(R.id.SDDrawrapper);
         Spinner sAudioDriver = view.findViewById(R.id.SAudioDriver);
         Spinner sBox86Preset = view.findViewById(R.id.SBox86Preset);
         Spinner sBox64Preset = view.findViewById(R.id.SBox64Preset);
         Spinner sControlsProfile = view.findViewById(R.id.SControlsProfile);
-//        Spinner sDInputMapperType = view.findViewById(R.id.SDInputMapperType);
         Spinner sRCFile = view.findViewById(R.id.SRCFile);
         Spinner sDInputType = view.findViewById(R.id.SDInputType);
         Spinner sMIDISoundFont = view.findViewById(R.id.SMIDISoundFont);
@@ -491,11 +495,11 @@ public class ShortcutSettingsDialog extends ContentDialog {
         // Set dark or light mode background for spinners
         sGraphicsDriver.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
         sDXWrapper.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
+        sDDrawrapper.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
         sAudioDriver.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
         sBox86Preset.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
         sBox64Preset.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
         sControlsProfile.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
-//        sDInputMapperType.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
         sRCFile.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
         sDInputType.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
         sMIDISoundFont.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);

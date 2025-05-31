@@ -196,6 +196,20 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/ddraw_wrapper" >
+        </TextView>
+
+        <Spinner
+            android:id="@+id/SDDrawrapper"
+            style="@style/ComboBox"
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:entries="@array/ddrawrapper_entries">
+        </Spinner>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@string/audio_driver" />
 
         <Spinner

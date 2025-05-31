@@ -175,6 +175,9 @@ public class ContainerDetailFragment extends Fragment {
         Spinner sDXWrapper = view.findViewById(R.id.SDXWrapper);
         sDXWrapper.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
 
+        Spinner sDDrawrapper = view.findViewById(R.id.SDDrawrapper);
+        sDDrawrapper.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
+
         Spinner sAudioDriver = view.findViewById(R.id.SAudioDriver);
         sAudioDriver.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
 
@@ -367,13 +370,15 @@ public class ContainerDetailFragment extends Fragment {
         final Spinner sGraphicsDriver = view.findViewById(R.id.SGraphicsDriver);
         
         final Spinner sDXWrapper = view.findViewById(R.id.SDXWrapper);
+        final Spinner sDDrawrapper = view.findViewById(R.id.SDDrawrapper);
 
         final View vDXWrapperConfig = view.findViewById(R.id.BTDXWrapperConfig);
-        vDXWrapperConfig.setTag(isEditMode() ? container.getDXWrapperConfig() : "");
+        vDXWrapperConfig.setTag(isEditMode() ? container.getDXWrapperConfig() : Container.DEFAULT_DXWRAPPERCONFIG);
 
         final View vGraphicsDriverConfig = view.findViewById(R.id.BTGraphicsDriverConfig);
 
         setupDXWrapperSpinner(sDXWrapper, vDXWrapperConfig);
+        setupDDrawSpinner(sDDrawrapper, isEditMode() ? container.getDDrawWrapper() : Container.DEFAULT_DDRAWRAPPER);
         loadGraphicsDriverSpinner(sGraphicsDriver, sDXWrapper, vGraphicsDriverConfig,
                 isEditMode() ? container.getGraphicsDriver() : Container.DEFAULT_GRAPHICS_DRIVER,
                 isEditMode() ? container.getDXWrapper() : Container.DEFAULT_DXWRAPPER);
@@ -554,6 +559,7 @@ public class ContainerDetailFragment extends Fragment {
                 String wrapperGraphicsDriverVersion = (this.wrapperGraphicsDriverVersion != "") ? this.wrapperGraphicsDriverVersion : DefaultVersion.WRAPPER;
                 String oldWrapperGraphicsDriverVersion = (this.oldWrapperGraphicsDriverVersion != "") ? this.oldWrapperGraphicsDriverVersion : DefaultVersion.WRAPPER;
                 String dxwrapper = StringUtils.parseIdentifier(sDXWrapper.getSelectedItem());
+                String ddrawrapper = StringUtils.parseIdentifier(sDDrawrapper.getSelectedItem());
                 String dxwrapperConfig = vDXWrapperConfig.getTag().toString();
                 String audioDriver = StringUtils.parseIdentifier(sAudioDriver.getSelectedItem());
                 String emulator = StringUtils.parseIdentifier(sEmulator.getSelectedItem());
@@ -611,6 +617,7 @@ public class ContainerDetailFragment extends Fragment {
                     container.setWrapperGraphicsDriverVersion(wrapperGraphicsDriverVersion);
                     container.setOldWrapperGraphicsDriverVersion(oldWrapperGraphicsDriverVersion);
                     container.setDXWrapper(dxwrapper);
+                    container.setDDrawWrapper(ddrawrapper);
                     container.setDXWrapperConfig(dxwrapperConfig);
                     container.setAudioDriver(audioDriver);
                     container.setEmulator(emulator);
@@ -646,6 +653,7 @@ public class ContainerDetailFragment extends Fragment {
                     data.put("wrapperGraphicsDriverVersion",wrapperGraphicsDriverVersion);
                     data.put("oldWrapperGraphicsDriverVersion", oldWrapperGraphicsDriverVersion);
                     data.put("dxwrapper", dxwrapper);
+                    data.put("ddrawrapper", ddrawrapper);
                     data.put("dxwrapperConfig", dxwrapperConfig);
                     data.put("audioDriver", audioDriver);
                     data.put("emulator", emulator);
@@ -905,7 +913,7 @@ public class ContainerDetailFragment extends Fragment {
             for (String value : context.getResources().getStringArray(R.array.dxwrapper_entries)) {
                 items.add(value);
             }
-            sDXWrapper.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, items.toArray(new String[0])));
+            sDXWrapper.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, items.toArray()));
             AppUtils.setSpinnerSelectionFromIdentifier(sDXWrapper, selectedDXWrapper);
 
             vGraphicsDriverConfig.setOnClickListener((v) -> {
@@ -929,10 +937,6 @@ public class ContainerDetailFragment extends Fragment {
         update.run();
     }
 
-
-
-
-
     public static void setupDXWrapperSpinner(final Spinner sDXWrapper, final View vDXWrapperConfig) {
         sDXWrapper.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -951,6 +955,16 @@ public class ContainerDetailFragment extends Fragment {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
+    }
+
+    public static void setupDDrawSpinner(final Spinner sDDrawspinner, String selectedDDrawrapper) {
+        final Context context = sDDrawspinner.getContext();
+        ArrayList<String> items = new ArrayList<>();
+        for (String value : context.getResources().getStringArray(R.array.ddrawrapper_entries)) {
+            items.add(value);
+        }
+        sDDrawspinner.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, items.toArray(new String[0])));
+        AppUtils.setSpinnerSelectionFromIdentifier(sDDrawspinner, selectedDDrawrapper);
     }
 
 
