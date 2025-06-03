@@ -2284,7 +2284,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
         boolean changed = !cacheId.equals(container.getExtra("graphicsDriver"));
 
         // If launching without a shortcut (container-only launch), always extract to reset to the container's default
-        if (shortcut == null) {
+        if (shortcut == null && container.isBionic()) {
             changed = true;  // Force extraction when no shortcut is present to ensure correct driver is used
         }
 
