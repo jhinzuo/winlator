@@ -256,7 +256,12 @@ public class ContainerManager {
             if (result) {
                 try {
                     JSONObject commonDlls = new JSONObject(FileUtils.readString(context, "common_dlls.json"));
-                    extractCommonDlls("aarch64-windows", "system32", commonDlls, containerDir, onExtractFileListener); // arm64ec only
+                    WineInfo wineInfo = WineInfo.fromIdentifier(context, wineVersion);
+                    if (wineInfo.isArm64EC())
+                        extractCommonDlls("aarch64-windows", "system32", commonDlls, containerDir, onExtractFileListener); // arm64ec only
+                    else
+                        extractCommonDlls("x86_64-windows", "system32", commonDlls, containerDir, onExtractFileListener);
+
                     extractCommonDlls("i386-windows", "syswow64", commonDlls, containerDir, onExtractFileListener);
                 }
                 catch (JSONException e) {

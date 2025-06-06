@@ -11,6 +11,7 @@ import androidx.preference.PreferenceManager;
 
 import com.winlator.cmod.box86_64.Box86_64Preset;
 import com.winlator.cmod.box86_64.Box86_64PresetManager;
+import com.winlator.cmod.container.Container;
 import com.winlator.cmod.container.Shortcut;
 import com.winlator.cmod.contents.ContentProfile;
 import com.winlator.cmod.contents.ContentsManager;
@@ -19,6 +20,7 @@ import com.winlator.cmod.core.EnvVars;
 import com.winlator.cmod.core.FileUtils;
 import com.winlator.cmod.core.ProcessHelper;
 import com.winlator.cmod.core.TarCompressorUtils;
+import com.winlator.cmod.core.WineInfo;
 import com.winlator.cmod.xconnector.UnixSocketConfig;
 import com.winlator.cmod.xenvironment.ImageFs;
 
@@ -31,6 +33,7 @@ public class BionicProgramLauncherComponent extends GuestProgramLauncherComponen
     private static int pid = -1;
     private String[] bindingPaths;
     private EnvVars envVars;
+    private WineInfo wineInfo;
     private String box86Preset = Box86_64Preset.COMPATIBILITY;
     private String box64Preset = Box86_64Preset.COMPATIBILITY;
     private Callback<Integer> terminationCallback;
@@ -41,6 +44,14 @@ public class BionicProgramLauncherComponent extends GuestProgramLauncherComponen
 
     private final Shortcut shortcut;
     private String box64Version;
+
+    public void setWineInfo(WineInfo wineInfo) {
+        this.wineInfo = wineInfo;
+    }
+
+    public WineInfo getWineInfo() {
+        return this.wineInfo;
+    }
 
     private void extractEmulatorsDlls() {
         File rootDir = environment.getImageFs().getRootDir();
@@ -180,9 +191,9 @@ public class BionicProgramLauncherComponent extends GuestProgramLauncherComponen
         envVars.put("USER", ImageFs.USER);
         envVars.put("TMPDIR", rootDir.getPath() + "/usr/tmp");
         envVars.put("XDG_DATA_DIRS", rootDir.getPath() + "/usr/share");
-        envVars.put("LD_LIBRARY_PATH", "/system/lib64" + ":" + rootDir.getPath() + "/usr/proton/lib" + ":" + rootDir.getPath() + "/usr/lib");
+        envVars.put("LD_LIBRARY_PATH", "/system/lib64" + ":" + rootDir.getPath() + "/usr/lib");
         envVars.put("XDG_CONFIG_DIRS", rootDir.getPath() + "/usr/etc/xdg");
-        envVars.put("GST_PLUGIN_PATH", rootDir.getPath() + "/usr/proton/lib/gstreamer-1.0");
+        envVars.put("GST_PLUGIN_PATH", rootDir.getPath() + "/usr/lib/gstreamer-1.0");
         envVars.put("FONTCONFIG_PATH", rootDir.getPath() + "/usr/etc/fonts");
         envVars.put("VK_LAYER_PATH", rootDir.getPath() + "/usr/share/vulkan/implicit_layer.d");
         envVars.put("WINE_NO_DUPLICATE_EXPLORER", "1");
@@ -204,8 +215,7 @@ public class BionicProgramLauncherComponent extends GuestProgramLauncherComponen
         String winePath = wineProfile == null ? imageFs.getWinePath() + "/bin"
                 : ContentsManager.getSourceFile(context, wineProfile, wineProfile.wineBinPath).getAbsolutePath();
         envVars.put("PATH", winePath + ":" +
-                rootDir.getPath() + "/usr/bin:" +
-                rootDir.getPath() + "/usr/local/bin");
+                rootDir.getPath() + "/usr/bin:");
 
         // **Maybe remove this
         envVars.put("BOX64_LD_LIBRARY_PATH", rootDir.getPath() + "/usr/lib/x86_64-linux-gnu");
@@ -229,8 +239,11 @@ public class BionicProgramLauncherComponent extends GuestProgramLauncherComponen
             envVars.putAll(this.envVars);
         }
 
-        // Construct the command without Box64 to the Wine executable
-        String command = imageFs.getWinePath() + "/bin/" + guestExecutable;
+        String command = "";
+        if (wineInfo.isArm64EC())
+            command = winePath + "/" + guestExecutable;
+        else
+            command = imageFs.getBinDir() + "/box64 " + guestExecutable;
 
         // **Maybe remove this: Set execute permissions for box64 if necessary (Glibc/Proot artifact)
         File box64File = new File(rootDir, "/usr/local/bin/box64");

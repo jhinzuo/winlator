@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class WineInfo implements Parcelable {
-    public static final WineInfo MAIN_WINE_VERSION = new WineInfo("proton","9.0", "arm64ec");
+    public static final WineInfo MAIN_WINE_VERSION = new WineInfo("proton","9.0", "x86_64");
     private static final Pattern pattern = Pattern.compile("^(wine|proton)\\-([0-9\\.]+)\\-?([0-9\\.]+)?\\-(x86|x86_64|arm64ec)$");
     public final String version;
     public final String type;
@@ -57,19 +57,7 @@ public class WineInfo implements Parcelable {
         return arch.equals("x86_64") || arch.equals("arm64ec");
     }
 
-    public String getExecutable(Context context, boolean wow64Mode) {
-        if (this == MAIN_WINE_VERSION) {
-            File wineBinDir = new File(ImageFs.find(context).getRootDir(), "/opt/wine/bin");
-            File wineBinFile = new File(wineBinDir, "wine");
-            File winePreloaderBinFile = new File(wineBinDir, "wine-preloader");
-            FileUtils.copy(new File(wineBinDir, wow64Mode ? "wine-wow64" : "wine32"), wineBinFile);
-            FileUtils.copy(new File(wineBinDir, wow64Mode ? "wine-preloader-wow64" : "wine32-preloader"), winePreloaderBinFile);
-            FileUtils.chmod(wineBinFile, 0771);
-            FileUtils.chmod(winePreloaderBinFile, 0771);
-            return wow64Mode ? "wine" : "wine64";
-        }
-        else return (new File(path, "/bin/wine64")).isFile() ? "wine64" : "wine";
-    }
+    public boolean isArm64EC() { return arch.equals("arm64ec"); }
 
     public String identifier() {
         if (type.equals("proton"))

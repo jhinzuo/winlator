@@ -96,6 +96,8 @@ public class ImageFs {
     public File getLibDir() {
         return new File(rootDir, "/usr/lib");
     }
+
+    public File getBinDir() { return new File(rootDir, "/usr/bin"); }
     
     public File getShareDir() {
         return new File(rootDir, "/usr/share");

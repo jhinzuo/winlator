@@ -659,7 +659,9 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
 //                    container.saveData();
                     changeWineAudioDriver();
                     if (container != null) {
-                        if (emulator.toLowerCase().equals("fexcore"))
+                        if (!wineInfo.isArm64EC())
+                            envVars.put("HODLL", "wow64cpu.dll");
+                        else if (emulator.toLowerCase().equals("fexcore"))
                             envVars.put("HODLL", "libwow64fex.dll");
                         else
                             envVars.put("HODLL", "box64cpu.dll");
@@ -1238,6 +1240,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
                 winHandler.killProcess("services.exe");
             }
 
+            bionicLauncher.setWineInfo(this.wineInfo);
             boolean wow64Mode = container.isWoW64Mode();
             // Construct the guest executable command
             String guestExecutable = "wine explorer /desktop=shell," + xServer.screenInfo + " " + getWineStartCommand();
@@ -2491,6 +2494,9 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
                 String identifier = wincomponent[0];
                 boolean useNative = wincomponent[1].equals("1");
 
+                if (!wineInfo.isArm64EC() && identifier.contains("opengl") && useNative)
+                    continue;
+
                 if (useNative) {
                     TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "wincomponents/"+identifier+".tzst", windowsDir, onExtractFileListener);
                 }
@@ -2518,7 +2524,11 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
         File system32dlls = null;
         File syswow64dlls = null;
 
-        system32dlls = new File(rootDir, "opt/wine/lib/wine/aarch64-windows");
+        if (wineInfo.isArm64EC())
+            system32dlls = new File(rootDir, "opt/wine/lib/wine/aarch64-windows");
+        else
+            system32dlls = new File(rootDir, "opt/wine/lib/wine/x86_64-windows");
+
         syswow64dlls = new File(rootDir, "opt/wine/lib/wine/i386-windows");
 
         int filesCopied = 0;
