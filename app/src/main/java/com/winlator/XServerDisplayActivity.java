@@ -2262,9 +2262,10 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
             // Ensure Toast is run on the UI thread
             selectedDriverVersion = DefaultVersion.TURNIP_BIONIC;
         }
-        else if (!container.isBionic() && graphicsDriver.equals("turnip") && !selectedDriverVersion.equals(DefaultVersion.TURNIP_GLIBC)) {
-            selectedDriverVersion = DefaultVersion.TURNIP_GLIBC;
-        }
+        //else if (!container.isBionic() && graphicsDriver.equals("turnip") && !selectedDriverVersion.equals(DefaultVersion.TURNIP_GLIBC)) {
+        //    selectedDriverVersion = DefaultVersion.TURNIP_GLIBC;
+        //    Log.d("GraphicsDriverExtraction", "selectedDriverVersion at extraction: " + selectedDriverVersion + " (graphicsDriver=" + graphicsDriver + ")"); // Log to check selectedDriverVersion
+        //}
 
         // Adjust cacheId based on the graphics driver and version
         if (graphicsDriver.equals("turnip")) {
