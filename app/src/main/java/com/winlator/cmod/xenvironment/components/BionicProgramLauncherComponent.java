@@ -16,6 +16,7 @@ import com.winlator.cmod.container.Shortcut;
 import com.winlator.cmod.contents.ContentProfile;
 import com.winlator.cmod.contents.ContentsManager;
 import com.winlator.cmod.core.Callback;
+import com.winlator.cmod.core.DefaultVersion;
 import com.winlator.cmod.core.EnvVars;
 import com.winlator.cmod.core.FileUtils;
 import com.winlator.cmod.core.ProcessHelper;
@@ -53,6 +54,50 @@ public class BionicProgramLauncherComponent extends GuestProgramLauncherComponen
         return this.wineInfo;
     }
 
+    private void extractBox86_64Files() {
+        ImageFs imageFs = environment.getImageFs();
+        Context context = environment.getContext();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+
+        // Fallback to default if the shared preference is not set or is empty
+        box64Version = preferences.getString("box64_version", DefaultVersion.BOX64);
+        if (box64Version == null || box64Version.isEmpty()) {
+            box64Version = DefaultVersion.BOX64; // Assign the default version directly
+            Log.w("GlibcProgramLauncherComponent", "box64Version was null or empty, using default: " + box64Version);
+        }
+
+        // If a shortcut is provided, it overrides the SharedPreferences value
+        if (shortcut != null && shortcut.getExtra("box64Version") != null) {
+            String shortcutVersion = shortcut.getExtra("box64Version");
+            if (shortcutVersion != null && !shortcutVersion.isEmpty()) {
+                box64Version = shortcutVersion;
+            } else {
+                Log.w("GlibcProgramLauncherComponent", "Shortcut box64Version was empty, keeping SharedPreferences/default value: " + box64Version);
+            }
+        }
+
+        Log.d("GlibcProgramLauncherComponent", "box64Version in use: " + box64Version);
+
+        String currentBox64Version = preferences.getString("current_box64_version", "");
+        File rootDir = imageFs.getRootDir();
+
+        if (!box64Version.equals(currentBox64Version)) {
+            ContentProfile profile = contentsManager.getProfileByEntryName("box64-" + box64Version);
+            if (profile != null)
+                contentsManager.applyContent(profile);
+            else
+                TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, context, "box86_64/box64-" + box64Version + ".tzst", rootDir);
+                preferences.edit().putString("current_box64_version", box64Version).apply();
+        }
+
+        // Set execute permissions for box64 just in case
+        File box64File = new File(rootDir, "/usr/bin/box64");
+        if (box64File.exists()) {
+            FileUtils.chmod(box64File, 0755);
+        }
+    }
+
+
     private void extractEmulatorsDlls() {
         File rootDir = environment.getImageFs().getRootDir();
         File system32dir = new File(rootDir, "home/xuser/.wine/drive_c/windows/system32");
@@ -68,7 +113,10 @@ public class BionicProgramLauncherComponent extends GuestProgramLauncherComponen
     @Override
     public void start() {
         synchronized (lock) {
-            extractEmulatorsDlls();
+            if (wineInfo.isArm64EC())
+                extractEmulatorsDlls();
+            else
+                extractBox86_64Files();
             checkDependencies();
             pid = execGuestProgram();
         }
@@ -246,7 +294,7 @@ public class BionicProgramLauncherComponent extends GuestProgramLauncherComponen
             command = imageFs.getBinDir() + "/box64 " + guestExecutable;
 
         // **Maybe remove this: Set execute permissions for box64 if necessary (Glibc/Proot artifact)
-        File box64File = new File(rootDir, "/usr/local/bin/box64");
+        File box64File = new File(rootDir, "/usr/bin/box64");
         if (box64File.exists()) {
             FileUtils.chmod(box64File, 0755);
         }
