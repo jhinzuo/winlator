@@ -13,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.Spinner;
@@ -33,6 +34,7 @@ import com.winlator.cmod.contents.ContentsManager;
 import com.winlator.cmod.core.AppUtils;
 import com.winlator.cmod.core.EnvVars;
 import com.winlator.cmod.core.StringUtils;
+import com.winlator.cmod.core.WineInfo;
 import com.winlator.cmod.fexcore.FEXCoreManager;
 import com.winlator.cmod.inputcontrols.ControlsProfile;
 import com.winlator.cmod.inputcontrols.InputControlsManager;
@@ -172,6 +174,19 @@ public class ShortcutSettingsDialog extends ContentDialog {
         final Spinner sMIDISoundFont = findViewById(R.id.SMIDISoundFont);
         MidiManager.loadSFSpinner(sMIDISoundFont);
         AppUtils.setSpinnerSelectionFromValue(sMIDISoundFont, shortcut.getExtra("midiSoundFont", shortcut.container.getMIDISoundFont()));
+
+        FrameLayout fexcoreFL = findViewById(R.id.fexcoreFrame);
+        String wineVersion = shortcut.container.getWineVersion();
+        WineInfo wineInfo = WineInfo.fromIdentifier(context, wineVersion);
+        if (wineInfo.isArm64EC()) {
+            fexcoreFL.setVisibility(View.VISIBLE);
+            sEmulator.setEnabled(true);
+        }
+        else {
+            fexcoreFL.setVisibility(View.GONE);
+            sEmulator.setEnabled(false);
+            sEmulator.setSelection(1);
+        }
 
         final CheckBox cbUseSecondaryExec = findViewById(R.id.CBUseSecondaryExec);
         final LinearLayout llSecondaryExecOptions = findViewById(R.id.LLSecondaryExecOptions);

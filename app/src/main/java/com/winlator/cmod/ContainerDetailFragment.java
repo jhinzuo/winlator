@@ -19,6 +19,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.Spinner;
@@ -1140,11 +1141,37 @@ public class ContainerDetailFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
                 CheckBox cbWoW64Mode = view.findViewById(R.id.CBWoW64Mode);
+                FrameLayout fexcoreFL = view.findViewById(R.id.fexcoreFrame);
+                Spinner sEmulator = view.findViewById(R.id.SEmulator);
+                String wineVersion = sWineVersion.getSelectedItem().toString();
+                WineInfo wineInfo = WineInfo.fromIdentifier(context, wineVersion);
+                if (wineInfo.isArm64EC()) {
+                    fexcoreFL.setVisibility(View.VISIBLE);
+                    sEmulator.setEnabled(true);
+                }
+                else {
+                    fexcoreFL.setVisibility(View.GONE);
+                    sEmulator.setEnabled(false);
+                    sEmulator.setSelection(1);
+                }
                 cbWoW64Mode.setEnabled(true); // Always allow user to toggle WoW64 mode
-
             }
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+            public void onNothingSelected(AdapterView<?> parent) {
+                FrameLayout fexcoreFL = view.findViewById(R.id.fexcoreFrame);
+                Spinner sEmulator = view.findViewById(R.id.SEmulator);
+                String wineVersion = sWineVersion.getSelectedItem().toString();
+                WineInfo wineInfo = WineInfo.fromIdentifier(context, wineVersion);
+                if (wineInfo.isArm64EC()) {
+                    fexcoreFL.setVisibility(View.VISIBLE);
+                    sEmulator.setEnabled(true);
+                }
+                else {
+                    fexcoreFL.setVisibility(View.GONE);
+                    sEmulator.setEnabled(false);
+                    sEmulator.setSelection(1);
+                }
+            }
         });
 
 
