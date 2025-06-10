@@ -30,7 +30,7 @@ public class ContentsManager {
             "${syswow64}/d3d10_1.dll", "${syswow64}/d3d10core.dll", "${syswow64}/d3d11.dll", "${syswow64}/dxgi.dll"};
     public static final String[] VKD3D_TRUST_FILES = {"${system32}/d3d12core.dll", "${system32}/d3d12.dll",
             "${syswow64}/d3d12core.dll", "${syswow64}/d3d12.dll"};
-    public static final String[] BOX64_TRUST_FILES = {"${localbin}/box64"};
+    public static final String[] BOX64_TRUST_FILES = {"${bindir}/box64"};
     private Map<String, String> dirTemplateMap;
     private Map<ContentProfile.ContentType, List<String>> trustedFilesMap;
 
@@ -328,7 +328,7 @@ public class ContentsManager {
             dirTemplateMap.put("${libdir}", imagefsPath + "/usr/lib");
             dirTemplateMap.put("${system32}", drivecPath + "/windows/system32");
             dirTemplateMap.put("${syswow64}", drivecPath + "/windows/syswow64");
-            dirTemplateMap.put("${localbin}", imagefsPath + "/usr/local/bin");
+            dirTemplateMap.put("${bindir}", imagefsPath + "/usr/bin");
             dirTemplateMap.put("${sharedir}", imagefsPath + "/usr/share");
         }
     }
