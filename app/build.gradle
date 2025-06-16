@@ -21,21 +21,18 @@ plugins {
 tasks.register("prepareKotlinBuildScriptModel"){}
 
 android {
-    namespace 'com.winlator'
+    namespace 'com.winlator.cmod'
     // Keep compileSdk from your current config. If you want to match Termux-X11, you could set to 34.
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.winlator"
+        applicationId "com.winlator.cmod"
         minSdkVersion 26
         // We’re preserving Winlator’s request to keep targetSdkVersion at 28
         targetSdkVersion 28
 
         versionCode 20
-        versionName "7.1.4x-glibc-cmod-v12-alpha"
-
-
-
+        versionName "7.1.4x-cmod"
 
         // External native build from Winlator
         externalNativeBuild {
@@ -48,9 +45,6 @@ android {
         ndk {
             abiFilters 'arm64-v8a'
         }
-
-        // Example: if you want to unify C++ build with Termux-X11’s code
-        // CMake version used in Winlator
     }
 
 
@@ -65,13 +59,6 @@ android {
     buildTypes {
         debug {
             minifyEnabled false
-            // Optional: If you want Termux-X11’s postprocessing or signing:
-            //   postprocessing {
-            //       removeUnusedCode true
-            //       removeUnusedResources true
-            //       obfuscate false
-            //       optimizeCode true
-            //   }
         }
         // If you have a release build type, add it here
     }
@@ -87,19 +74,7 @@ android {
     // If you want to be sure modern JNI packaging is used:
     packagingOptions {
         jniLibs {
-            useLegacyPackaging = false
-        }
-    }
-
-    // If you want to preserve the Termux-X11 approach to buildFeatures:
-    buildFeatures {
-        aidl true
-        buildConfig true
-    }
-
-    sourceSets {
-        main {
-            java.srcDirs += 'src/main/aidl' // Add AIDL directory to Java sources
+            useLegacyPackaging = true
         }
     }
 }

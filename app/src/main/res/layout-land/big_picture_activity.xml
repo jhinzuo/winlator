@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="@android:color/black">
 
-    <com.winlator.bigpicture.TiledBackgroundView
+    <com.winlator.cmod.bigpicture.TiledBackgroundView
         android:id="@+id/parallaxBackgroundView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
@@ -173,7 +173,7 @@
                         android:id="@+id/TVGraphicsDriverVersionLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Turnip Driver Version:"
+                        android:text="Driver Version:"
                         android:textStyle="bold"
                         android:textColor="@android:color/white" />
                     <TextView

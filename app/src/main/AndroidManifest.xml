@@ -38,7 +38,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <application
-        android:label="Winlator.glibcmod"
+        android:label="Winlator CMOD"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/AppTheme"
@@ -52,7 +52,7 @@
 
         <!-- Main activity -->
         <activity
-            android:name="com.winlator.MainActivity"
+            android:name="com.winlator.cmod.MainActivity"
             android:theme="@style/AppTheme.Dark"
             android:screenOrientation="sensor"
             android:exported="true"
@@ -64,17 +64,17 @@
         </activity>
 
         <activity
-            android:name="com.winlator.BigPictureActivity"
+            android:name="com.winlator.cmod.BigPictureActivity"
             android:theme="@style/Theme.AppCompat"
             android:exported="false" />
 
         <activity
-            android:name="com.winlator.TerminalActivity"
+            android:name="com.winlator.cmod.TerminalActivity"
             android:theme="@style/Theme.AppCompat"
             android:exported="false" />
 
         <activity
-            android:name="com.winlator.XServerDisplayActivity"
+            android:name="com.winlator.cmod.XServerDisplayActivity"
             android:theme="@style/AppThemeFullscreen"
             android:launchMode="singleTask"
             android:supportsPictureInPicture="true"
@@ -83,7 +83,7 @@
             android:exported="true" />
 
         <activity
-            android:name="com.winlator.XrActivity"
+            android:name="com.winlator.cmod.XrActivity"
             android:theme="@style/AppThemeFullscreen"
             android:launchMode="singleTask"
             android:resizeableActivity="false"
@@ -99,19 +99,19 @@
         </activity>
 
         <activity
-            android:name="com.winlator.ControlsEditorActivity"
+            android:name="com.winlator.cmod.ControlsEditorActivity"
             android:theme="@style/AppThemeFullscreen"
             android:screenOrientation="sensorLandscape"
             android:exported="false" />
 
         <activity
-            android:name="com.winlator.ExternalControllerBindingsActivity"
+            android:name="com.winlator.cmod.ExternalControllerBindingsActivity"
             android:theme="@style/AppTheme"
             android:screenOrientation="sensor"
             android:exported="false" />
 
         <activity
-            android:name="com.winlator.saves.CustomFilePickerActivity"
+            android:name=".saves.CustomFilePickerActivity"
             android:theme="@style/AppTheme"
             android:screenOrientation="sensor"
             android:exported="false" />
@@ -120,14 +120,14 @@
             android:name=".ShortcutBroadcastReceiver"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.winlator.SHORTCUT_ADDED" />
+                <action android:name="com.winlator.cmod.SHORTCUT_ADDED" />
             </intent-filter>
         </receiver>
 
         <!-- FileProvider for sharing files -->
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.winlator.tileprovider"
+            android:authorities="com.winlator.cmod.tileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -138,7 +138,7 @@
         <!-- Provider for Winlator’s DocumentProvider or similar usage -->
         <provider
             android:name=".core.WinlatorFilesProvider"
-            android:authorities="com.winlator.core.WinlatorFilesProvider"
+            android:authorities="com.winlator.cmod.core.WinlatorFilesProvider"
             android:exported="true"
             android:grantUriPermissions="true"
             android:permission="android.permission.MANAGE_DOCUMENTS">
@@ -153,43 +153,13 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:exported="true" />
 
-        <!-- X11 Activity (Termux-X11 style) -->
-        <activity
-            android:name=".X11Activity"
-            android:taskAffinity=".X11Activity"
-            android:supportsPictureInPicture="true"
-            android:configChanges="fontScale|orientation|screenSize|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|screenLayout|touchscreen|uiMode|smallestScreenSize|density"
-            android:resizeableActivity="true"
-            android:windowSoftInputMode="stateHidden"
-            android:exported="true">
-            <intent-filter>
-                <category android:name="android.intent.category.SECONDARY_HOME" />
-            </intent-filter>
-            <meta-data
-                android:name="android.app.shortcuts"
-                android:resource="@xml/shortcuts" />
-        </activity>
-
         <meta-data
             android:name="com.samsung.android.multidisplay.keep_process_alive"
             android:value="false"/>
         <meta-data
             android:name="android.allow_multiple_resumed_activities"
             android:value="true" />
-
-        <!-- Accessibility service for KeyInterceptor -->
-        <service
-            android:name=".x11utils.KeyInterceptor"
-            android:label="Winlator:X11 KeyInterceptor"
-            android:exported="true"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
-            <intent-filter>
-                <action android:name="android.accessibilityservice.AccessibilityService" />
-            </intent-filter>
-            <meta-data
-                android:name="android.accessibilityservice"
-                android:resource="@xml/accessibility_service_config" />
-        </service>
+        >
 
     </application>
 </manifest>

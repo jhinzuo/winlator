@@ -19,16 +19,7 @@
         <item>1920x1080 (16:9)</item>
     </string-array>
     <string-array name="graphics_driver_entries">
-        <item>Turnip</item>
-        <item>VirGL</item>
         <item>Wrapper</item>
-    </string-array>
-    <string-array name="turnip_graphics_driver_version_entries">
-        <item>24.0.9</item>
-        <item>24.1.0</item>
-        <item>24.3.0</item>
-        <item>24.3.0.5</item>
-        <item>25.0.0.bionic</item>
     </string-array>
     <string-array name="wrapper_graphics_driver_version_entries">
         <item>System</item>
@@ -49,7 +40,12 @@
         <item>WineD3D</item>
         <item>DXVK</item>
         <item>VKD3D</item>
-        <item>CNC DDraw</item>
+    </string-array>
+    <string-array name="ddrawrapper_entries">
+        <item>CnC-DDraw</item>
+        <item>DgVoodoo</item>
+        <item>Dd7To9</item>
+        <item>WineD3D</item>
     </string-array>
     <string-array name="dxvk_version_entries">
         <item>0.40.1</item>
@@ -110,12 +106,9 @@
         <item>0.3.7</item>
     </string-array>
     <string-array name="box64_version_entries">
-        <item>0.2.7</item>
-        <item>0.2.8</item>
-        <item>0.3.0</item>
-        <item>0.3.1</item>
-        <item>0.3.1.8g2</item>
-        <item>0.3.1.4e10cd6</item>
+        <item>0.3.6.fix</item>
+        <item>0.3.2</item>
+        <item>0.3.6</item>
     </string-array>
     <string-array name="dinput_mapper_type_entries">
         <item>@string/dinput_legacy</item>
@@ -135,8 +128,10 @@
         <item>Aggressive (Stop services on startup)</item>
     </string-array>
     <string-array name="vkd3d_version_entries">
+        <item>2.8</item>
         <item>2.12</item>
         <item>2.13</item>
+        <item>2.14.1</item>
     </string-array>
     <string-array name="some_lc_all">
         <item>ar_EG</item>

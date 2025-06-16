@@ -61,7 +61,7 @@ std::vector<VkPhysicalDevice> get_physical_devices(VkInstance instance) {
 }
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_winlator_core_GPUInformation_getVersion(JNIEnv *env, jclass obj) {
+Java_com_winlator_cmod_core_GPUInformation_getVersion(JNIEnv *env, jclass obj) {
     VkPhysicalDeviceProperties props = {};
     char *driverVersion;
     VkInstance instance;
@@ -85,9 +85,9 @@ Java_com_winlator_core_GPUInformation_getVersion(JNIEnv *env, jclass obj) {
 }
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_winlator_core_GPUInformation_getRenderer(JNIEnv *env, jclass obj) {
+Java_com_winlator_cmod_core_GPUInformation_getRenderer(JNIEnv *env, jclass obj) {
     VkPhysicalDeviceProperties props = {};
-    char *driverVersion;
+    char *renderer;
     VkInstance instance;
 
     instance = create_instance();
@@ -96,16 +96,16 @@ Java_com_winlator_core_GPUInformation_getRenderer(JNIEnv *env, jclass obj) {
 
     for (const auto &pdevice: get_physical_devices(instance)) {
         getPhysicalDeviceProperties(pdevice, &props);
-        asprintf(&driverVersion, "%s", props.deviceName);
+        asprintf(&renderer, "%s", props.deviceName);
     }
 
     destroyInstance(instance, NULL);
 
-    return (env->NewStringUTF(driverVersion));
+    return (env->NewStringUTF(renderer));
 }
 
 extern "C" JNIEXPORT jlong JNICALL
-Java_com_winlator_core_GPUInformation_getMemorySize(JNIEnv *env, jclass obj) {
+Java_com_winlator_cmod_core_GPUInformation_getMemorySize(JNIEnv *env, jclass obj) {
     VkPhysicalDeviceMemoryProperties props = {};
     long memorySize;
     VkInstance instance;
@@ -121,4 +121,33 @@ Java_com_winlator_core_GPUInformation_getMemorySize(JNIEnv *env, jclass obj) {
 
     destroyInstance(instance, NULL);
     return memorySize / 1048576;
+}
+
+extern "C" JNIEXPORT jobjectArray JNICALL
+Java_com_winlator_cmod_core_GPUInformation_enumerateExtensions(JNIEnv *env, jclass obj) {
+    jobjectArray extensions;
+    VkInstance instance;
+    uint32_t extensionCount;
+    std::vector<VkExtensionProperties> extensionProperties;
+
+    instance = create_instance();
+
+    PFN_vkEnumerateDeviceExtensionProperties enumerateDeviceExtensionProperties = (PFN_vkEnumerateDeviceExtensionProperties)gip(instance, "vkEnumerateDeviceExtensionProperties");
+    PFN_vkDestroyInstance destroyInstance = (PFN_vkDestroyInstance)gip(instance, "vkDestroyInstance");
+
+    for (const auto &pdevice : get_physical_devices(instance)) {
+        enumerateDeviceExtensionProperties(pdevice, NULL, &extensionCount, NULL);
+        extensionProperties.resize(extensionCount);
+        enumerateDeviceExtensionProperties(pdevice, NULL, &extensionCount, extensionProperties.data());
+        extensions = (jobjectArray)env->NewObjectArray(extensionCount, env->FindClass("java/lang/String"), env->NewStringUTF(""));
+        int index = 0;
+        for (const auto &extensionProperty : extensionProperties) {
+            env->SetObjectArrayElement(extensions, index, env->NewStringUTF(extensionProperty.extensionName));
+            index++;
+        }
+    }
+
+    destroyInstance(instance, NULL);
+
+    return extensions;
 }
