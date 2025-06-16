@@ -2,3 +2,5 @@
 app/src/main/assets/container_pattern.tzst filter=lfs diff=lfs merge=lfs -text
 app/src/main/assets/container_pattern_bionic.tzst filter=lfs diff=lfs merge=lfs -text
 app/src/main/assets/imagefs.txz filter=lfs diff=lfs merge=lfs -text
+app/src/main/assets/proton-9.0-arm64ec.txz filter=lfs diff=lfs merge=lfs -text
+app/src/main/assets/proton-9.0-x86_64.txz filter=lfs diff=lfs merge=lfs -text
