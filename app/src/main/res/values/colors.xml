@@ -2,7 +2,7 @@
 <resources>
     <!-- Light Theme Colors -->
     <color name="window_background_color">#fafafa</color>
-    <color name="colorPrimary">#000000</color> <!-- ALSO USED FOR DARKMODE HEADER COLOR ??-->
+    <color name="colorPrimary">#303030</color> <!-- ALSO USED FOR DARKMODE HEADER COLOR , I GUESS FOR BUTTON ALSO LMAO??-->
     <color name="colorPrimaryDark">#000000</color> <!-- ALSO USED FOR DARKMODE HEADER COLOR ??-->
     <color name="colorAccent">#808080</color>
     <color name="black">#000000</color>
@@ -11,12 +11,12 @@
     <color name="window_background_color_dark">#000000</color>
     <color name="colorPrimaryDarkMode">#000000</color> <!-- 37474f old color -->
     <color name="colorPrimaryDarkModeDark">#000000</color>
-    <color name="colorAccentDark">#808080</color>
-    <color name="white">#ffffff</color>
+    <color name="colorAccentDark">#3f3f3f</color>
+    <color name="white">#EFEFEF</color>
 
     <!-- Additional Colors for Dark Mode -->
     <color name="combo_box_dark">#303030</color>
-    <color name="content_dialog_background_dark">#424242</color>
+    <color name="content_dialog_background_dark">#000000</color> <!-- used for sidebar inside a container -->
     <color name="button_neutral_dark">#37474f</color>
     <color name="button_positive_dark">#37474f</color>
 
