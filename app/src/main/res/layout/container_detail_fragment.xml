@@ -599,7 +599,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:id="@+id/box86box64Frame">
+                    android:id="@+id/box64Frame">
 
                     <LinearLayout style="@style/FieldSet">
                         <TextView
@@ -624,21 +624,12 @@
                             android:layout_width="match_parent"
                             android:spinnerMode="dialog" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/box86_64_rc_files" />
-
-                        <Spinner
-                            style="@style/ComboBox"
-                            android:id="@+id/SRCFile"
-                            android:layout_width="match_parent" />
                     </LinearLayout>
 
                     <TextView
-                        android:id="@+id/TVBox86Box64"
+                        android:id="@+id/TVBox64"
                         style="@style/FieldSetLabel"
-                        android:text="@string/box86_box64" />
+                        android:text="@string/box64" />
                 </FrameLayout>
                 
                 <FrameLayout

@@ -33,10 +33,8 @@ import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.tabs.TabLayout;
-import com.winlator.cmod.R;
-import com.winlator.cmod.box86_64.Box86_64Preset;
-import com.winlator.cmod.box86_64.Box86_64PresetManager;
-import com.winlator.cmod.box86_64.rc.RCManager;
+import com.winlator.cmod.box64.Box64Preset;
+import com.winlator.cmod.box64.Box64PresetManager;
 import com.winlator.cmod.container.Container;
 import com.winlator.cmod.container.ContainerManager;
 import com.winlator.cmod.contentdialog.AddEnvVarDialog;
@@ -52,14 +50,12 @@ import com.winlator.cmod.core.Callback;
 import com.winlator.cmod.core.DefaultVersion;
 import com.winlator.cmod.core.EnvVars;
 import com.winlator.cmod.core.FileUtils;
-import com.winlator.cmod.core.GPUInformation;
 import com.winlator.cmod.core.KeyValueSet;
 import com.winlator.cmod.core.PreloaderDialog;
 import com.winlator.cmod.core.StringUtils;
 import com.winlator.cmod.core.WineInfo;
 import com.winlator.cmod.core.WineRegistryEditor;
 import com.winlator.cmod.core.WineThemeManager;
-import com.winlator.cmod.core.WineUtils;
 import com.winlator.cmod.fexcore.FEXCoreManager;
 import com.winlator.cmod.midi.MidiManager;
 import com.winlator.cmod.widget.CPUListView;
@@ -228,10 +224,6 @@ public class ContainerDetailFragment extends Fragment {
 
         Spinner sStartupSelection = view.findViewById(R.id.SStartupSelection);
         sStartupSelection.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
-
-        Spinner sRCFile = view.findViewById(R.id.SRCFile);
-        sRCFile.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
-
     }
 
     private void applyDynamicStylesRecursively(View view, boolean isDarkMode) {
@@ -289,8 +281,8 @@ public class ContainerDetailFragment extends Fragment {
         applyFieldSetLabelStyle(generalLabel, isDarkMode);  // Apply the dark or light mode styles
 
         // Advanced Tab TextViews
-        TextView box86box64Label = view.findViewById(R.id.TVBox86Box64);
-        applyFieldSetLabelStyle(box86box64Label, isDarkMode);  // Apply the dark or light mode styles
+        TextView box64Label = view.findViewById(R.id.TVBox64);
+        applyFieldSetLabelStyle(box64Label, isDarkMode);  // Apply the dark or light mode styles
         
         TextView fexCoreLabel = view.findViewById(R.id.TVFEXCore);
         applyFieldSetLabelStyle(fexCoreLabel, isDarkMode);
@@ -480,7 +472,7 @@ public class ContainerDetailFragment extends Fragment {
         sStartupSelection.setSelection(previousStartupSelection != -1 ? previousStartupSelection : Container.STARTUP_SELECTION_ESSENTIAL);
 
         final Spinner sBox64Preset = view.findViewById(R.id.SBox64Preset);
-        Box86_64PresetManager.loadSpinner("box64", sBox64Preset, isEditMode() ? container.getBox64Preset() : preferences.getString("box64_preset", Box86_64Preset.COMPATIBILITY));
+        Box64PresetManager.loadSpinner("box64", sBox64Preset, isEditMode() ? container.getBox64Preset() : preferences.getString("box64_preset", Box64Preset.COMPATIBILITY));
 
         final Spinner sFEXCoreVersion = view.findViewById(R.id.SFEXCoreVersion);
         FEXCoreManager.loadFEXCoreVersion(context, contentsManager, sFEXCoreVersion, container);
@@ -496,10 +488,6 @@ public class ContainerDetailFragment extends Fragment {
         sGraphicsDriver.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, sGraphicsItemsList));
         AppUtils.setSpinnerSelectionFromValue(sGraphicsDriver, selectedDriver);
 
-        final Spinner sRCFile = view.findViewById(R.id.SRCFile);
-        final int[] rcfileIds = {0};
-        RCManager rcManager = new RCManager(context);
-        RCManager.loadRCFileSpinner(rcManager, container == null ? 0 : container.getRCFileId(), sRCFile, id -> rcfileIds[0] = id);
 
         final CPUListView cpuListView = view.findViewById(R.id.CPUListView);
         final CPUListView cpuListViewWoW64 = view.findViewById(R.id.CPUListViewWoW64);
@@ -559,9 +547,8 @@ public class ContainerDetailFragment extends Fragment {
                 boolean isRelativeMouseMovement = cbRelativeMouseMovement.isChecked();
                 byte startupSelection = (byte) sStartupSelection.getSelectedItemPosition();
                 String box64Version = sBox64Version.getSelectedItem().toString();
-                String box64Preset = Box86_64PresetManager.getSpinnerSelectedId(sBox64Preset);
+                String box64Preset = Box64PresetManager.getSpinnerSelectedId(sBox64Preset);
                 String desktopTheme = getDesktopTheme(view);
-                int rcfileId = rcfileIds[0];
                 String fexcoreVersion = sFEXCoreVersion.getSelectedItem().toString();
                 // Capture missing properties
                 String midiSoundFont = sMIDISoundFont.getSelectedItemPosition() == 0 ? "" : sMIDISoundFont.getSelectedItem().toString();
@@ -618,7 +605,6 @@ public class ContainerDetailFragment extends Fragment {
                     container.setBox64Preset(box64Preset);
                     container.setFEXCoreVersion(fexcoreVersion);
                     container.setDesktopTheme(desktopTheme);
-                    container.setRcfileId(rcfileId);
                     container.setMidiSoundFont(midiSoundFont);
                     container.setLC_ALL(lc_all);
                     container.setPrimaryController(primaryController);
@@ -654,7 +640,6 @@ public class ContainerDetailFragment extends Fragment {
                     data.put("box64Preset", box64Preset);
                     data.put("fexcoreVersion", fexcoreVersion);
                     data.put("desktopTheme", desktopTheme);
-                    data.put("rcfileId", rcfileId);
                     data.put("wineVersion", sWineVersion.getSelectedItem().toString());
                     data.put("midiSoundFont", midiSoundFont);
                     data.put("lc_all", lc_all);

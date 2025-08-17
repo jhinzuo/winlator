@@ -1,4 +1,4 @@
-package com.winlator.cmod.box86_64;
+package com.winlator.cmod.box64;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -15,12 +15,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Locale;
 
-public abstract class Box86_64PresetManager {
+public abstract class Box64PresetManager {
     public static EnvVars getEnvVars(String prefix, Context context, String id) {
         String ucPrefix = prefix.toUpperCase(Locale.ENGLISH);
         EnvVars envVars = new EnvVars();
 
-        if (id.equals(Box86_64Preset.STABILITY)) {
+        if (id.equals(Box64Preset.STABILITY)) {
             envVars.put(ucPrefix+"_DYNAREC_SAFEFLAGS", "2");
             envVars.put(ucPrefix+"_DYNAREC_FASTNAN", "0");
             envVars.put(ucPrefix+"_DYNAREC_FASTROUND", "0");
@@ -36,7 +36,7 @@ public abstract class Box86_64PresetManager {
                 envVars.put("BOX64_MMAP32", "0");
             }
         }
-        else if (id.equals(Box86_64Preset.COMPATIBILITY)) {
+        else if (id.equals(Box64Preset.COMPATIBILITY)) {
             envVars.put(ucPrefix+"_DYNAREC_SAFEFLAGS", "2");
             envVars.put(ucPrefix+"_DYNAREC_FASTNAN", "0");
             envVars.put(ucPrefix+"_DYNAREC_FASTROUND", "0");
@@ -52,7 +52,7 @@ public abstract class Box86_64PresetManager {
                 envVars.put("BOX64_MMAP32", "0");
             }
         }
-        else if (id.equals(Box86_64Preset.INTERMEDIATE)) {
+        else if (id.equals(Box64Preset.INTERMEDIATE)) {
             envVars.put(ucPrefix+"_DYNAREC_SAFEFLAGS", "2");
             envVars.put(ucPrefix+"_DYNAREC_FASTNAN", "1");
             envVars.put(ucPrefix+"_DYNAREC_FASTROUND", "0");
@@ -68,7 +68,7 @@ public abstract class Box86_64PresetManager {
                 envVars.put("BOX64_MMAP32", "1");
             }
         }
-        else if (id.equals(Box86_64Preset.PERFORMANCE)) {
+        else if (id.equals(Box64Preset.PERFORMANCE)) {
             envVars.put(ucPrefix+"_DYNAREC_SAFEFLAGS", "1");
             envVars.put(ucPrefix+"_DYNAREC_FASTNAN", "1");
             envVars.put(ucPrefix+"_DYNAREC_FASTROUND", "1");
@@ -85,7 +85,7 @@ public abstract class Box86_64PresetManager {
 
             }
         }
-        else if (id.startsWith(Box86_64Preset.CUSTOM)) {
+        else if (id.startsWith(Box64Preset.CUSTOM)) {
             for (String[] preset : customPresetsIterator(prefix, context)) {
                 if (preset[0].equals(id)) {
                     envVars.putAll(preset[2]);
@@ -97,18 +97,18 @@ public abstract class Box86_64PresetManager {
         return envVars;
     }
 
-    public static ArrayList<Box86_64Preset> getPresets(String prefix, Context context) {
-        ArrayList<Box86_64Preset> presets = new ArrayList<>();
-        presets.add(new Box86_64Preset(Box86_64Preset.STABILITY, context.getString(R.string.stability)));
-        presets.add(new Box86_64Preset(Box86_64Preset.COMPATIBILITY, context.getString(R.string.compatibility)));
-        presets.add(new Box86_64Preset(Box86_64Preset.INTERMEDIATE, context.getString(R.string.intermediate)));
-        presets.add(new Box86_64Preset(Box86_64Preset.PERFORMANCE, context.getString(R.string.performance)));
-        for (String[] preset : customPresetsIterator(prefix, context)) presets.add(new Box86_64Preset(preset[0], preset[1]));
+    public static ArrayList<Box64Preset> getPresets(String prefix, Context context) {
+        ArrayList<Box64Preset> presets = new ArrayList<>();
+        presets.add(new Box64Preset(Box64Preset.STABILITY, context.getString(R.string.stability)));
+        presets.add(new Box64Preset(Box64Preset.COMPATIBILITY, context.getString(R.string.compatibility)));
+        presets.add(new Box64Preset(Box64Preset.INTERMEDIATE, context.getString(R.string.intermediate)));
+        presets.add(new Box64Preset(Box64Preset.PERFORMANCE, context.getString(R.string.performance)));
+        for (String[] preset : customPresetsIterator(prefix, context)) presets.add(new Box64Preset(preset[0], preset[1]));
         return presets;
     }
 
-    public static Box86_64Preset getPreset(String prefix, Context context, String id) {
-        for (Box86_64Preset preset : getPresets(prefix, context)) if (preset.id.equals(id)) return preset;
+    public static Box64Preset getPreset(String prefix, Context context, String id) {
+        for (Box64Preset preset : getPresets(prefix, context)) if (preset.id.equals(id)) return preset;
         return null;
     }
 
@@ -133,7 +133,7 @@ public abstract class Box86_64PresetManager {
     public static int getNextPresetId(Context context, String prefix) {
         int maxId = 0;
         for (String[] preset : customPresetsIterator(prefix, context)) {
-            maxId = Math.max(maxId, Integer.parseInt(preset[0].replace(Box86_64Preset.CUSTOM+"-", "")));
+            maxId = Math.max(maxId, Integer.parseInt(preset[0].replace(Box64Preset.CUSTOM+"-", "")));
         }
         return maxId+1;
     }
@@ -155,16 +155,16 @@ public abstract class Box86_64PresetManager {
             customPresetsStr = String.join(",", customPresets);
         }
         else {
-            String preset = Box86_64Preset.CUSTOM+"-"+getNextPresetId(context, prefix)+"|"+name+"|"+envVars.toString();
+            String preset = Box64Preset.CUSTOM+"-"+getNextPresetId(context, prefix)+"|"+name+"|"+envVars.toString();
             customPresetsStr += (!customPresetsStr.isEmpty() ? "," : "")+preset;
         }
         preferences.edit().putString(key, customPresetsStr).apply();
     }
 
     public static void duplicatePreset(String prefix, Context context, String id) {
-        ArrayList<Box86_64Preset> presets = getPresets(prefix, context);
-        Box86_64Preset originPreset = null;
-        for (Box86_64Preset preset : presets) {
+        ArrayList<Box64Preset> presets = getPresets(prefix, context);
+        Box64Preset originPreset = null;
+        for (Box64Preset preset : presets) {
             if (preset.id.equals(id)) {
                 originPreset = preset;
                 break;
@@ -176,7 +176,7 @@ public abstract class Box86_64PresetManager {
         for (int i = 1;;i++) {
             newName = originPreset.name+" ("+i+")";
             boolean found = false;
-            for (Box86_64Preset preset : presets) {
+            for (Box64Preset preset : presets) {
                 if (preset.name.equals(newName)) {
                     found = true;
                     break;
@@ -205,7 +205,7 @@ public abstract class Box86_64PresetManager {
 
     public static void loadSpinner(String prefix, Spinner spinner, String selectedId) {
         Context context = spinner.getContext();
-        ArrayList<Box86_64Preset> presets = getPresets(prefix, context);
+        ArrayList<Box64Preset> presets = getPresets(prefix, context);
 
         int selectedPosition = 0;
         for (int i = 0; i < presets.size(); i++) {
@@ -223,8 +223,8 @@ public abstract class Box86_64PresetManager {
         SpinnerAdapter adapter = spinner.getAdapter();
         int selectedPosition = spinner.getSelectedItemPosition();
         if (adapter != null && adapter.getCount() > 0 && selectedPosition >= 0) {
-            return ((Box86_64Preset)adapter.getItem(selectedPosition)).id;
+            return ((Box64Preset)adapter.getItem(selectedPosition)).id;
         }
-        else return Box86_64Preset.COMPATIBILITY;
+        else return Box64Preset.COMPATIBILITY;
     }
 }

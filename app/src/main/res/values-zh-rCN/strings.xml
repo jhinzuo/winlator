@@ -124,9 +124,7 @@
     <string name="estimated_used_space">估计已用空间</string>
     <string name="advanced">高级</string>
     <string name="system">系统</string>
-    <string name="box86_preset">Box86 预设</string>
     <string name="box64_preset">Box64 预设</string>
-    <string name="box86_version">Box86 版本</string>
     <string name="box64_version">Box64 版本</string>
     <string name="target_path">目标路径</string>
     <string name="use_dri3_extension">使用 DRI3 扩展</string>
@@ -173,7 +171,7 @@
     <string name="enable_experimental_wow64_mode">启用实验性 WoW64 模式</string>
     <string name="logs">日志</string>
     <string name="enable_wine_debug">启用 Wine 调试</string>
-    <string name="enable_box86_64_logs">启用 Box86/Box64 日志</string>
+    <string name="enable_box64_logs">启用 Box64 日志</string>
     <string name="export">导出</string>
     <string name="logs_exported_to">日志已导出到</string>
     <string name="general">常规</string>
@@ -211,7 +209,6 @@
     <string name="cannot_remove_default_profile">无法删除默认配置文件</string>
     <string name="cannot_edit_default_profile">无法编辑默认配置文件</string>
     <string name="do_you_want_to_restore_default_profile">你想要恢复默认配置文件吗？</string>
-    <string name="box86_64_rc_files">RC 文件</string>
     <string name="letter">盘符</string>
     <string name="simulate_touch_screen">模拟触摸屏</string>
     <string name="install_content">安装附加内容</string>

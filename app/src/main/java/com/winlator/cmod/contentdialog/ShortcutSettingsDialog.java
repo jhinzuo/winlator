@@ -26,8 +26,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.winlator.cmod.ContainerDetailFragment;
 import com.winlator.cmod.R;
 import com.winlator.cmod.ShortcutsFragment;
-import com.winlator.cmod.box86_64.Box86_64PresetManager;
-import com.winlator.cmod.box86_64.rc.RCManager;
+import com.winlator.cmod.box64.Box64PresetManager;
 import com.winlator.cmod.container.ContainerManager;
 import com.winlator.cmod.container.Shortcut;
 import com.winlator.cmod.contents.ContentProfile;
@@ -50,8 +49,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import kotlin.random.Random;
 
 public class ShortcutSettingsDialog extends ContentDialog {
     private final ShortcutsFragment fragment;
@@ -266,7 +263,7 @@ public class ShortcutSettingsDialog extends ContentDialog {
 
 
         final Spinner sBox64Preset = findViewById(R.id.SBox64Preset);
-        Box86_64PresetManager.loadSpinner("box64", sBox64Preset, shortcut.getExtra("box64Preset", shortcut.container.getBox64Preset()));
+        Box64PresetManager.loadSpinner("box64", sBox64Preset, shortcut.getExtra("box64Preset", shortcut.container.getBox64Preset()));
 
         final Spinner sFEXCoreVersion = findViewById(R.id.SFEXCoreVersion);
         FEXCoreManager.loadFEXCoreVersion(context, contentsManager, sFEXCoreVersion, shortcut);
@@ -276,14 +273,6 @@ public class ShortcutSettingsDialog extends ContentDialog {
         final Spinner sFEXCoreX87ReducedPrecision = findViewById(R.id.SFEXCoreX87ReducedPrecision);
         
         FEXCoreManager.loadFEXCoreSettings(context, shortcut, sFEXCoreTSOPreset, sFEXCoreMultiBlock, sFEXCoreX87ReducedPrecision);
-
-        final Spinner sRCFile = findViewById(R.id.SRCFile);
-        final int[] rcfileIds = {0};
-        RCManager manager = new RCManager(context);
-        String rcfileId = shortcut.getExtra("rcfileId", String.valueOf(shortcut.container.getRCFileId()));
-        RCManager.loadRCFileSpinner(manager, Integer.parseInt(rcfileId), sRCFile, id -> {
-            rcfileIds[0] = id;
-        });
 
         final Spinner sControlsProfile = findViewById(R.id.SControlsProfile);
         loadControlsProfileSpinner(sControlsProfile, shortcut.getExtra("controlsProfile", "0"));
@@ -383,8 +372,6 @@ public class ShortcutSettingsDialog extends ContentDialog {
 
         final CPUListView cpuListView = findViewById(R.id.CPUListView);
         cpuListView.setCheckedCPUList(shortcut.getExtra("cpuList", shortcut.container.getCPUList(true)));
-        final CPUListView cpuListViewWoW64 = findViewById(R.id.CPUListViewWoW64);
-        cpuListViewWoW64.setCheckedCPUList(shortcut.getExtra("cpuListWoW64", shortcut.container.getCPUListWoW64(true)));
 
         setOnConfirmCallback(() -> {
             String name = etName.getText().toString().trim();
@@ -458,10 +445,9 @@ public class ShortcutSettingsDialog extends ContentDialog {
                 String envVars = envVarsView.getEnvVars();
                 shortcut.putExtra("envVars", !envVars.isEmpty() ? envVars : null);
 
-                String box64Preset = Box86_64PresetManager.getSpinnerSelectedId(sBox64Preset);
+                String box64Preset = Box64PresetManager.getSpinnerSelectedId(sBox64Preset);
                 shortcut.putExtra("box64Preset", !box64Preset.equals(shortcut.container.getBox64Preset()) ? box64Preset : null);
 
-                shortcut.putExtra("rcfileId", rcfileIds[0] != shortcut.container.getRCFileId() ? Integer.toString(rcfileIds[0]) : null);
 
                 String fexcoreVersion = sFEXCoreVersion.getSelectedItem().toString();
                 shortcut.putExtra("fexcoreVersion", !fexcoreVersion.equals(shortcut.container.getFEXCoreVersion()) ? fexcoreVersion : null);
@@ -482,9 +468,6 @@ public class ShortcutSettingsDialog extends ContentDialog {
 
                 String cpuList = cpuListView.getCheckedCPUListAsString();
                 shortcut.putExtra("cpuList", !cpuList.equals(shortcut.container.getCPUList(true)) ? cpuList : null);
-
-                String cpuListWoW64 = cpuListViewWoW64.getCheckedCPUListAsString();
-                shortcut.putExtra("cpuListWoW64", !cpuListWoW64.equals(shortcut.container.getCPUListWoW64(true)) ? cpuListWoW64 : null);
 
                 // Save all changes to the shortcut
                 shortcut.saveData();
@@ -514,7 +497,7 @@ public class ShortcutSettingsDialog extends ContentDialog {
     private boolean isFieldSetLabel(String text) {
         return text.equalsIgnoreCase("DirectX") ||
                 text.equalsIgnoreCase("General") ||
-                text.equalsIgnoreCase("Box86/Box64") ||
+                text.equalsIgnoreCase("Box64") ||
                 text.equalsIgnoreCase("Input Controls") ||
                 text.equalsIgnoreCase("Game Controller") ||
                 text.equalsIgnoreCase("System");
@@ -570,7 +553,6 @@ public class ShortcutSettingsDialog extends ContentDialog {
         Spinner sEmulatorSpinner = view.findViewById(R.id.SEmulator);
         Spinner sBox64Preset = view.findViewById(R.id.SBox64Preset);
         Spinner sControlsProfile = view.findViewById(R.id.SControlsProfile);
-        Spinner sRCFile = view.findViewById(R.id.SRCFile);
         Spinner sDInputType = view.findViewById(R.id.SDInputType);
         Spinner sMIDISoundFont = view.findViewById(R.id.SMIDISoundFont);
         Spinner sBox64Version = view.findViewById(R.id.SBox64Version);
@@ -589,7 +571,6 @@ public class ShortcutSettingsDialog extends ContentDialog {
         sEmulatorSpinner.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
         sBox64Preset.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
         sControlsProfile.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
-        sRCFile.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
         sDInputType.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
         sMIDISoundFont.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
         sBox64Version.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);

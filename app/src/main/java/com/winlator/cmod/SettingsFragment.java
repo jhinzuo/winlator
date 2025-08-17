@@ -19,7 +19,6 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -40,37 +39,26 @@ import androidx.fragment.app.FragmentManager;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.navigation.NavigationView;
-import com.winlator.cmod.R;
-import com.winlator.cmod.box86_64.Box86_64EditPresetDialog;
-import com.winlator.cmod.box86_64.Box86_64Preset;
-import com.winlator.cmod.box86_64.Box86_64PresetManager;
-import com.winlator.cmod.container.Container;
-import com.winlator.cmod.container.ContainerManager;
+import com.winlator.cmod.box64.Box64EditPresetDialog;
+import com.winlator.cmod.box64.Box64Preset;
+import com.winlator.cmod.box64.Box64PresetManager;
 import com.winlator.cmod.contentdialog.ContentDialog;
-import com.winlator.cmod.contents.ContentProfile;
-import com.winlator.cmod.contents.ContentsManager;
 import com.winlator.cmod.core.AppUtils;
 import com.winlator.cmod.core.ArrayUtils;
 import com.winlator.cmod.core.Callback;
-import com.winlator.cmod.core.DefaultVersion;
 import com.winlator.cmod.core.FileUtils;
 import com.winlator.cmod.core.PreloaderDialog;
-import com.winlator.cmod.core.StringUtils;
 import com.winlator.cmod.core.TarCompressorUtils;
-import com.winlator.cmod.core.WineInfo;
-import com.winlator.cmod.core.WineUtils;
 import com.winlator.cmod.inputcontrols.ControlElement;
 import com.winlator.cmod.inputcontrols.ExternalController;
 import com.winlator.cmod.inputcontrols.PreferenceKeys;
 import com.winlator.cmod.midi.MidiManager;
 import com.winlator.cmod.restore.RestoreActivity;
 import com.winlator.cmod.widget.InputControlsView;
-import com.winlator.cmod.xenvironment.ImageFs;
 import com.winlator.cmod.xenvironment.ImageFsInstaller;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.tukaani.xz.check.Check;
 
 import java.io.File;
 import java.io.IOException;
@@ -272,7 +260,7 @@ public class SettingsFragment extends Fragment {
         });
 
         final Spinner sBox64Preset = view.findViewById(R.id.SBox64Preset);
-        loadBox86_64PresetSpinners(view, sBox64Preset);
+        loadBox64PresetSpinners(view, sBox64Preset);
 
         final Spinner sMIDISoundFont = view.findViewById(R.id.SMIDISoundFont);
 
@@ -341,8 +329,8 @@ public class SettingsFragment extends Fragment {
         final ArrayList<String> wineDebugChannels = new ArrayList<>(Arrays.asList(preferences.getString("wine_debug_channels", DEFAULT_WINE_DEBUG_CHANNELS).split(",")));
         loadWineDebugChannels(view, wineDebugChannels);
 
-        final CheckBox cbEnableBox86_64Logs = view.findViewById(R.id.CBEnableBox86_64Logs);
-        cbEnableBox86_64Logs.setChecked(preferences.getBoolean("enable_box86_64_logs", false));
+        final CheckBox cbEnableBox64Logs = view.findViewById(R.id.CBEnableBox64Logs);
+        cbEnableBox64Logs.setChecked(preferences.getBoolean("enable_box64_logs", false));
 
         final TextView tvCursorSpeed = view.findViewById(R.id.TVCursorSpeed);
         final SeekBar sbCursorSpeed = view.findViewById(R.id.SBCursorSpeed);
@@ -405,12 +393,12 @@ public class SettingsFragment extends Fragment {
 
             // Save Dark Mode setting
             editor.putBoolean("dark_mode", cbDarkMode.isChecked());
-            editor.putString("box64_preset", Box86_64PresetManager.getSpinnerSelectedId(sBox64Preset));
+            editor.putString("box64_preset", Box64PresetManager.getSpinnerSelectedId(sBox64Preset));
             editor.putBoolean("use_dri3", cbUseDRI3.isChecked());
             editor.putBoolean("use_xr", cbUseXR.isChecked());
             editor.putFloat("cursor_speed", sbCursorSpeed.getProgress() / 100.0f);
             editor.putBoolean("enable_wine_debug", cbEnableWineDebug.isChecked());
-            editor.putBoolean("enable_box86_64_logs", cbEnableBox86_64Logs.isChecked());
+            editor.putBoolean("enable_box64_logs", cbEnableBox64Logs.isChecked());
             editor.putInt("trigger_type", triggerRbIds.indexOf(rgTriggerType.getCheckedRadioButtonId()));
             editor.putBoolean("cursor_lock", cbCursorLock.isChecked()); // Save cursor lock state
             editor.putBoolean("xinput_toggle", cbXinputToggle.isChecked()); // Save xinput toggle state
@@ -480,8 +468,8 @@ public class SettingsFragment extends Fragment {
     }
 
     private void applyDynamicStylesRecursively(View view) {
-        TextView box86box64Label = view.findViewById(R.id.TVBox86Box64);
-        applyFieldSetLabelStyle(box86box64Label, isDarkMode);
+        TextView box64Label = view.findViewById(R.id.TVBox64);
+        applyFieldSetLabelStyle(box64Label, isDarkMode);
 
         TextView soundLabel = view.findViewById(R.id.TVSound);
         applyFieldSetLabelStyle(soundLabel, isDarkMode);
@@ -575,43 +563,43 @@ public class SettingsFragment extends Fragment {
 //        }
 //    }
 
-    private void loadBox86_64PresetSpinners(View view, final Spinner sBox64Preset) {
+    private void loadBox64PresetSpinners(View view, final Spinner sBox64Preset) {
         final ArrayMap<String, Spinner> spinners = new ArrayMap<String, Spinner>() {{
             put("box64", sBox64Preset);
         }};
         final Context context = getContext();
 
         Callback<String> updateSpinner = (prefix) -> {
-            Box86_64PresetManager.loadSpinner(prefix, spinners.get(prefix), preferences.getString(prefix+"_preset", Box86_64Preset.COMPATIBILITY));
+            Box64PresetManager.loadSpinner(prefix, spinners.get(prefix), preferences.getString(prefix+"_preset", Box64Preset.COMPATIBILITY));
         };
 
         Callback<String> onAddPreset = (prefix) -> {
-            Box86_64EditPresetDialog dialog = new Box86_64EditPresetDialog(context, prefix, null);
+            Box64EditPresetDialog dialog = new Box64EditPresetDialog(context, prefix, null);
             dialog.setOnConfirmCallback(() -> updateSpinner.call(prefix));
             dialog.show();
         };
 
         Callback<String> onEditPreset = (prefix) -> {
-            Box86_64EditPresetDialog dialog = new Box86_64EditPresetDialog(context, prefix, Box86_64PresetManager.getSpinnerSelectedId(spinners.get(prefix)));
+            Box64EditPresetDialog dialog = new Box64EditPresetDialog(context, prefix, Box64PresetManager.getSpinnerSelectedId(spinners.get(prefix)));
             dialog.setOnConfirmCallback(() -> updateSpinner.call(prefix));
             dialog.show();
         };
 
         Callback<String> onDuplicatePreset = (prefix) -> ContentDialog.confirm(context, R.string.do_you_want_to_duplicate_this_preset, () -> {
             Spinner spinner = spinners.get(prefix);
-            Box86_64PresetManager.duplicatePreset(prefix, context, Box86_64PresetManager.getSpinnerSelectedId(spinner));
+            Box64PresetManager.duplicatePreset(prefix, context, Box64PresetManager.getSpinnerSelectedId(spinner));
             updateSpinner.call(prefix);
             spinner.setSelection(spinner.getCount()-1);
         });
 
         Callback<String> onRemovePreset = (prefix) -> {
-            final String presetId = Box86_64PresetManager.getSpinnerSelectedId(spinners.get(prefix));
-            if (!presetId.startsWith(Box86_64Preset.CUSTOM)) {
+            final String presetId = Box64PresetManager.getSpinnerSelectedId(spinners.get(prefix));
+            if (!presetId.startsWith(Box64Preset.CUSTOM)) {
                 AppUtils.showToast(context, R.string.you_cannot_remove_this_preset);
                 return;
             }
             ContentDialog.confirm(context, R.string.do_you_want_to_remove_this_preset, () -> {
-                Box86_64PresetManager.removePreset(prefix, context, presetId);
+                Box64PresetManager.removePreset(prefix, context, presetId);
                 updateSpinner.call(prefix);
             });
         };

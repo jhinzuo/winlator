@@ -61,9 +61,9 @@
                 </LinearLayout>
 
                 <TextView
-                    android:id="@+id/TVBox86Box64"
+                    android:id="@+id/TVBox64"
                     style="@style/FieldSetLabel"
-                    android:text="@string/box86_box64" />
+                    android:text="@string/box64" />
             </FrameLayout>
 
             <FrameLayout
@@ -335,10 +335,10 @@
                     <View style="@style/FieldSeparator" />
 
                     <CheckBox
-                        android:id="@+id/CBEnableBox86_64Logs"
+                        android:id="@+id/CBEnableBox64Logs"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/enable_box86_64_logs"
+                        android:text="@string/enable_box64_logs"
                         android:layout_marginTop="8dp" />
                 </LinearLayout>
 

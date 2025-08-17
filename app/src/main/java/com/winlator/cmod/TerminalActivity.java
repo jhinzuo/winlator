@@ -7,13 +7,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.winlator.cmod.R;
 import com.winlator.cmod.core.FileUtils;
 import com.winlator.cmod.xenvironment.ImageFs;
 import com.winlator.cmod.xenvironment.XEnvironment;
-import com.winlator.cmod.xenvironment.components.BionicProgramLauncherComponent;
-import com.winlator.cmod.contents.ContentsManager;
 import com.winlator.cmod.xenvironment.components.GuestProgramLauncherComponent;
+import com.winlator.cmod.contents.ContentsManager;
 
 import java.io.File;
 
@@ -48,7 +46,7 @@ public class TerminalActivity extends AppCompatActivity {
         ContentsManager contentsManager = new ContentsManager(this);
 
         // Choose the appropriate launcher based on preference
-        launcher = new BionicProgramLauncherComponent(contentsManager, null, null);
+        launcher = new GuestProgramLauncherComponent(contentsManager, null, null);
 
         // Add the launcher to XEnvironment
         xEnvironment.addComponent(launcher);

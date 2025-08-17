@@ -361,9 +361,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.main_menu_input_controls:
                 show(new InputControlsFragment(selectedProfileId), false);  // Forward animation
                 break;
-            case R.id.main_menu_box_rc:
-                show(new Box86_64RCFragment(), false);  // Forward animation
-                break;
             case R.id.main_menu_contents:
                 show(new ContentsFragment(), false);  // Forward animation
                 break;
@@ -436,7 +433,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     "---",
                     "Ubuntu RootFs (<a href=\"https://releases.ubuntu.com/focal\">Focal Fossa</a>)",
                     "Wine (<a href=\"https://www.winehq.org\">winehq.org</a>)",
-                    "Box86/Box64 by <a href=\"https://github.com/ptitSeb\">ptitseb</a>",
+                    "Box64 by <a href=\"https://github.com/ptitSeb\">ptitseb</a>",
                     "PRoot (<a href=\"https://proot-me.github.io\">proot-me.github.io</a>)",
                     "Mesa (Turnip/Zink/VirGL) (<a href=\"https://www.mesa3d.org\">mesa3d.org</a>)",
                     "DXVK (<a href=\"https://github.com/doitsujin/dxvk\">github.com/doitsujin/dxvk</a>)",

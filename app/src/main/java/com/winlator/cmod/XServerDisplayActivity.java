@@ -14,7 +14,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.FileObserver;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -42,8 +41,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.navigation.NavigationView;
-import com.winlator.cmod.box86_64.rc.RCFile;
-import com.winlator.cmod.box86_64.rc.RCManager;
 import com.winlator.cmod.container.Container;
 import com.winlator.cmod.container.ContainerManager;
 import com.winlator.cmod.container.Shortcut;
@@ -73,7 +70,6 @@ import com.winlator.cmod.core.WineRequestHandler;
 import com.winlator.cmod.core.WineStartMenuCreator;
 import com.winlator.cmod.core.WineThemeManager;
 import com.winlator.cmod.core.WineUtils;
-import com.winlator.cmod.fexcore.FEXCoreManager;
 import com.winlator.cmod.inputcontrols.ControlsProfile;
 import com.winlator.cmod.inputcontrols.ExternalController;
 import com.winlator.cmod.inputcontrols.InputControlsManager;
@@ -100,7 +96,6 @@ import com.winlator.cmod.xconnector.UnixSocketConfig;
 import com.winlator.cmod.xenvironment.ImageFs;
 import com.winlator.cmod.xenvironment.XEnvironment;
 import com.winlator.cmod.xenvironment.components.ALSAServerComponent;
-import com.winlator.cmod.xenvironment.components.BionicProgramLauncherComponent;
 import com.winlator.cmod.xenvironment.components.GuestProgramLauncherComponent;
 import com.winlator.cmod.xenvironment.components.PulseAudioComponent;
 import com.winlator.cmod.xenvironment.components.SysVSharedMemoryComponent;
@@ -118,12 +113,9 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -199,7 +191,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
 
     private String screenEffectProfile;
 
-    private BionicProgramLauncherComponent bionicLauncher;
+    private GuestProgramLauncherComponent guestProgramLauncherComponent;
     private EnvVars overrideEnvVars;
 
 
@@ -323,7 +315,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
             navigationView.setBackgroundResource(R.color.content_dialog_background_dark);
         }
 
-        boolean enableLogs = preferences.getBoolean("enable_wine_debug", false) || preferences.getBoolean("enable_box86_64_logs", false);
+        boolean enableLogs = preferences.getBoolean("enable_wine_debug", false) || preferences.getBoolean("enable_box64_logs", false);
         Menu menu = navigationView.getMenu();
         menu.findItem(R.id.main_menu_logs).setVisible(enableLogs);
         if (XrActivity.isEnabled(this)) menu.findItem(R.id.main_menu_magnifier).setVisible(false);
@@ -405,7 +397,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
 
         if (shortcut != null) {
             taskAffinityMask = (short) ProcessHelper.getAffinityMask(shortcut.getExtra("cpuList", container.getCPUList(true)));
-            taskAffinityMaskWoW64 = (short) ProcessHelper.getAffinityMask(shortcut.getExtra("cpuListWoW64", container.getCPUListWoW64(true)));
+            taskAffinityMaskWoW64 = taskAffinityMask;
         }
 
         // Determine the class name for the startup workarounds
@@ -1065,23 +1057,19 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
         FileUtils.clear(imageFs.getTmpDir());
 
 
-        // Create the appropriate launcher based on the container type
-        GuestProgramLauncherComponent guestProgramLauncherComponent;
-
-        bionicLauncher = new BionicProgramLauncherComponent(
+        guestProgramLauncherComponent = new GuestProgramLauncherComponent(
                 contentsManager,
                 contentsManager.getProfileByEntryName(container.getWineVersion()),
                 shortcut
         );
-        guestProgramLauncherComponent = bionicLauncher;
 
         // Additional container checks and environment configuration
         if (container != null) {
             if (Byte.parseByte(startupSelection) == Container.STARTUP_SELECTION_AGGRESSIVE) {
                 winHandler.killProcess("services.exe");
             }
-            bionicLauncher.setContainer(this.container);
-            bionicLauncher.setWineInfo(this.wineInfo);
+            guestProgramLauncherComponent.setContainer(this.container);
+            guestProgramLauncherComponent.setWineInfo(this.wineInfo);
             boolean wow64Mode = container.isWoW64Mode();
 
             String guestExecutable = "wine explorer /desktop=shell," + xServer.screenInfo + " " + getWineStartCommand();
@@ -1101,9 +1089,9 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
             for (String[] drive : container.drivesIterator()) {
                 bindingPaths.add(drive[1]);
             }
+
             guestProgramLauncherComponent.setBindingPaths(bindingPaths.toArray(new String[0]));
 
-            // Box86/64 presets from container or shortcut
             guestProgramLauncherComponent.setBox64Preset(
                     shortcut != null
                             ? shortcut.getExtra("box64Preset", container.getBox64Preset())
@@ -1149,21 +1137,6 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
                     )
             );
         }
-
-        // RC (box86_64rc) file handling
-        RCManager manager = new RCManager(this);
-        manager.loadRCFiles();
-        int rcfileId = shortcut == null
-                ? container.getRCFileId()
-                : Integer.parseInt(shortcut.getExtra("rcfileId", String.valueOf(container.getRCFileId())));
-        RCFile rcfile = manager.getRcfile(rcfileId);
-
-        File file = new File(container.getRootDir(), ".box64rc");
-        String str = rcfile == null ? "" : rcfile.generateBox86_64rc();
-        FileUtils.writeString(file, str);
-
-        // Let Box64 inside Wine see this config
-        envVars.put("BOX64_RCFILE", file.getAbsolutePath());
 
         // Pass final envVars to the launcher
         guestProgramLauncherComponent.setEnvVars(envVars);
@@ -1924,7 +1897,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
     }
 
     private void assignTaskAffinity(Window window) {
-        if (taskAffinityMask == 0) return;
+        if (taskAffinityMask == 0 || taskAffinityMaskWoW64 == 0) return;
         int processId = window.getProcessId();
         String className = window.getClassName();
         int processAffinity = window.isWoW64() ? taskAffinityMaskWoW64 : taskAffinityMask;

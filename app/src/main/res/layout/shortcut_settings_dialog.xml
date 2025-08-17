@@ -418,7 +418,7 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/box86box64Frame"
+                android:id="@+id/box64Frame"
                 android:layout_marginTop="8dp">
 
                 <LinearLayout style="@style/FieldSet">
@@ -444,21 +444,12 @@
                         android:id="@+id/SBox64Preset"
                         android:layout_width="match_parent" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/box86_64_rc_files" />
-
-                    <Spinner
-                        style="@style/ComboBox"
-                        android:id="@+id/SRCFile"
-                        android:layout_width="match_parent" />
                 </LinearLayout>
 
                 <TextView
                     style="@style/FieldSetLabel"
                     android:background="#ffffff"
-                    android:text="@string/box86_box64" />
+                    android:text="@string/box64" />
             </FrameLayout>
             
             <FrameLayout
@@ -805,19 +796,6 @@
 
             <com.winlator.cmod.widget.CPUListView
                 android:id="@+id/CPUListView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:layout_marginTop="4dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/processor_affinity_32_bit_apps"
-                android:layout_marginTop="8dp" />
-
-            <com.winlator.cmod.widget.CPUListView
-                android:id="@+id/CPUListViewWoW64"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
