@@ -10,10 +10,6 @@
             android:id="@+id/main_menu_input_controls"
             android:title="@string/input_controls" />
         <item
-            android:icon="@drawable/icon_screen_effect"
-            android:id="@+id/main_menu_screen_effects"
-            android:title="@string/screen_effect" />
-        <item
             android:icon="@drawable/icon_fullscreen"
             android:id="@+id/main_menu_toggle_fullscreen"
             android:title="@string/toggle_fullscreen" />
@@ -30,17 +26,9 @@
             android:id="@+id/main_menu_task_manager"
             android:title="@string/task_manager" />
         <item
-            android:icon="@drawable/icon_magnifier"
-            android:id="@+id/main_menu_magnifier"
-            android:title="@string/magnifier" />
-        <item
             android:icon="@drawable/icon_debug"
             android:id="@+id/main_menu_logs"
             android:title="@string/logs" />
-        <item
-            android:icon="@drawable/icon_help"
-            android:id="@+id/main_menu_touchpad_help"
-            android:title="@string/touchpad_help" />
         <item
             android:id="@+id/main_menu_terminal"
             android:title="Debug Terminal"

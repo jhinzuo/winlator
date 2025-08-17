@@ -318,7 +318,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
         boolean enableLogs = preferences.getBoolean("enable_wine_debug", false) || preferences.getBoolean("enable_box64_logs", false);
         Menu menu = navigationView.getMenu();
         menu.findItem(R.id.main_menu_logs).setVisible(enableLogs);
-        if (XrActivity.isEnabled(this)) menu.findItem(R.id.main_menu_magnifier).setVisible(false);
+//        if (XrActivity.isEnabled(this)) menu.findItem(R.id.main_menu_magnifier).setVisible(false);
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setPointerIcon(PointerIcon.getSystemIcon(this, PointerIcon.TYPE_ARROW));
         navigationView.setOnFocusChangeListener((v, hasFocus) -> navigationFocused = hasFocus);
@@ -863,7 +863,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
                 new TaskManagerDialog(this).show();
                 drawerLayout.closeDrawers();
                 break;
-            case R.id.main_menu_magnifier:
+/*            case R.id.main_menu_magnifier:
                 if (magnifierView == null) {
                     FrameLayout container = findViewById(R.id.FLXServerDisplay);
                     magnifierView = new MagnifierView(this);
@@ -906,14 +906,14 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
                 Log.d("ScreenEffectDialog", "Showing ScreenEffectDialog");
                 screenEffectDialog.show();
                 drawerLayout.closeDrawers();
-                break;
+                break; */
             case R.id.main_menu_logs:
                 debugDialog.show();
                 drawerLayout.closeDrawers();
                 break;
-            case R.id.main_menu_touchpad_help:
-                showTouchpadHelpDialog();
-                break;
+//            case R.id.main_menu_touchpad_help:
+//                showTouchpadHelpDialog();
+//                break;
             case R.id.main_menu_terminal:  // New case for TerminalActivity
                 openTerminal();
                 return true;
