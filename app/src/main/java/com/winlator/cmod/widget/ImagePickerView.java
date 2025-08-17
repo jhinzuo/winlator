@@ -83,7 +83,7 @@ public class ImagePickerView extends View implements View.OnClickListener {
         View browseButton = view.findViewById(R.id.BTBrowse);
         browseButton.setOnClickListener((v) -> {
             MainActivity activity = (MainActivity)context;
-            Intent intent = new Intent(Intent.ACTION_PICK);
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.setType("image/*");
             activity.setOpenFileCallback((data) -> {
                 Bitmap bitmap = ImageUtils.getBitmapFromUri(context, data, 1280);

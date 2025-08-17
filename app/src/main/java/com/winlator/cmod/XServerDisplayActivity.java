@@ -1534,9 +1534,11 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
         envVars.put("GALLIUM_DRIVER", "zink");
 
         if (firstTimeBoot) {
-            Log.d("XServerDisplayActivity", "First time container boot, re-extracting wrapper");
+            Log.d("XServerDisplayActivity", "First time container boot, re-extracting libs");
             TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "graphics_driver/wrapper" + ".tzst", rootDir);
             TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "graphics_driver/extra_libs" + ".tzst", rootDir);
+            if (wineInfo.isArm64EC())
+                TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "graphics_driver/zink_dlls" + ".tzst", new File(rootDir, imageFs.WINEPREFIX + "/drive_c/windows"));
         }
 
         if (adrenoToolsDriverId != "System") {
@@ -1771,9 +1773,6 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
                 String identifier = wincomponent[0];
                 boolean useNative = wincomponent[1].equals("1");
 
-                if (!wineInfo.isArm64EC() && identifier.contains("opengl") && useNative)
-                    continue;
-
                 if (useNative) {
                     TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "wincomponents/"+identifier+".tzst", windowsDir, onExtractFileListener);
                 }
@@ -1811,12 +1810,10 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
         for (String dll : dlls) {
             File srcFile = new File(system32dlls, dll);
             File dstFile = new File(windowsDir, "system32/" + dll);
-            if (dstFile.exists()) dstFile.delete();
-            FileUtils.symlink(srcFile, dstFile);
+            FileUtils.copy(srcFile, dstFile);
             srcFile = new File(syswow64dlls, dll);
             dstFile = new File(windowsDir, "syswow64/" + dll);
-            if (dstFile.exists()) dstFile.delete();
-            FileUtils.symlink(srcFile, dstFile);
+            FileUtils.copy(srcFile, dstFile);
         }
    }
 
@@ -1944,7 +1941,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
         if (frameRating == null) return;
 
         if (property != null) {
-            if (!window.getClassName().isEmpty() && frameRatingWindowId == -1 && property.nameAsString().contains("_MESA_DRV")) {
+            if (frameRatingWindowId == -1 && property.nameAsString().contains("_MESA_DRV")) {
                 frameRatingWindowId = window.id;
                 Log.d("XServerDisplayActivity", "Showing hud for Window " + window.getName());
                 frameRating.update();
@@ -1956,7 +1953,7 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
                 runOnUiThread(() -> frameRating.setGpuName(property.toString()));
             }
         }
-        else if (!window.getClassName().isEmpty() && frameRatingWindowId != -1) {
+        else if (frameRatingWindowId != -1) {
             frameRatingWindowId = -1;
             Log.d("XServerDisplayActivity", "Hiding hud for Window " + window.getName());
             runOnUiThread(() -> frameRating.setVisibility(View.GONE));

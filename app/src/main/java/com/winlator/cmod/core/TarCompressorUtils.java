@@ -24,9 +24,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.StandardCopyOption;
 
 public abstract class TarCompressorUtils {
     public enum Type {XZ, ZSTD}
@@ -178,10 +175,9 @@ public abstract class TarCompressorUtils {
                         FileUtils.symlink(entry.getLinkName(), file.getAbsolutePath());
                     }
                     else {
-                        if (FileUtils.isSymlink(file))
-                            file.delete();
-
-                        Files.copy(tar, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                        try (BufferedOutputStream outStream = new BufferedOutputStream(new FileOutputStream(file), StreamUtils.BUFFER_SIZE)) {
+                            if (!StreamUtils.copy(tar, outStream)) return false;
+                        }
                     }
                 }
 

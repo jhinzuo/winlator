@@ -247,7 +247,7 @@ public class ContainerManager {
                 dstFile = onExtractFileListener.onExtractFile(dstFile, 0);
                 if (dstFile == null) continue;
             }
-            FileUtils.symlink(file.getPath(), dstFile.getPath());
+            FileUtils.copy(file, dstFile);
         }
     }
 
