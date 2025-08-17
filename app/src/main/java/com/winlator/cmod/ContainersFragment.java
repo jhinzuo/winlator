@@ -98,12 +98,12 @@ public class ContainersFragment extends Fragment {
         // Clear any existing menu items to prevent duplication
         menu.clear();
         menuInflater.inflate(R.menu.containers_menu, menu);
-        MenuItem bigPictureItem = menu.findItem(R.id.action_big_picture_mode);
-        Drawable icon = bigPictureItem.getIcon();
-        if (icon != null) {
-            icon.mutate(); // Ensure we don't modify other instances of this drawable
-            icon.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
-        }
+//        MenuItem bigPictureItem = menu.findItem(R.id.action_big_picture_mode);
+//        Drawable icon = bigPictureItem.getIcon();
+//        if (icon != null) {
+//           icon.mutate(); // Ensure we don't modify other instances of this drawable
+//            icon.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
+//        }
     }
 
     @Override
@@ -123,9 +123,9 @@ public class ContainersFragment extends Fragment {
                 showImportInfoDialog();
                 return true;
 
-            case R.id.action_big_picture_mode:
-                toggleBigPictureMode();
-                return true;
+//            case R.id.action_big_picture_mode:
+//                toggleBigPictureMode();
+//                return true;
 
             case R.id.action_terminal:  // New case for TerminalActivity
                 openTerminal();
@@ -257,12 +257,12 @@ public class ContainersFragment extends Fragment {
 
 
 
-    private void toggleBigPictureMode() {
-        // Start BigPictureActivity without passing shortcut data explicitly
-        Intent intent = new Intent(getContext(), BigPictureActivity.class);
-        startActivity(intent);
-        getActivity().overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-    }
+//    private void toggleBigPictureMode() {
+//        // Start BigPictureActivity without passing shortcut data explicitly
+//        Intent intent = new Intent(getContext(), BigPictureActivity.class);
+//        startActivity(intent);
+//        getActivity().overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+//    }
 
 
     private class ContainersAdapter extends RecyclerView.Adapter<ContainersAdapter.ViewHolder> {
