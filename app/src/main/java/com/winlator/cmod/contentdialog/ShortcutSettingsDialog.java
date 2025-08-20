@@ -93,10 +93,6 @@ public class ShortcutSettingsDialog extends ContentDialog {
         // Initialize the turnip version TextView
         tvGraphicsDriverVersion = findViewById(R.id.TVGraphicsDriverVersion);
 
-        // Get the shared preferences and check the legacy mode status
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean isLegacyModeEnabled = preferences.getBoolean("legacy_mode_enabled", false);
-
         final EditText etName = findViewById(R.id.ETName);
         etName.setText(shortcut.name);
 
@@ -127,7 +123,6 @@ public class ShortcutSettingsDialog extends ContentDialog {
         final View vDXWrapperConfig = findViewById(R.id.BTDXWrapperConfig);
         vDXWrapperConfig.setTag(shortcut.getExtra("dxwrapperConfig", shortcut.container.getDXWrapperConfig()));
 
-        ContainerDetailFragment.setupDXWrapperSpinner(sDXWrapper, vDXWrapperConfig);
         ContainerDetailFragment.setupDDrawSpinner(sDDrawrapper, shortcut.getExtra("ddrawrapper", shortcut.container.getDDrawWrapper()));
         loadGraphicsDriverSpinner(sGraphicsDriver, sDXWrapper, vGraphicsDriverConfig, shortcut.getExtra("graphicsDriver", shortcut.container.getGraphicsDriver()),
             shortcut.getExtra("dxwrapper", shortcut.container.getDXWrapper()));
@@ -159,6 +154,7 @@ public class ShortcutSettingsDialog extends ContentDialog {
             sEmulator64.setSelection(1);
         }
 
+        ContainerDetailFragment.setupDXWrapperSpinner(sDXWrapper, vDXWrapperConfig, wineInfo.isArm64EC());
         loadBox64VersionSpinner(context, contentsManager, sBox64Version, wineInfo.isArm64EC());
 
         // Add this part to set the initial spinner selection based on the shortcut
@@ -167,7 +163,7 @@ public class ShortcutSettingsDialog extends ContentDialog {
             AppUtils.setSpinnerSelectionFromValue(sBox64Version, currentBox64Version);
         } else {
             // Default selection or use a preferred default version
-            AppUtils.setSpinnerSelectionFromValue(sBox64Version, DefaultVersion.BOX64);
+            AppUtils.setSpinnerSelectionFromValue(sBox64Version, wineInfo.isArm64EC() ? DefaultVersion.WOWBOX64 : DefaultVersion.BOX64);
         }
 
         // Set OnItemSelectedListener for the Box64 version spinner
@@ -202,8 +198,6 @@ public class ShortcutSettingsDialog extends ContentDialog {
             llSecondaryExecOptions.setVisibility(isChecked ? View.VISIBLE : View.GONE);
         });
 
-        // Initialize the TextView for the legacy mode message
-        TextView tvLegacyInputMessage = findViewById(R.id.TVLegacyInputMessage);
 
         final CheckBox cbFullscreenStretched =  findViewById(R.id.CBFullscreenStretched);
         boolean fullscreenStretched = shortcut.getExtra("fullscreenStretched", "0").equals("1");
@@ -219,48 +213,22 @@ public class ShortcutSettingsDialog extends ContentDialog {
         Spinner SDInputType = findViewById(R.id.SDInputType);
         int inputType = Integer.parseInt(shortcut.getExtra("inputType", String.valueOf(shortcut.container.getInputType())));
 
-        if (isLegacyModeEnabled) {
-            // Display legacy mode message and hide input controls
-            tvLegacyInputMessage.setText("You are in 7.1.2 legacy input mode. Advanced input settings are not available.");
-            tvLegacyInputMessage.setVisibility(View.VISIBLE);
-            // In legacy mode, hide all input-related UI elements
-            cbEnableXInput.setVisibility(View.GONE);
-            cbEnableDInput.setVisibility(View.GONE);
-            llDInputType.setVisibility(View.GONE);
-            btHelpXInput.setVisibility(View.GONE);
-            btHelpDInput.setVisibility(View.GONE);
-            SDInputType.setVisibility(View.GONE);
-        } else {
-            cbEnableXInput.setChecked((inputType & WinHandler.FLAG_INPUT_TYPE_XINPUT) == WinHandler.FLAG_INPUT_TYPE_XINPUT);
-            cbEnableDInput.setChecked((inputType & WinHandler.FLAG_INPUT_TYPE_DINPUT) == WinHandler.FLAG_INPUT_TYPE_DINPUT);
-            cbEnableDInput.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                llDInputType.setVisibility(isChecked?View.VISIBLE:View.GONE);
-                if (isChecked && cbEnableXInput.isChecked())
-                    showInputWarning.run();
-            });
-            cbEnableXInput.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if (isChecked && cbEnableDInput.isChecked())
-                    showInputWarning.run();
-            });
-            btHelpXInput.setOnClickListener(v -> AppUtils.showHelpBox(context, v, R.string.help_xinput));
-            btHelpDInput.setOnClickListener(v -> AppUtils.showHelpBox(context, v, R.string.help_dinput));
-            SDInputType.setSelection(((inputType & WinHandler.FLAG_DINPUT_MAPPER_STANDARD) == WinHandler.FLAG_DINPUT_MAPPER_STANDARD) ? 0 : 1);
-            llDInputType.setVisibility(cbEnableDInput.isChecked()?View.VISIBLE:View.GONE);
 
-            // Always show input-related UI elements when not in legacy mode
-            cbEnableXInput.setVisibility(View.VISIBLE);
-            cbEnableDInput.setVisibility(View.VISIBLE);
-            llDInputType.setVisibility(View.VISIBLE);
-            btHelpXInput.setVisibility(View.VISIBLE);
-            btHelpDInput.setVisibility(View.VISIBLE);
-            SDInputType.setVisibility(View.VISIBLE);
-
-
-        }
-
-        final CheckBox cbForceFullscreen = findViewById(R.id.CBForceFullscreen);
-        cbForceFullscreen.setChecked(shortcut.getExtra("forceFullscreen", "0").equals("1"));
-
+        cbEnableXInput.setChecked((inputType & WinHandler.FLAG_INPUT_TYPE_XINPUT) == WinHandler.FLAG_INPUT_TYPE_XINPUT);
+        cbEnableDInput.setChecked((inputType & WinHandler.FLAG_INPUT_TYPE_DINPUT) == WinHandler.FLAG_INPUT_TYPE_DINPUT);
+        cbEnableDInput.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            llDInputType.setVisibility(isChecked?View.VISIBLE:View.GONE);
+            if (isChecked && cbEnableXInput.isChecked())
+                showInputWarning.run();
+        });
+        cbEnableXInput.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked && cbEnableDInput.isChecked())
+                showInputWarning.run();
+        });
+        btHelpXInput.setOnClickListener(v -> AppUtils.showHelpBox(context, v, R.string.help_xinput));
+        btHelpDInput.setOnClickListener(v -> AppUtils.showHelpBox(context, v, R.string.help_dinput));
+        SDInputType.setSelection(((inputType & WinHandler.FLAG_DINPUT_MAPPER_STANDARD) == WinHandler.FLAG_DINPUT_MAPPER_STANDARD) ? 0 : 1);
+        llDInputType.setVisibility(cbEnableDInput.isChecked()?View.VISIBLE:View.GONE);
 
         final Spinner sBox64Preset = findViewById(R.id.SBox64Preset);
         Box64PresetManager.loadSpinner("box64", sBox64Preset, shortcut.getExtra("box64Preset", shortcut.container.getBox64Preset()));
@@ -425,7 +393,6 @@ public class ShortcutSettingsDialog extends ContentDialog {
                 shortcut.putExtra("audioDriver", !audioDriver.equals(shortcut.container.getAudioDriver()) ? audioDriver : null);
                 shortcut.putExtra("emulator", !emulator.equals(shortcut.container.getEmulator()) ? emulator : null);
                 shortcut.putExtra("midiSoundFont", !midiSoundFont.equals(shortcut.container.getMIDISoundFont()) ? midiSoundFont : null);
-                shortcut.putExtra("forceFullscreen", cbForceFullscreen.isChecked() ? "1" : null);
 
                 if (cbUseSecondaryExec.isChecked()) {
                     String secondaryExec = etSecondaryExec.getText().toString().trim();

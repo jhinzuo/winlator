@@ -121,8 +121,8 @@ public abstract class WineThemeManager {
     }
 
     private static void createWallpaperBMPFile(Context context, ScreenInfo screenInfo) {
-        final int outputHeight = 480;
-        int outputWidth = (int)Math.ceil(((float)outputHeight / screenInfo.height) * screenInfo.width);
+        final int outputHeight = screenInfo.height;
+        int outputWidth = screenInfo.width;
 
         Bitmap outputBitmap = Bitmap.createBitmap(outputWidth, outputHeight, Bitmap.Config.ARGB_8888);
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);

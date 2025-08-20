@@ -638,13 +638,6 @@
                             android:layout_gravity="center" />
                     </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/TVLegacyInputMessage"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="7.1.2 Legacy Input Mode Enabled in Settings"
-                        android:visibility="gone" />
-
                 </LinearLayout>
 
                 <TextView
@@ -688,12 +681,6 @@
                         android:layout_height="wrap_content"
                         android:text="@string/fullscreen_stretched" />
 
-                    <CheckBox
-                        android:id="@+id/CBForceFullscreen"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/force_fullscreen"
-                        android:layout_marginTop="4dp" />
                 </LinearLayout>
 
                 <TextView

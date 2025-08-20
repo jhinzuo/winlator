@@ -400,13 +400,6 @@
                             android:text="@string/mixed"/>
                     </RadioGroup>
 
-                    <CheckBox
-                        android:id="@+id/CBLegacyInputMode"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/enable_legacy_input_mode"
-                        android:layout_marginTop="8dp" />
-
                     <Button
                         android:id="@+id/BTConfigureAnalogSticks"
                         android:layout_width="wrap_content"
@@ -485,22 +478,6 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:text="@string/reinstall_imagefs" />
-
-                    <Button
-                        style="@style/ButtonPositive"
-                        android:id="@+id/BTBackupData"
-                        android:layout_width="240dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:text="Backup Data" />
-
-                    <Button
-                        style="@style/ButtonPositive"
-                        android:id="@+id/BTRestoreData"
-                        android:layout_width="240dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:text="Restore Data" />
 
                 </LinearLayout>
 

@@ -233,6 +233,11 @@ public class GraphicsDriverConfigDialog extends ContentDialog {
         AdrenotoolsManager adrenotoolsManager = new AdrenotoolsManager(context);
         wrapperVersions.addAll(adrenotoolsManager.enumarateInstalledDrivers());
 
+        for (int i = 0; i < wrapperVersions.size(); i++) {
+            if (!GPUInformation.isDriverSupported(wrapperVersions.get(i), context))
+                wrapperVersions.remove(i);
+        }
+
         // Set the adapter and select the initial version
         ArrayAdapter<String> wrapperAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, wrapperVersions);
         
@@ -263,7 +268,7 @@ public class GraphicsDriverConfigDialog extends ContentDialog {
             }
         }
 
-        AppUtils.setSpinnerSelectionFromValue(spinner, DefaultVersion.WRAPPER);
+        AppUtils.setSpinnerSelectionFromValue(spinner, GPUInformation.isDriverSupported(DefaultVersion.WRAPPER_ADRENO, getContext()) ? DefaultVersion.WRAPPER_ADRENO : DefaultVersion.WRAPPER);
     }
 
 }

@@ -793,13 +793,6 @@
                                 android:layout_gravity="center" />
                         </LinearLayout>
 
-                        <TextView
-                            android:id="@+id/TVLegacyInputMessage"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="7.1.2 Legacy Input Mode Enabled in Settings"
-                            android:visibility="gone" />
-
                         <CheckBox
                             android:id="@+id/CBSdl2Toggle"
                             android:layout_width="wrap_content"

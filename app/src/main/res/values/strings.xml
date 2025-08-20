@@ -116,7 +116,6 @@
     <string name="exec_arguments">Exec Arguments</string>
     <string name="win_components">Win Components</string>
     <string name="drives">Drives</string>
-    <string name="force_fullscreen">Force Fullscreen</string>
     <string name="range">Range</string>
     <string name="enable">Enable</string>
     <string name="disable">Disable</string>
@@ -441,7 +440,6 @@
     <string name="secondary_exe_path_subtext">(Spaces in paths must be wrapped in quotes)</string>
     <string name="pip_mode">PiP Mode</string>
     <string name="configure">Configure</string>
-    <string name="enable_legacy_input_mode">Enable 7.1.2 Legacy Input Mode</string>
     <string name="enable_sendinput_mode">Use Windows SendInput Mode</string>
     <string name="enable_touchscreen_timeout">Touchscreen Timeout (Requires Restart)</string>
     <string name="enable_touchscreen_haptics">Enable Touchscreen Haptic Feedback</string>
@@ -450,7 +448,6 @@
     <string name="fullscreen_stretched">Enable Fullscreen (Stretched)</string>
     <string name="export_container">Export Container</string>
     <string name="exporting_container">Exporting Container...</string>
-    <string name="importing_container">Importing Container...</string>
 
     <string name="brightness">Brightness</string>
     <string name="contrast">Contrast</string>

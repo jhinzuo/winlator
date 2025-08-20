@@ -57,7 +57,7 @@ public class WinHandler {
     private SharedPreferences preferences;
     private byte triggerType;
 
-    private boolean xinputDisabled; // Used for exclusive mouse control
+    private boolean xinputDisabled; // Used for exclusive mouse controllegacy
     private boolean xinputDisabledInitialized = false;
 
 
@@ -90,11 +90,6 @@ public class WinHandler {
     private int gyroTriggerButton;
     private boolean isGyroActive = false;
     private boolean isToggleMode;
-
-
-    public void setUseLegacyInputMethod(boolean useLegacy) {
-        this.useLegacyInputMethod = useLegacy;
-    }
 
     public void setGyroSensitivityX(float sensitivity) {
         this.gyroSensitivityX = sensitivity;

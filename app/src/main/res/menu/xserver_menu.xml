@@ -30,10 +30,6 @@
             android:id="@+id/main_menu_logs"
             android:title="@string/logs" />
         <item
-            android:id="@+id/main_menu_terminal"
-            android:title="Debug Terminal"
-            android:icon="@drawable/icon_env_var" />
-        <item
             android:icon="@drawable/icon_exit"
             android:id="@+id/main_menu_exit"
             android:title="@string/exit" />

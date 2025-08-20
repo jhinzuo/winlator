@@ -33,9 +33,9 @@ public class DXVKConfigDialog extends ContentDialog {
     private final View llAsync;
     private final View llAsyncCache;
     private final Context context;
-    private List<String> dxvkVersions;
+    private static List<String> dxvkVersions;
 
-    public DXVKConfigDialog(View anchor) {
+    public DXVKConfigDialog(View anchor, boolean isARM64EC) {
         super(anchor.getContext(), R.layout.dxvk_config_dialog);
         context = anchor.getContext();
         setIcon(R.drawable.icon_settings);
@@ -51,7 +51,7 @@ public class DXVKConfigDialog extends ContentDialog {
 
         ContentsManager contentsManager = new ContentsManager(context);
         contentsManager.syncContents();
-        loadDxvkVersionSpinner(contentsManager,sVersion);
+        loadDxvkVersionSpinner(contentsManager,sVersion, isARM64EC);
 
         KeyValueSet config = parseConfig(anchor.getTag());
         AppUtils.setSpinnerSelectionFromIdentifier(sVersion, config.get("version"));
@@ -152,7 +152,7 @@ public class DXVKConfigDialog extends ContentDialog {
         envVars.put("DXVK_CONFIG", content);
     }
 
-    private void loadDxvkVersionSpinner(ContentsManager manager, Spinner spinner) {
+    private void loadDxvkVersionSpinner(ContentsManager manager, Spinner spinner, boolean isARM64EC) {
         String[] originalItems = context.getResources().getStringArray(R.array.dxvk_version_entries);
         List<String> itemList = new ArrayList<>(Arrays.asList(originalItems));
 
@@ -160,6 +160,11 @@ public class DXVKConfigDialog extends ContentDialog {
             String entryName = ContentsManager.getEntryName(profile);
             int firstDashIndex = entryName.indexOf('-');
             itemList.add(entryName.substring(firstDashIndex + 1));
+        }
+
+        for (int i = 0; i < itemList.size(); i++) {
+            if (itemList.get(i).contains("arm64ec") && !isARM64EC)
+                itemList.remove(i);
         }
 
         spinner.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, itemList));

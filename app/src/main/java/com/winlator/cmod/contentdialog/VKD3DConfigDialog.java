@@ -70,7 +70,7 @@ public class VKD3DConfigDialog extends ContentDialog {
         // Add predefined versions
         String[] originalItems = context.getResources().getStringArray(R.array.vkd3d_version_entries);
         for (String version : originalItems) {
-            itemList.add(new VKD3DVersionItem(version, 0)); // For predefined versions, use 0 as verCode
+            itemList.add(new VKD3DVersionItem(version)); // For predefined versions, use 0 as verCode
         }
 
         // Add installed content profiles

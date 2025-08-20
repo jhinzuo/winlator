@@ -55,7 +55,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ContainersFragment extends Fragment {
-    private static final int REQUEST_CODE_IMPORT_CONTAINER = 1070;
     private RecyclerView recyclerView;
     private TextView emptyTextView;
     private ContainerManager manager;
@@ -119,143 +118,14 @@ public class ContainersFragment extends Fragment {
                         .commit();
                 return true;
 
-            case R.id.containers_menu_import:
-                showImportInfoDialog();
-                return true;
-
 //            case R.id.action_big_picture_mode:
 //                toggleBigPictureMode();
 //                return true;
-
-            case R.id.action_terminal:  // New case for TerminalActivity
-                openTerminal();
-                return true;
 
             default:
                 return super.onOptionsItemSelected(menuItem);
         }
     }
-
-    private void openTerminal() {
-        Intent intent = new Intent(getContext(), TerminalActivity.class);
-        startActivity(intent);
-    }
-
-
-    // Show dialog to inform user about the import process
-    private void showImportInfoDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Import Container");
-        builder.setMessage("This option will allow you to restore an exported container. To proceed, click OK and select your 'xuser-' directory. " +
-                "The container's settings will need to be configured after a successful import, but all files and shortcuts should be restored if you are restoring a real container. " +
-                "Beware, the directory you select will be copied into the app's storage directory, so be sure you have enough space. You can delete your copy afterward.");
-        builder.setPositiveButton("OK", (dialog, which) -> {
-            openFilePicker(); // Proceed to file picker
-        });
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
-        builder.show();
-    }
-
-    // Show confirmation dialog before importing the selected container
-    private void showImportConfirmationDialog(Uri uri, File importDir) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Confirm Import");
-        builder.setMessage("You selected: " + importDir.getPath() + ". Proceed to import the container?");
-        builder.setPositiveButton("Import", (dialog, which) -> {
-            importContainer(uri); // Proceed with the import
-        });
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
-        builder.show();
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_IMPORT_CONTAINER && resultCode == Activity.RESULT_OK) {
-            if (data != null) {
-                Uri uri = data.getData();
-                if (uri != null) {
-                    // Get the directory path directly from the Uri using FileUtils
-                    File importDir = FileUtils.getFileFromUri(getContext(), uri);
-                    if (importDir == null || !importDir.isDirectory()) {
-                        AppUtils.showToast(getContext(), "Invalid container directory.");
-                        return;
-                    }
-                    // Show confirmation dialog before importing
-                    showImportConfirmationDialog(uri, importDir);
-                }
-            }
-        }
-    }
-
-
-    private void openFilePicker() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        startActivityForResult(intent, REQUEST_CODE_IMPORT_CONTAINER);
-    }
-
-
-    private void importContainer(Uri uri) {
-        if (uri == null) return;
-
-        // Get the directory path directly from the Uri using FileUtils
-        File importDir = FileUtils.getFileFromUri(getContext(), uri);
-        if (importDir == null || !importDir.isDirectory()) {
-            AppUtils.showToast(getContext(), "Invalid container directory.");
-            return;
-        }
-
-        preloaderDialog.show(R.string.importing_container);
-
-        // Run the import operation on a background thread
-        new Thread(() -> {
-            try {
-                // Now use the import directory directly for importing the container
-                manager.importContainer(importDir, () -> {
-                    // This callback runs when the import operation completes
-                    getActivity().runOnUiThread(() -> {
-                        // Load containers and close preloader dialog on the UI thread
-                        loadContainersList();
-                        AppUtils.showToast(getContext(), "Container imported successfully.");
-                        preloaderDialog.close(); // Move this inside the callback
-                    });
-                });
-            } catch (Exception e) {
-                getActivity().runOnUiThread(() -> {
-                    preloaderDialog.close(); // Ensure dialog closes on error
-                    AppUtils.showToast(getContext(), "Error importing container: " + e.getMessage());
-                });
-            }
-        }).start();
-    }
-
-
-    private boolean copyDocumentFileToDirectory(DocumentFile sourceDir, File targetDir) {
-        if (!sourceDir.isDirectory()) return false;
-
-        for (DocumentFile file : sourceDir.listFiles()) {
-            File targetFile = new File(targetDir, file.getName());
-            if (file.isDirectory()) {
-                if (!targetFile.mkdirs()) return false;
-                if (!copyDocumentFileToDirectory(file, targetFile)) return false;
-            } else {
-                try (InputStream in = getContext().getContentResolver().openInputStream(file.getUri());
-                     OutputStream out = new FileOutputStream(targetFile)) {
-                    byte[] buffer = new byte[1024];
-                    int len;
-                    while ((len = in.read(buffer)) > 0) {
-                        out.write(buffer, 0, len);
-                    }
-                } catch (IOException e) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-
 
 //    private void toggleBigPictureMode() {
 //        // Start BigPictureActivity without passing shortcut data explicitly
@@ -367,31 +237,10 @@ public class ContainersFragment extends Fragment {
                     case R.id.container_info:
                         (new StorageInfoDialog(getActivity(), container)).show();
                         break;
-                    case R.id.container_export:
-                        exportContainer(container);
-                        break;
                 }
                 return true;
             });
             listItemMenu.show();
-        }
-
-        private void exportContainer(Container container) {
-            File backupDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Winlator/Backups/Containers");
-            preloaderDialog.show(R.string.exporting_container);
-
-            manager.exportContainer(container, () -> {
-                preloaderDialog.close(); // Ensure the dialog is closed after operation
-                showToast("Container exported successfully to " + backupDir.getPath());
-            });
-        }
-
-        private void showToast(String message) {
-            if (getActivity() != null) {
-                getActivity().runOnUiThread(() -> {
-                    Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-                });
-            }
         }
     }
 
