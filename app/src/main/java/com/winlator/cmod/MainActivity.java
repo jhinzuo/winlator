@@ -211,13 +211,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FragmentManager fragmentManager = getSupportFragmentManager();
         List<Fragment> fragments = fragmentManager.getFragments();
         for (Fragment fragment : fragments) {
-            if (fragment instanceof ContainersFragment && fragment.isVisible()) {
+            if (fragment instanceof ShortcutsFragment && fragment.isVisible()) {
                 finish();
                 return;
             }
         }
 
-        show(new ContainersFragment(), true);  // Pass `true` to trigger the reverse animation
+        show(new ShortcutsFragment(), true);  // Pass `true` to trigger the reverse animation
     }
 
     private boolean requestAppPermissions() {
