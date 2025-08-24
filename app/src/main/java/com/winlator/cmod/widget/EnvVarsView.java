@@ -34,7 +34,7 @@ public class EnvVarsView extends FrameLayout {
         {"mesa_glthread", "CHECKBOX", "false", "true"},
         {"WINEESYNC", "CHECKBOX", "0", "1"},
         {"TU_DEBUG", "SELECT_MULTIPLE", "startup", "nir", "nobin", "sysmem", "gmem", "forcebin", "layout", "noubwc", "nomultipos", "nolrz", "nolrzfc", "perf", "perfc", "flushall", "syncdraw", "push_consts_per_stage", "rast_order", "unaligned_store", "log_skip_gmem_ops", "dynamic", "bos", "3d_load", "fdm", "noconform", "rd"},
-        {"DXVK_HUD", "SELECT_MULTIPLE", "devinfo", "fps", "frametimes", "submissions", "drawcalls", "pipelines", "descriptors", "memory", "gpuload", "version", "api", "cs", "compiler", "samplers"},
+        {"DXVK_HUD", "SELECT_MULTIPLE", "devinfo", "fps", "frametimes", "submissions", "drawcalls", "pipelines", "descriptors", "memory", "gpuload", "version", "api", "cs", "compiler", "samplers", "scale=1.3", "scale=1.0", "scale=0.7", "scale=0.5", "opacity=0.8", "opacity=0.6", "opacity=0.4"},
         {"MESA_EXTENSION_MAX_YEAR", "NUMBER"},
         {"MESA_GL_VERSION_OVERRIDE", "NUMBER"},
         {"PULSE_LATENCY_MSEC", "NUMBER"},
