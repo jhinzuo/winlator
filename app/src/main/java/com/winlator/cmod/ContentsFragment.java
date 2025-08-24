@@ -3,6 +3,7 @@ package com.winlator.cmod;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -49,6 +50,7 @@ public class ContentsFragment extends Fragment {
     private RecyclerView recyclerView;
     private View emptyText;
     private ContentsManager manager;
+    SharedPreferences sp;
     private ContentProfile.ContentType currentContentType = ContentProfile.ContentType.CONTENT_TYPE_WINE;
     private Spinner sContentType;
 
@@ -60,6 +62,7 @@ public class ContentsFragment extends Fragment {
         setHasOptionsMenu(false);
         manager = new ContentsManager(getContext());
         manager.syncContents();
+        sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         // Initialize isDarkMode based on shared preferences or theme
         isDarkMode = PreferenceManager.getDefaultSharedPreferences(getContext())
@@ -76,8 +79,10 @@ public class ContentsFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
+
         new Thread(() -> {
-            String json = FileUtils.readString(getActivity(), ContentsManager.REMOTE_PROFILES);
+            String contentsURL = sp.getString("downloadable_contents_url", ContentsManager.REMOTE_PROFILES);
+            String json = Downloader.downloadString(contentsURL);
             if (json == null)
                 return;
             getActivity().runOnUiThread(() -> {

@@ -109,8 +109,6 @@ public class ShortcutSettingsDialog extends ContentDialog {
         
         final Spinner sDXWrapper = findViewById(R.id.SDXWrapper);
 
-        final Spinner sDDrawrapper = findViewById(R.id.SDDrawrapper);
-
         final Spinner sBox64Version = findViewById(R.id.SBox64Version);
         
         ContentsManager contentsManager = new ContentsManager(context);
@@ -123,7 +121,6 @@ public class ShortcutSettingsDialog extends ContentDialog {
         final View vDXWrapperConfig = findViewById(R.id.BTDXWrapperConfig);
         vDXWrapperConfig.setTag(shortcut.getExtra("dxwrapperConfig", shortcut.container.getDXWrapperConfig()));
 
-        ContainerDetailFragment.setupDDrawSpinner(sDDrawrapper, shortcut.getExtra("ddrawrapper", shortcut.container.getDDrawWrapper()));
         loadGraphicsDriverSpinner(sGraphicsDriver, sDXWrapper, vGraphicsDriverConfig, shortcut.getExtra("graphicsDriver", shortcut.container.getGraphicsDriver()),
             shortcut.getExtra("dxwrapper", shortcut.container.getDXWrapper()));
 
@@ -358,7 +355,6 @@ public class ShortcutSettingsDialog extends ContentDialog {
                 String graphicsDriver = StringUtils.parseIdentifier(sGraphicsDriver.getSelectedItem());
                 String graphicsDriverConfig = vGraphicsDriverConfig.getTag().toString();
                 String dxwrapper = StringUtils.parseIdentifier(sDXWrapper.getSelectedItem());
-                String ddrawrapper = StringUtils.parseIdentifier(sDDrawrapper.getSelectedItem());
                 String dxwrapperConfig = vDXWrapperConfig.getTag().toString();
                 String audioDriver = StringUtils.parseIdentifier(sAudioDriver.getSelectedItem());
                 String emulator = StringUtils.parseIdentifier(sEmulator.getSelectedItem());
@@ -388,7 +384,6 @@ public class ShortcutSettingsDialog extends ContentDialog {
                 shortcut.putExtra("graphicsDriver", !graphicsDriver.equals(shortcut.container.getGraphicsDriver()) ? graphicsDriver : null);
                 shortcut.putExtra("graphicsDriverConfig", !graphicsDriverConfig.equals(shortcut.container.getGraphicsDriverConfig()) ? graphicsDriverConfig : null);
                 shortcut.putExtra("dxwrapper", !dxwrapper.equals(shortcut.container.getDXWrapper()) ? dxwrapper : null);
-                shortcut.putExtra("ddrawrapper", !ddrawrapper.equals(shortcut.container.getDDrawWrapper()) ? ddrawrapper : null);
                 shortcut.putExtra("dxwrapperConfig", !dxwrapperConfig.equals(shortcut.container.getDXWrapperConfig()) ? dxwrapperConfig : null);
                 shortcut.putExtra("audioDriver", !audioDriver.equals(shortcut.container.getAudioDriver()) ? audioDriver : null);
                 shortcut.putExtra("emulator", !emulator.equals(shortcut.container.getEmulator()) ? emulator : null);
@@ -515,7 +510,6 @@ public class ShortcutSettingsDialog extends ContentDialog {
         // Update Spinners
         Spinner sGraphicsDriver = view.findViewById(R.id.SGraphicsDriver);
         Spinner sDXWrapper = view.findViewById(R.id.SDXWrapper);
-        Spinner sDDrawrapper = view.findViewById(R.id.SDDrawrapper);
         Spinner sAudioDriver = view.findViewById(R.id.SAudioDriver);
         Spinner sEmulatorSpinner = view.findViewById(R.id.SEmulator);
         Spinner sBox64Preset = view.findViewById(R.id.SBox64Preset);
@@ -533,7 +527,6 @@ public class ShortcutSettingsDialog extends ContentDialog {
         // Set dark or light mode background for spinners
         sGraphicsDriver.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
         sDXWrapper.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
-        sDDrawrapper.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
         sAudioDriver.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
         sEmulatorSpinner.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
         sBox64Preset.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);

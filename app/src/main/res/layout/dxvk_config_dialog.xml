@@ -11,12 +11,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/version" />
+            android:text="@string/dxvk_version" />
 
         <Spinner
             style="@style/ComboBox"
             android:layout_width="match_parent"
-            android:id="@+id/SVersion"
+            android:id="@+id/SDXVKVersion"
             android:entries="@array/dxvk_version_entries"
             android:spinnerMode="dialog"/>
 
@@ -84,13 +84,37 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/max_device_memory" />
+            android:text="@string/vkd3d_version" />
 
         <Spinner
             style="@style/ComboBox"
             android:layout_width="match_parent"
-            android:id="@+id/SMaxDeviceMemory"
-            android:entries="@array/dxvk_max_device_memory_entries"
-            android:spinnerMode="dialog"/>
+            android:id="@+id/SVKD3DVersion"
+            android:entries="@array/vkd3d_version_entries"
+            android:spinnerMode="dialog" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/vkd3d_feature_level" />
+
+        <Spinner
+            style="@style/ComboBox"
+            android:layout_width="match_parent"
+            android:id="@+id/SVKD3DFeatureLevel"
+            android:spinnerMode="dialog" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/ddraw_wrapper" />
+
+        <Spinner
+            style="@style/ComboBox"
+            android:layout_width="match_parent"
+            android:id="@+id/SDDRAWrapper"
+            android:entries="@array/ddrawrapper_entries"
+            android:spinnerMode="dialog" />
+
     </LinearLayout>
 </ScrollView>

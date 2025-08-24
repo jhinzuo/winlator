@@ -456,6 +456,20 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="left|center"
                             android:text="@string/share_android_clipboard" />
+
+                        <View style="@style/FieldSeparator" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Downloadable Contents URL" />
+
+                        <EditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="left|center"
+                            android:id="@+id/ETDownloadableContentsURL"/>
+
                     </LinearLayout>
                 </LinearLayout>
 

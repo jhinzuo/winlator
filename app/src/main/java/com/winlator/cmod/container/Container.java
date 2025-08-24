@@ -3,6 +3,8 @@ package com.winlator.cmod.container;
 import android.os.Environment;
 
 import com.winlator.cmod.box64.Box64Preset;
+import com.winlator.cmod.contentdialog.DXVKConfigDialog;
+import com.winlator.cmod.contentdialog.WineD3DConfigDialog;
 import com.winlator.cmod.core.DefaultVersion;
 import com.winlator.cmod.core.EnvVars;
 import com.winlator.cmod.core.FileUtils;
@@ -28,10 +30,10 @@ public class Container {
     public static final String DEFAULT_GRAPHICS_DRIVER = "wrapper";
     public static final String DEFAULT_AUDIO_DRIVER = "alsa";
     public static final String DEFAULT_EMULATOR = "FEXCore";
-    public static final String DEFAULT_DXWRAPPER = "dxvk";
-    public static final String DEFAULT_DXWRAPPERCONFIG = "version=" + DefaultVersion.DXVK + ",framerate=0,maxDeviceMemory=0,async=0,asyncCache=0" + ",vkd3dVersion=" + DefaultVersion.VKD3D + ",vkd3dLevel=12_1";
+    public static final String DEFAULT_DXWRAPPER = "dxvk+vkd3d";
+    public static final String DEFAULT_DXWRAPPERCONFIG = "version=" + DefaultVersion.DXVK + ",framerate=0,async=0,asyncCache=0" + ",vkd3dVersion=" + DefaultVersion.VKD3D + ",vkd3dLevel=12_1" + ",ddrawrapper=" + Container.DEFAULT_DDRAWRAPPER + ",csmt=3" + ",gpuName=NVIDIA GeForce GTX 480" + ",strict_shader_math=1" + ",OffscreenRenderingMode=fbo" + ",renderer=gl";
     public static final String DEFAULT_GRAPHICSDRIVERCONFIG = "vulkanVersion=1.3" + ";version=" + ";blacklistedExtensions=" + ";maxDeviceMemory=0" + ";adrenotoolsTurnip=1" + ";presentMode=mailbox" + ";syncFrame=0" + ";disablePresentWait=0";
-    public static final String DEFAULT_DDRAWRAPPER = "wined3d";
+    public static final String DEFAULT_DDRAWRAPPER = "none";
     public static final String DEFAULT_WINCOMPONENTS = "direct3d=1,directsound=0,directmusic=0,directshow=0,directplay=0,xaudio=0,vcrun2010=1";
     public static final String FALLBACK_WINCOMPONENTS = "direct3d=1,directsound=1,directmusic=1,directshow=1,directplay=1,xaudio=1,vcrun2010=1";
     public static final String DEFAULT_DRIVES = "D:"+Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)+"E:/data/data/com.winlator.cmod/storage";
@@ -46,7 +48,6 @@ public class Container {
     private String graphicsDriver = DEFAULT_GRAPHICS_DRIVER;
     private String graphicsDriverConfig = DEFAULT_GRAPHICSDRIVERCONFIG;
     private String dxwrapper = DEFAULT_DXWRAPPER;
-    private String ddrawrapper = DEFAULT_DDRAWRAPPER;
     private String dxwrapperConfig = "";
     private String wincomponents = DEFAULT_WINCOMPONENTS;
     private String audioDriver = DEFAULT_AUDIO_DRIVER;
@@ -134,10 +135,6 @@ public class Container {
     public void setDXWrapper(String dxwrapper) {
         this.dxwrapper = dxwrapper;
     }
-
-    public String getDDrawWrapper() { return ddrawrapper; }
-
-    public void setDDrawWrapper(String ddrawrapper) { this.ddrawrapper = ddrawrapper; }
 
     public String getDXWrapperConfig() {
         return dxwrapperConfig;
@@ -400,7 +397,6 @@ public class Container {
             data.put("graphicsDriverConfig", graphicsDriverConfig);
             data.put("emulator", emulator);
             data.put("dxwrapper", dxwrapper);
-            data.put("ddrawrapper", ddrawrapper);
             if (!dxwrapperConfig.isEmpty()) data.put("dxwrapperConfig", dxwrapperConfig);
             data.put("audioDriver", audioDriver);
             data.put("wincomponents", wincomponents);
@@ -465,8 +461,6 @@ public class Container {
                 case "dxwrapper" :
                     setDXWrapper(data.getString(key));
                     break;
-                case "ddrawrapper":
-                    setDDrawWrapper(data.getString(key));
                 case "dxwrapperConfig" :
                     setDXWrapperConfig(data.getString(key));
                     break;

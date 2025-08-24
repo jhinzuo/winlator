@@ -43,6 +43,7 @@ import com.winlator.cmod.box64.Box64EditPresetDialog;
 import com.winlator.cmod.box64.Box64Preset;
 import com.winlator.cmod.box64.Box64PresetManager;
 import com.winlator.cmod.contentdialog.ContentDialog;
+import com.winlator.cmod.contents.ContentsManager;
 import com.winlator.cmod.core.AppUtils;
 import com.winlator.cmod.core.ArrayUtils;
 import com.winlator.cmod.core.Callback;
@@ -354,6 +355,9 @@ public class SettingsFragment extends Fragment {
         final CheckBox cbShareClipboard = view.findViewById(R.id.CBShareAndroidClipboard);
         cbShareClipboard.setChecked(preferences.getBoolean("share_android_clipboard", false));
 
+        final EditText etDownloadableContentsURL = view.findViewById(R.id.ETDownloadableContentsURL);
+        etDownloadableContentsURL.setText(preferences.getString("downloadable_contents_url", ContentsManager.REMOTE_PROFILES));
+
         view.findViewById(R.id.BTReInstallImagefs).setOnClickListener(v -> {
             ContentDialog.confirm(context, R.string.do_you_want_to_reinstall_imagefs, () -> ImageFsInstaller.installFromAssets((MainActivity) getActivity()));
         });
@@ -377,6 +381,8 @@ public class SettingsFragment extends Fragment {
             editor.putBoolean("enable_file_provider", cbEnableFileProvider.isChecked());
             editor.putBoolean("open_with_android_browser", cbOpenInBrowser.isChecked());
             editor.putBoolean("share_android_clipboard", cbShareClipboard.isChecked());
+
+            editor.putString("downloadable_contents_url", etDownloadableContentsURL.getText().toString());
 
 
             // Save gyro settings

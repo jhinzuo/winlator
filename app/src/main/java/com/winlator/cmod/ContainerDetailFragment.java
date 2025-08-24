@@ -42,7 +42,7 @@ import com.winlator.cmod.contentdialog.ContentDialog;
 import com.winlator.cmod.contentdialog.DXVKConfigDialog;
 import com.winlator.cmod.contentdialog.GraphicsDriverConfigDialog;
 import com.winlator.cmod.contentdialog.ShortcutSettingsDialog;
-import com.winlator.cmod.contentdialog.VKD3DConfigDialog;
+import com.winlator.cmod.contentdialog.WineD3DConfigDialog;
 import com.winlator.cmod.contents.ContentProfile;
 import com.winlator.cmod.contents.ContentsManager;
 import com.winlator.cmod.core.AppUtils;
@@ -157,9 +157,6 @@ public class ContainerDetailFragment extends Fragment {
         Spinner sDXWrapper = view.findViewById(R.id.SDXWrapper);
         sDXWrapper.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
 
-        Spinner sDDrawrapper = view.findViewById(R.id.SDDrawrapper);
-        sDDrawrapper.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
-
         Spinner sAudioDriver = view.findViewById(R.id.SAudioDriver);
         sAudioDriver.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
 
@@ -179,21 +176,6 @@ public class ContainerDetailFragment extends Fragment {
 
         Spinner sDesktopBackgroundType = view.findViewById(R.id.SDesktopBackgroundType);
         sDesktopBackgroundType.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
-        // Registry Keys
-        Spinner SCSMT = view.findViewById(R.id.SCSMT);
-        SCSMT.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
-
-        Spinner SGPUName = view.findViewById(R.id.SGPUName);
-        SGPUName.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
-
-        Spinner sOffscreenRenderingMode = view.findViewById(R.id.SOffscreenRenderingMode);
-        sOffscreenRenderingMode.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
-
-        Spinner sStrictShaderMath = view.findViewById(R.id.SStrictShaderMath);
-        sStrictShaderMath.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
-
-        Spinner sVideoMemorySize = view.findViewById(R.id.SVideoMemorySize);
-        sVideoMemorySize.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
 
         Spinner sMouseWarpOverride = view.findViewById(R.id.SMouseWarpOverride);
         sMouseWarpOverride.setPopupBackgroundResource(isDarkMode ? R.drawable.content_dialog_background_dark : R.drawable.content_dialog_background);
@@ -272,7 +254,7 @@ public class ContainerDetailFragment extends Fragment {
         TextView desktopLabel = view.findViewById(R.id.TVDesktop);
         applyFieldSetLabelStyle(desktopLabel, isDarkMode);  // Apply the dark or light mode styles
 
-        TextView registryKeysLabel = view.findViewById(R.id.TVRegistryKeys);
+        TextView registryKeysLabel = view.findViewById(R.id.TVDirectInput);
         applyFieldSetLabelStyle(registryKeysLabel, isDarkMode);  // Apply the dark or light mode styles
 
         // Win Components TextViews
@@ -349,7 +331,6 @@ public class ContainerDetailFragment extends Fragment {
         final Spinner sGraphicsDriver = view.findViewById(R.id.SGraphicsDriver);
         
         final Spinner sDXWrapper = view.findViewById(R.id.SDXWrapper);
-        final Spinner sDDrawrapper = view.findViewById(R.id.SDDrawrapper);
 
         final View vDXWrapperConfig = view.findViewById(R.id.BTDXWrapperConfig);
         vDXWrapperConfig.setTag(isEditMode() ? container.getDXWrapperConfig() : Container.DEFAULT_DXWRAPPERCONFIG);
@@ -357,7 +338,6 @@ public class ContainerDetailFragment extends Fragment {
         final View vGraphicsDriverConfig = view.findViewById(R.id.BTGraphicsDriverConfig);
         vGraphicsDriverConfig.setTag(isEditMode() ? container.getGraphicsDriverConfig() : Container.DEFAULT_GRAPHICSDRIVERCONFIG);
 
-        setupDDrawSpinner(sDDrawrapper, isEditMode() ? container.getDDrawWrapper() : Container.DEFAULT_DDRAWRAPPER);
         loadGraphicsDriverSpinner(sGraphicsDriver, sDXWrapper, vGraphicsDriverConfig,
                 isEditMode() ? container.getGraphicsDriver() : Container.DEFAULT_GRAPHICS_DRIVER,
                 isEditMode() ? container.getDXWrapper() : Container.DEFAULT_DXWRAPPER);
@@ -510,7 +490,6 @@ public class ContainerDetailFragment extends Fragment {
                     graphicsDriverConfig = GraphicsDriverConfigDialog.toGraphicsDriverConfig(config);
                 }
                 String dxwrapper = StringUtils.parseIdentifier(sDXWrapper.getSelectedItem());
-                String ddrawrapper = StringUtils.parseIdentifier(sDDrawrapper.getSelectedItem());
                 String dxwrapperConfig = vDXWrapperConfig.getTag().toString();
                 String audioDriver = StringUtils.parseIdentifier(sAudioDriver.getSelectedItem());
                 String emulator = StringUtils.parseIdentifier(sEmulator.getSelectedItem());
@@ -566,7 +545,6 @@ public class ContainerDetailFragment extends Fragment {
                     container.setGraphicsDriver(graphicsDriver);
                     container.setGraphicsDriverConfig(graphicsDriverConfig);
                     container.setDXWrapper(dxwrapper);
-                    container.setDDrawWrapper(ddrawrapper);
                     container.setDXWrapperConfig(dxwrapperConfig);
                     container.setAudioDriver(audioDriver);
                     container.setEmulator(emulator);
@@ -601,7 +579,6 @@ public class ContainerDetailFragment extends Fragment {
                     data.put("graphicsDriver", graphicsDriver);
                     data.put("graphicsDriverConfig", graphicsDriverConfig);
                     data.put("dxwrapper", dxwrapper);
-                    data.put("ddrawrapper", ddrawrapper);
                     data.put("dxwrapperConfig", dxwrapperConfig);
                     data.put("audioDriver", audioDriver);
                     data.put("emulator", emulator);
@@ -650,32 +627,8 @@ public class ContainerDetailFragment extends Fragment {
     private void saveWineRegistryKeys(View view) {
         File userRegFile = new File(container.getRootDir(), ".wine/user.reg");
         try (WineRegistryEditor registryEditor = new WineRegistryEditor(userRegFile)) {
-            Spinner sCSMT = view.findViewById(R.id.SCSMT);
-            registryEditor.setDwordValue("Software\\Wine\\Direct3D", "csmt", sCSMT.getSelectedItemPosition() != 0 ? 3 : 0);
-
-            Spinner sGPUName = view.findViewById(R.id.SGPUName);
-            try {
-                JSONObject gpuName = gpuCards.getJSONObject(sGPUName.getSelectedItemPosition());
-                registryEditor.setDwordValue("Software\\Wine\\Direct3D", "VideoPciDeviceID", gpuName.getInt("deviceID"));
-                registryEditor.setDwordValue("Software\\Wine\\Direct3D", "VideoPciVendorID", gpuName.getInt("vendorID"));
-            }
-            catch (JSONException e) {}
-
-            Spinner sOffscreenRenderingMode = view.findViewById(R.id.SOffscreenRenderingMode);
-            registryEditor.setStringValue("Software\\Wine\\Direct3D", "OffScreenRenderingMode", sOffscreenRenderingMode.getSelectedItem().toString().toLowerCase(Locale.ENGLISH));
-
-            Spinner sStrictShaderMath = view.findViewById(R.id.SStrictShaderMath);
-            registryEditor.setDwordValue("Software\\Wine\\Direct3D", "strict_shader_math", sStrictShaderMath.getSelectedItemPosition());
-
-            Spinner sVideoMemorySize = view.findViewById(R.id.SVideoMemorySize);
-            String videoMemorySize = StringUtils.parseNumber(sVideoMemorySize.getSelectedItem());
-            registryEditor.setStringValue("Software\\Wine\\Direct3D", "VideoMemorySize", videoMemorySize);
-
             Spinner sMouseWarpOverride = view.findViewById(R.id.SMouseWarpOverride);
             registryEditor.setStringValue("Software\\Wine\\DirectInput", "MouseWarpOverride", sMouseWarpOverride.getSelectedItem().toString().toLowerCase(Locale.ENGLISH));
-
-            registryEditor.setStringValue("Software\\Wine\\Direct3D", "shader_backend", "glsl");
-            registryEditor.setStringValue("Software\\Wine\\Direct3D", "UseGLSL", "enabled");
         }
     }
 
@@ -714,27 +667,6 @@ public class ContainerDetailFragment extends Fragment {
         File userRegFile = new File(containerDir, ".wine/user.reg");
 
         try (WineRegistryEditor registryEditor = new WineRegistryEditor(userRegFile)) {
-            List<String> stateList = Arrays.asList(context.getString(R.string.disable), context.getString(R.string.enable));
-            Spinner sCSMT = view.findViewById(R.id.SCSMT);
-            sCSMT.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, stateList));
-            sCSMT.setSelection(registryEditor.getDwordValue("Software\\Wine\\Direct3D", "csmt", 3) != 0 ? 1 : 0);
-
-            Spinner sGPUName = view.findViewById(R.id.SGPUName);
-            loadGPUNameSpinner(sGPUName, registryEditor.getDwordValue("Software\\Wine\\Direct3D", "VideoPciDeviceID", 1728));
-
-            List<String> offscreenRenderingModeList = Arrays.asList("Backbuffer", "FBO");
-            Spinner sOffscreenRenderingMode = view.findViewById(R.id.SOffscreenRenderingMode);
-            sOffscreenRenderingMode.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, offscreenRenderingModeList));
-            AppUtils.setSpinnerSelectionFromValue(sOffscreenRenderingMode, registryEditor.getStringValue("Software\\Wine\\Direct3D", "OffScreenRenderingMode", "fbo"));
-
-            Spinner sStrictShaderMath = view.findViewById(R.id.SStrictShaderMath);
-            sStrictShaderMath.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, stateList));
-            sStrictShaderMath.setSelection(Math.min(registryEditor.getDwordValue("Software\\Wine\\Direct3D", "strict_shader_math", 1), 1));
-
-            Spinner sVideoMemorySize = view.findViewById(R.id.SVideoMemorySize);
-            String videoMemorySize = registryEditor.getStringValue("Software\\Wine\\Direct3D", "VideoMemorySize", "2048");
-            AppUtils.setSpinnerSelectionFromNumber(sVideoMemorySize, videoMemorySize);
-
             List<String> mouseWarpOverrideList = Arrays.asList(context.getString(R.string.disable), context.getString(R.string.enable), context.getString(R.string.force));
             Spinner sMouseWarpOverride = view.findViewById(R.id.SMouseWarpOverride);
             sMouseWarpOverride.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, mouseWarpOverrideList));
@@ -859,14 +791,12 @@ public class ContainerDetailFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String dxwrapper = StringUtils.parseIdentifier(sDXWrapper.getSelectedItem());
-                if (dxwrapper.equals("dxvk")) {
+                if (dxwrapper.contains("dxvk")) {
                     vDXWrapperConfig.setOnClickListener((v) -> (new DXVKConfigDialog(vDXWrapperConfig, isARM64EC)).show());
-                    vDXWrapperConfig.setVisibility(View.VISIBLE);
+                } else {
+                    vDXWrapperConfig.setOnClickListener((v) -> (new WineD3DConfigDialog(vDXWrapperConfig)).show());
                 }
-                else if (dxwrapper.equals("vkd3d")) {
-                    vDXWrapperConfig.setOnClickListener((v) -> (new VKD3DConfigDialog(vDXWrapperConfig)).show());
-                    vDXWrapperConfig.setVisibility(View.VISIBLE);
-                } else vDXWrapperConfig.setVisibility(View.GONE);
+                vDXWrapperConfig.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -885,17 +815,6 @@ public class ContainerDetailFragment extends Fragment {
             );
         }
     }
-
-    public static void setupDDrawSpinner(final Spinner sDDrawspinner, String selectedDDrawrapper) {
-        final Context context = sDDrawspinner.getContext();
-        ArrayList<String> items = new ArrayList<>();
-        for (String value : context.getResources().getStringArray(R.array.ddrawrapper_entries)) {
-            items.add(value);
-        }
-        sDDrawspinner.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, items.toArray(new String[0])));
-        AppUtils.setSpinnerSelectionFromIdentifier(sDDrawspinner, selectedDDrawrapper);
-    }
-
 
     public static String getWinComponents(View view) {
         ViewGroup parent = view.findViewById(R.id.LLTabWinComponents);

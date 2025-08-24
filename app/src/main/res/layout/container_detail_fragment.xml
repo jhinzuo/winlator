@@ -191,20 +191,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/ddraw_wrapper" >
-            </TextView>
-
-            <Spinner
-                android:id="@+id/SDDrawrapper"
-                style="@style/ComboBox"
-                android:layout_width="match_parent"
-                android:layout_weight="1"
-                android:entries="@array/ddrawrapper_entries">
-            </Spinner>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:text="@string/audio_driver" />
 
             <Spinner
@@ -396,62 +382,6 @@
                     android:layout_height="wrap_content">
 
                     <LinearLayout style="@style/FieldSet">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/csmt" />
-
-                        <Spinner
-                            style="@style/ComboBox"
-                            android:id="@+id/SCSMT"
-                            android:layout_width="match_parent" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/gpu_name" />
-
-                        <Spinner
-                            style="@style/ComboBox"
-                            android:id="@+id/SGPUName"
-                            android:layout_width="match_parent"
-                            android:focusable="true"
-                            android:focusableInTouchMode="true"
-                            android:clickable="true"
-                            android:spinnerMode="dialog" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/offscreen_rendering_mode" />
-
-                        <Spinner
-                            style="@style/ComboBox"
-                            android:id="@+id/SOffscreenRenderingMode"
-                            android:layout_width="match_parent" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/strict_shader_math" />
-
-                        <Spinner
-                            style="@style/ComboBox"
-                            android:id="@+id/SStrictShaderMath"
-                            android:layout_width="match_parent" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/video_memory_size" />
-
-                        <Spinner
-                            style="@style/ComboBox"
-                            android:id="@+id/SVideoMemorySize"
-                            android:layout_width="match_parent"
-                            android:entries="@array/video_memory_size_entries" />
-
-                        <View style="@style/FieldSeparator" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -465,9 +395,9 @@
                     </LinearLayout>
 
                     <TextView
-                        android:id="@+id/TVRegistryKeys"
+                        android:id="@+id/TVDirectInput"
                         style="@style/FieldSetLabel"
-                        android:text="@string/registry_keys" />
+                        android:text="DirectInput" />
                 </FrameLayout>
             </LinearLayout>
 

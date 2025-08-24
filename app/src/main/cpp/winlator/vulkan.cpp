@@ -110,13 +110,13 @@ VkResult create_instance(jstring driverName, JNIEnv *env, jobject context, VkIns
     PFN_vkCreateInstance createInstance = (PFN_vkCreateInstance)dlsym(vulkan_handle, "vkCreateInstance");
 
     create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    create_info.pNext = NULL;
+    create_info.pNext = nullptr;
     create_info.flags = 0;
-    create_info.pApplicationInfo = NULL;
+    create_info.pApplicationInfo = nullptr;
     create_info.enabledLayerCount = 0;
     create_info.enabledExtensionCount = 0;
 
-    result = createInstance(&create_info, NULL, instance);
+    result = createInstance(&create_info, nullptr, instance);
 
     return result;
 }
@@ -129,7 +129,7 @@ VkResult get_physical_devices(VkInstance instance, std::vector<VkPhysicalDevice>
     if (!enumeratePhysicalDevices)
         return VK_ERROR_INITIALIZATION_FAILED;
 
-    result = enumeratePhysicalDevices(instance, &deviceCount, NULL);
+    result = enumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
     if (result == VK_SUCCESS && deviceCount > 0) {
         physical_devices.resize(deviceCount);
@@ -197,7 +197,7 @@ Java_com_winlator_cmod_core_GPUInformation_getVersion(JNIEnv *env, jclass obj, j
                  vk_driver_patch);
     }
 
-    destroyInstance(instance, NULL);
+    destroyInstance(instance, nullptr);
 
     if (vulkan_handle)
         dlclose(vulkan_handle);
@@ -239,7 +239,7 @@ Java_com_winlator_cmod_core_GPUInformation_getVulkanVersion(JNIEnv *env, jclass 
                  vk_driver_patch);
     }
 
-    destroyInstance(instance, NULL);
+    destroyInstance(instance, nullptr);
     if (vulkan_handle)
         dlclose(vulkan_handle);
 
@@ -276,7 +276,7 @@ Java_com_winlator_cmod_core_GPUInformation_getRenderer(JNIEnv *env, jclass obj, 
         asprintf(&renderer, "%s", props.deviceName);
     }
 
-    destroyInstance(instance, NULL);
+    destroyInstance(instance, nullptr);
     if (vulkan_handle)
         dlclose(vulkan_handle);
 
@@ -286,6 +286,7 @@ Java_com_winlator_cmod_core_GPUInformation_getRenderer(JNIEnv *env, jclass obj, 
 extern "C" JNIEXPORT jobjectArray JNICALL
 Java_com_winlator_cmod_core_GPUInformation_enumerateExtensions(JNIEnv *env, jclass obj, jstring driverName, jobject context) {
     jobjectArray extensions;
+    VkResult result;
     VkInstance instance;
     std::vector<VkPhysicalDevice> pdevices;
     uint32_t extensionCount;
@@ -311,14 +312,24 @@ Java_com_winlator_cmod_core_GPUInformation_enumerateExtensions(JNIEnv *env, jcla
 
 
     for (const auto &pdevice : pdevices) {
-        enumerateDeviceExtensionProperties(pdevice, NULL, &extensionCount, NULL);
-        extensionProperties.resize(extensionCount);
-        enumerateDeviceExtensionProperties(pdevice, NULL, &extensionCount, extensionProperties.data());
-        extensions = (jobjectArray)env->NewObjectArray(extensionCount, env->FindClass("java/lang/String"), env->NewStringUTF(""));
-        int index = 0;
-        for (const auto &extensionProperty : extensionProperties) {
-            env->SetObjectArrayElement(extensions, index, env->NewStringUTF(extensionProperty.extensionName));
-            index++;
+        result = enumerateDeviceExtensionProperties(pdevice, nullptr, &extensionCount, nullptr);
+        if (result == VK_SUCCESS && extensionCount > 0) {
+            extensionProperties.resize(extensionCount);
+            enumerateDeviceExtensionProperties(pdevice, nullptr, &extensionCount,
+                                               extensionProperties.data());
+            extensions = (jobjectArray) env->NewObjectArray(extensionCount,
+                                                            env->FindClass("java/lang/String"),
+                                                            env->NewStringUTF(""));
+            int index = 0;
+            for (const auto &extensionProperty: extensionProperties) {
+                env->SetObjectArrayElement(extensions, index,
+                                           env->NewStringUTF(extensionProperty.extensionName));
+                index++;
+            }
+        }
+        else {
+            printf("Failed to enumerate device extensions");
+            return env->NewObjectArray(0, env->FindClass("java/lang/String"), env->NewStringUTF(""));
         }
     }
 
